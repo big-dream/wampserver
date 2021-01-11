@@ -80,7 +80,8 @@ $myPattern = ';WAMPMYSQLSERVICEINSTALLSTART';
 $myreplace = <<< EOF
 ;WAMPMYSQLSERVICEINSTALLSTART
 [MySQLServiceInstall]
-Action: run; FileName: "${c_mysqlExe}"; Parameters: "${c_mysqlServiceInstallParams}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
+{$mysqlMysqlService}Action: run; FileName: "${c_mysqlExe}"; Parameters: "${c_mysqlServiceInstallParams}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
+{$mysqlCmdScService}Action: run; FileName: "sc"; Parameters: "create ${c_mysqlService} binpath=""${c_mysqlExeAnti} --defaults-file=${c_mysqlConfFileAnti} ${c_mysqlService}"""; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
 Action: resetservices
 Action: readconfig
 EOF;
@@ -91,7 +92,8 @@ $myreplace = <<< EOF
 ;WAMPMYSQLSERVICEREMOVESTART
 [MySQLServiceRemove]
 Action: service; Service: ${c_mysqlService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated
-Action: run; FileName: "${c_mysqlExe}"; Parameters: "${c_mysqlServiceRemoveParams}"; ShowCmd: hidden; Flags: waituntilterminated
+{$mysqlMysqlService}Action: run; FileName: "${c_mysqlExe}"; Parameters: "${c_mysqlServiceRemoveParams}"; ShowCmd: hidden; Flags: waituntilterminated
+{$mysqlCmdScService}Action: run; FileName: "sc"; Parameters: "delete ${c_mysqlService}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
 Action: resetservices
 Action: readconfig
 EOF;
@@ -152,25 +154,7 @@ $myreplacemenu = '';
 foreach ($mysqlVersionList as $oneMysqlVersion) {
 	$count = 0;
   //File wamp/bin/mysql/mysqlx.y.z/wampserver.conf
-  //Check service name if it is modified
   $myConfFile = $c_mysqlVersionDir.'/mysql'.$oneMysqlVersion.'/'.$wampBinConfFiles;
-  $mySqlConfContents = file_get_contents($myConfFile);
-
-  if(preg_match("~^(.*'mysqlServiceInstallParams'.*--install-manual )(wampmysqld[0-9]*)(.*\r?)$~mi",$mySqlConfContents,$matches) > 0) {
-  	if($matches[2] != $c_mysqlService)
-  		$mySqlConfContents = str_ireplace($matches[0],$matches[1].$c_mysqlService.$matches[3],$mySqlConfContents, $count);
-		$count += $count;
-	}
-  if(preg_match("~^(.*mysqlServiceRemoveParams.*--remove )(wampmysqld[0-9]*)(.*\r?)$~mi",$mySqlConfContents,$matches) > 0) {
-  	if($matches[2] != $c_mysqlService)
-  		$mySqlConfContents = str_ireplace($matches[0],$matches[1].$c_mysqlService.$matches[3],$mySqlConfContents, $count);
-		$count += $count;
-	}
-
-		if(!is_null($mySqlConfContents) && $count > 0) {
-			write_file($myConfFile,$mySqlConfContents);
-		}
-
   unset($mysqlConf);
   include $myConfFile;
 
@@ -207,12 +191,28 @@ foreach ($mysqlVersionList as $oneMysqlVersion) {
 [switchMysql${oneMysqlVersion}]
 Action: service; Service: ${c_mysqlService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated
 Action: run; FileName: "net"; Parameters: "stop ${c_mysqlService}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
-Action: run; FileName: "${c_mysqlExe}"; Parameters: "${c_mysqlServiceRemoveParams}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
-Action: run; FileName: "sc"; Parameters: "\\\\. delete ${c_mysqlService}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
+{$mysqlMysqlService}Action: run; FileName: "${c_mysqlExe}"; Parameters: "${c_mysqlServiceRemoveParams}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
+{$mysqlCmdScService}Action: run; FileName: "sc"; Parameters: "delete ${c_mysqlService}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
 Action: closeservices;
 Action: run; FileName: "${c_phpCli}";Parameters: "switchMysqlVersion.php ${oneMysqlVersion}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-Action: run; FileName: "${c_mysqlVersionDir}/mysql${oneMysqlVersion}/${mysqlConf['mysqlExeDir']}/${mysqlConf['mysqlExeFile']}"; Parameters: "${mysqlConf['mysqlServiceInstallParams']}"; ShowCmd: hidden; Flags: waituntilterminated
 Action: run; FileName: "${c_phpExe}";Parameters: "switchMysqlPort.php ${c_UsedMysqlPort}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
+
+EOF;
+		if(isset($mysqlConf['mysqlServiceCmd']) && $mysqlConf['mysqlServiceCmd'] == 'windows') {
+			$binpath = str_replace('/','\\',$c_mysqlVersionDir.'/mysql'.$oneMysqlVersion.'/'.$mysqlConf['mysqlExeDir'].'/'.$mysqlConf['mysqlExeFile']);
+			$default = str_replace('/','\\',$c_mysqlVersionDir.'/mysql'.$oneMysqlVersion.'/'.$mysqlConf['mysqlConfDir'].'/'.$mysqlConf['mysqlConfFile']);
+			$myreplacemenu .= <<< EOF
+Action: run; FileName: "sc"; parameters: "create ${c_mysqlService} binpath=""${binpath} --defaults-file=${default} ${c_mysqlService}"""; ShowCmd: hidden; Flags: waituntilterminated
+
+EOF;
+		}
+		else {
+			$myreplacemenu .= <<< EOF
+Action: run; FileName: "${c_mysqlVersionDir}/mysql${oneMysqlVersion}/${mysqlConf['mysqlExeDir']}/${mysqlConf['mysqlExeFile']}"; Parameters: "${mysqlConf['mysqlServiceInstallParams']}"; ShowCmd: hidden; Flags: waituntilterminated
+
+EOF;
+		}
+		$myreplacemenu .= <<< EOF
 Action: run; FileName: "net"; Parameters: "start ${c_mysqlService}"; ShowCmd: hidden; Flags: waituntilterminated
 Action: run; FileName: "${c_phpCli}";Parameters: "refresh.php";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
 Action: resetservices

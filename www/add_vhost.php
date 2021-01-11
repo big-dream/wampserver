@@ -1,7 +1,7 @@
 <?php
 // 3.1.9 - Check session variables
 //   Support VirtualHost IDNA ServerName
-
+// 3.2.3 - Improve IDNA ServerName check
 
 $server_dir = "../";
 session_start();
@@ -350,9 +350,10 @@ if (isset($_POST['submit'])
 	$vh_nameIDN = idn_to_ascii($vh_name,IDNA_DEFAULT,INTL_IDNA_VARIANT_UTS46);
 	if($vh_nameIDN !== $vh_name)
 		$vh_name = $vh_nameIDN;
-	// IDNA (Punycode) /^xn--[a-zA-Z0-9\-\.]+$/
-	// Non IDNA  /^[A-Za-z]+([-.](?![-.])|[A-Za-z0-9]){1,60}[A-Za-z0-9]$/
-	if(preg_match('/^xn--[a-zA-Z0-9\-\.]+$/',$vh_name,$matchesIDNA) == 0
+	// IDNA (Punycode) 3.2.3 - improve regex
+	$regexIDNA = '#^([\w-]+://?|www[\.])?xn--[a-z0-9]+[a-z0-9\-\.]*[a-z0-9]+(\.[a-z]{2,7})?$#';
+	// Not IDNA  /^[A-Za-z]+([-.](?![-.])|[A-Za-z0-9]){1,60}[A-Za-z0-9]$/
+	if(preg_match($regexIDNA,$vh_name,$matchesIDNA) == 0
 		&& preg_match('/^
 		(?=.*[A-Za-z]) # at least one letter somewhere
 		[A-Za-z0-9]+ 	 # letter or number in first place

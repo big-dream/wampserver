@@ -18,6 +18,7 @@
 // 3.2.0 $w_verifySymlink  - $w_settings['NotVerifyHosts']
 // 3.2.1 $w_addingVer - $w_addingVerTxt - $w_goto - $w_FileRepository
 // 3.2.2 $w_MysqlMariaUser $w_EnterSize modified
+// 3.2.3 https for wampserver.aviatechno
 
 // Projects sub-menu
 $w_projectsSubMenu = 'Proiecte personale';
@@ -128,6 +129,6 @@ $w_MysqlMariaUser = "Introdu un nume de utilizator valabil. Dacã nu-l cunoºti, p
 
 // Long texts
 // Quotation marks " in texts must be escaped: \" - May have \r\n for multilines
-$w_addingVerTxt ="Toate \"addon-urile\", ex. toate installer-ele pentru versiunile Apache, PHP, MySQL sau MariaDB cât ºi cele pentru actualizãri (Wampserver, Aestan Tray Menu, xDebug, etc.), precum ºi aplicaþiile web (PhpMyAdmin, Adminer) se gãsesc la adresa\r\n\r\n'https://sourceforge.net/projects/wampserver/'\r\n\r\nDescãrcaþi fiºierele pe care le doriþi ºi lansaþi-le apãsând click-dreapta pe numele lor, iar apoi \"Ruleazã ca administrator\" pentru a adãuga addon-ul sau aplicaþia respectivã la versiunea existentã de Wampserver.\r\n\r\nApoi, schimbarea versiunii de Apache, PHP, MySQL sau MariaDB se face în doar trei paºi:\r\nClick-stânga pe icon -> PHP|Apache|MySQL|MariaDB -> Schimbã versiunea -> Versiune\r\n\r\nSchimbarea versiunii nu va realiza automat ºi schimbarea parametrilor modificaþi anterior ºi nici nu va transfera bazele de date de la vechea versiune la cea nouã.\r\n\r\nO arhivã mult mai bine organizatã ºi permanent la zi decât cea de la Sourceforge existã la adresa:\r\n\r\n'http://wampserver.aviatechno.net'.\r\n\r\nLink-urile la arhive se regãsesc cu Click-dreapta pe icon -> Ajutor\r\n";
+$w_addingVerTxt ="Toate \"addon-urile\", ex. toate installer-ele pentru versiunile Apache, PHP, MySQL sau MariaDB cât ºi cele pentru actualizãri (Wampserver, Aestan Tray Menu, xDebug, etc.), precum ºi aplicaþiile web (PhpMyAdmin, Adminer) se gãsesc la adresa\r\n\r\n'https://sourceforge.net/projects/wampserver/'\r\n\r\nDescãrcaþi fiºierele pe care le doriþi ºi lansaþi-le apãsând click-dreapta pe numele lor, iar apoi \"Ruleazã ca administrator\" pentru a adãuga addon-ul sau aplicaþia respectivã la versiunea existentã de Wampserver.\r\n\r\nApoi, schimbarea versiunii de Apache, PHP, MySQL sau MariaDB se face în doar trei paºi:\r\nClick-stânga pe icon -> PHP|Apache|MySQL|MariaDB -> Schimbã versiunea -> Versiune\r\n\r\nSchimbarea versiunii nu va realiza automat ºi schimbarea parametrilor modificaþi anterior ºi nici nu va transfera bazele de date de la vechea versiune la cea nouã.\r\n\r\nO arhivã mult mai bine organizatã ºi permanent la zi decât cea de la Sourceforge existã la adresa:\r\n\r\n'https://wampserver.aviatechno.net'.\r\n\r\nLink-urile la arhive se regãsesc cu Click-dreapta pe icon -> Ajutor\r\n";
 
 ?>

@@ -1,7 +1,7 @@
 <?php
-// - 3.2.2 Obsolete code cleanup
-// Removing unnecessary functions
-// Redundancy check
+// - 3.2.3 - Improve Create definitions of TextMenu
+//   Support Windows command sc for mysql and mariadb services
+//   improve display of PHP error_reporting
 
 if(!defined('WAMPTRACE_PROCESS')) require 'config.trace.php';
 if(WAMPTRACE_PROCESS) {
@@ -206,7 +206,6 @@ natcasesort($mysqlVersionList);
 if($wampConf['SupportMySQL'] == 'on' && count($mysqlVersionList) > 0) {
 	$SupportMySQL = '';
 	$EmptyMysqlLog = ' '.$c_installDir.'/'.$logDir.'mysql.log';
-	$newMysqlService = ' %MysqlService%';
 	//Check Console prompt
 	if($wampConf['mysqlUseConsolePrompt'] == 'on') {
 		$mysqlConsolePromptUsed = $wampConf['mysqlConsolePrompt'];
@@ -228,7 +227,6 @@ if($wampConf['SupportMySQL'] == 'on' && count($mysqlVersionList) > 0) {
 else {
 	$SupportMySQL = ';';
 	$EmptyMysqlLog = '';
-	$newMysqlService = '';
 }
 
 // Option to support MariaDB
@@ -261,6 +259,22 @@ if($wampConf['SupportMariaDB'] == 'on' && count($mariadbVersionList) > 0) {
 else {
 	$SupportMariaDB = ';';
 	$EmptyMariaLog = '';
+}
+
+// Support mysql Service with mysqld.exe or windows command sc
+$mysqlMysqlService = '';
+$mysqlCmdScService = ';';
+if(isset($wampConf['mysqlServiceCmd']) && $wampConf['mysqlServiceCmd'] == 'windows') {
+	$mysqlMysqlService = ';';
+	$mysqlCmdScService = '';
+}
+
+// Support mariadb Service with mysqld.exe or windows command sc
+$mariaMysqlService = '';
+$mariaCmdScService = ';';
+if(isset($wampConf['mariadbServiceCmd']) && $wampConf['mariadbServiceCmd'] == 'windows') {
+	$mariaMysqlService = ';';
+	$mariaCmdScService = '';
 }
 
 // Option if neither MySQL nor MariaDB
@@ -575,10 +589,6 @@ unset($tpl,$matches);
 // END of PromptText replacements
 //*******************************
 
-// ***************************************************************
-// *** Load Template file as require - $tpl is the template string
-require $templateFile;
-
 //**************************************************
 // Create definitions of TextMenu (TextKeyx) for Text items
 // From $AesTextMenus in config.inc.php
@@ -586,7 +596,14 @@ $TextSubmenuName = $TextSubmenuCaption = array();
 $TextMenus = '';
 foreach($AesTextMenus as $key => $value) {
 	$TextSubmenuName[] = (strpos($value[0],'$') === 0) ? ${$temp = substr($value[0],1)} : $value[0];
-	$CaptionTemp = (strpos($value[1],'$') === 0) ? ${$temp = substr($value[1],1)} : $value[1];
+	if(strpos($value[1],'$') === 0){
+		$temp = substr($value[1],1);
+		$CaptionTemp = $$temp;
+		// Add space at the end of the variable to avoid duplicate Captions
+		$$temp .= ' ';
+	}
+	else
+		$CaptionTemp = $value[1];
 	$TextSubmenuCaption[] = $CaptionTemp;
 	$TextMenus .= 'TextKey'.$key.'="'.$CaptionTemp.'",'.$value[2].','.$value[3].','.$value[4].','.$value[5].',';
 	$tempText = (strpos($value[6],'$') === 0) ? ${$temp = substr($value[6],1)} : $value[6];
@@ -597,9 +614,6 @@ foreach($AesTextMenus as $key => $value) {
 	$tempText = ReplaceAestan($tempText);
 	$TextMenus .= $tempText."\r\n";
 }
-$search = ';WAMPTEXTMENUSTART
-';
-$tpl = str_replace($search,$search.$TextMenus,$tpl);
 // Create submenus definitions - Example below
 //[AddingVersions]
 //Type: item; Caption: "Add Apache, PHP, MySQL, MariaDB, etc. versions."; Action: Multi; Actions: none
@@ -613,32 +627,40 @@ Type: item; Caption: "${TextSubmenuCaption[$i]}"; Action: Multi; Actions: none
 EOF;
 $i++;
 }
-$search = ';WAMPITEMSTEXTSTART
-';
-$tpl = str_replace($search,$search.$TextSubmenus,$tpl);
-unset($TextMenus,$TextSubmenus,$TextSubmenuName,$TextSubmenuCaption,$tempText);
 // END of TextMenu ************************
 //*****************************************
 
 //************************************
 // Create definitions of Custom Prompt
 // From $AesPromptCustom in config.inc.php
-if(count($AesPromptCustom) > 0) {
-	$PromptCustom = '';
-	foreach($AesPromptCustom as $key => $value) {
-		$PromptCustom .= 'PromptKey'.$key.'=';
-		$PromptTemp = '';
-		foreach($value as $indice) $PromptTemp .= $indice.',';
-		$PromptCustom .= substr($PromptTemp,0,-1)."\r\n";
-	}
-	$PromptCustom .="\r\n";
-	$search = ';WAMPPROMPTCUSTOMSTART
-';
-	$tpl = str_replace($search,$search.$PromptCustom,$tpl);
-	unset($PromptCustom,$PromptTemp);
+$PromptCustom = '';
+foreach($AesPromptCustom as $key => $value) {
+	$PromptCustom .= 'PromptKey'.$key.'=';
+	$PromptTemp = '';
+	foreach($value as $indice) $PromptTemp .= $indice.',';
+	$PromptCustom .= substr($PromptTemp,0,-1)."\r\n";
 }
+$PromptCustom .="\r\n";
 // END of Custom Prompt
 //*********************
+
+// ***************************************************************
+// *** Load Template file as require - $tpl is the template string
+require $templateFile;
+
+// Do TextMenus replacements
+$search = ';WAMPTEXTMENUSTART
+';
+$tpl = str_replace($search,$search.$TextMenus,$tpl);
+$search = ';WAMPITEMSTEXTSTART
+';
+$tpl = str_replace($search,$search.$TextSubmenus,$tpl);
+unset($TextMenus,$TextSubmenus,$TextSubmenuName,$TextSubmenuCaption,$tempText);
+// Do CustomPrompt replacement
+$search = ';WAMPPROMPTCUSTOMSTART
+';
+$tpl = str_replace($search,$search.$PromptCustom,$tpl);
+unset($PromptCustom,$PromptTemp);
 
 // ****************************************
 // Create menu with the available languages
@@ -1090,19 +1112,29 @@ foreach ($params_for_wampini as $paramname=>$paramstatus) {
 		// Tests for 'error_reporting'
 		if(($paramname == 'error_reporting') && (version_compare($c_phpVersion, '5.4.0') >= 0)) {
 			$seeInfoGlyphException[$paramname] = true;
-		 	$report_err = errorLevel($myphpini[$paramname]);
+			$report_err = errorLevel($myphpini[$paramname]);
 			$phpConfTextInfo .= 'Type: separator;
 ';
-    	$phpConfTextInfo .= 'Type: item; Caption: "'.$paramname.' = '.$report_err[0]['str'].'"; Glyph: 22; Action: multi; Actions: '.$phpParams[$paramname].'
+			$firstReportErr = true;
+			foreach($report_err as $key => $value) {
+				if($firstReportErr) {
+    			$phpConfTextInfo .= 'Type: item; Caption: "'.$paramname.' = '.$report_err[$key]['str'].'"; Glyph: 22; Action: multi; Actions: '.$phpParams[$paramname].'
 ';
-			if(strpos($report_err[0]['comment'],'^') !== false) {
-				list($err_title, $err_info) = explode('^',$report_err[0]['comment']);
-   			$phpConfTextInfo .= 'Type: item; Caption: "       '.$err_title.'"; Action: multi; Actions: none
+					$firstReportErr = false;
+				}
+				else {
+    			$phpConfTextInfo .= 'Type: item; Caption: "'.$report_err[$key]['str'].'"; Action: multi; Actions: none
 ';
-				$phpConfTextInfo .= menu_multi_lines($err_info);
-			}
-			else {
-   			$phpConfTextInfo .= menu_multi_lines($report_err[0]['comment']);
+				}
+				if(strpos($report_err[$key]['comment'],'^') !== false) {
+					list($err_title, $err_info) = explode('^',$report_err[$key]['comment']);
+   				$phpConfTextInfo .= 'Type: item; Caption: "       '.$err_title.'"; Action: multi; Actions: none
+';
+					$phpConfTextInfo .= menu_multi_lines($err_info);
+				}
+				else {
+   				$phpConfTextInfo .= menu_multi_lines($report_err[$key]['comment']);
+				}
 			}
 			$phpConfTextInfo .= 'Type: separator;
 ';

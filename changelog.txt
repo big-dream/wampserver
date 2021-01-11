@@ -1,4 +1,13 @@
 Changelog
+--- Wampserver 3.2.3
+- Support for PHP 8
+- Improve check state of services BINARY PATH NAME
+- Improve Create definitions of TextMenu
+- Support Windows command SC for mysql and mariadb services
+- Improve IDNA ServerName check
+- Improve display of PHP error_reporting
+To use or unactive MariaDB or MySQL, read the file mariadb_mysql.txt
+
 --- Wampserver 3.2.2
 - Aestan Tray Menu - PromptText multiline support
 - Functions for PromptText multiligne
@@ -7,8 +16,6 @@ Changelog
 - Removing unnecessary functions
 - Redundancy check
 - Miscellaneous improvements
-To use or unactive MariaDB or MySQL, read the file mariadb_mysql.txt
-This update is cumulative Updates 3.0.1 to 3.2.2. It may be reinstalled in case of modified files by error
 
 --- Wampserver 3.2.1
 - Improve reinstall all services

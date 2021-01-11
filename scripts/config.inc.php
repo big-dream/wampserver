@@ -1,7 +1,6 @@
 <?php
-// Update 3.2.0
-// PHP 7.4.0 support
-// Possibility to trace Wampmanager processes
+// Update 3.2.3
+// PHP 8.0.0 support
 
 if(!defined('WAMPTRACE_PROCESS')) require 'config.trace.php';
 if(WAMPTRACE_PROCESS) {
@@ -116,6 +115,8 @@ $c_mysqlBinDir = $c_mysqlVersionDir.'/mysql'.$wampConf['mysqlVersion'].'/'.$wamp
 $c_mysqlExe = $c_mysqlBinDir.'/'.$wampConf['mysqlExeFile'];
 $c_mysqlConfFile = $c_mysqlVersionDir.'/mysql'.$wampConf['mysqlVersion'].'/'.$wampConf['mysqlConfDir'].'/'.$wampConf['mysqlConfFile'];
 $c_mysqlConsole = $c_mysqlVersionDir.'/mysql'.$c_mysqlVersion.'/'.$wampConf['mysqlExeDir'].'/mysql.exe';
+$c_mysqlExeAnti = str_replace('/','\\',$c_mysqlExe);
+$c_mysqlConfFileAnti = str_replace('/','\\',$c_mysqlConfFile);
 
 // Variables for MariaDB
 $c_mariadbService = $wampConf['ServiceMariadb'];
@@ -128,6 +129,8 @@ $c_mariadbBinDir = $c_mariadbVersionDir.'/mariadb'.$wampConf['mariadbVersion'].'
 $c_mariadbExe = $c_mariadbBinDir.'/'.$wampConf['mariadbExeFile'];
 $c_mariadbConfFile = $c_mariadbVersionDir.'/mariadb'.$wampConf['mariadbVersion'].'/'.$wampConf['mariadbConfDir'].'/'.$wampConf['mariadbConfFile'];
 $c_mariadbConsole = $c_mariadbVersionDir.'/mariadb'.$c_mariadbVersion.'/'.$wampConf['mariadbExeDir'].'/mysql.exe';
+$c_mariadbExeAnti = str_replace('/','\\',$c_mariadbExe);
+$c_mariadbConfFileAnti = str_replace('/','\\',$c_mariadbConfFile);
 
 //Check symlink or copy PHP dll into Apache bin folder
 if(empty($wampConf['CreateSymlink']) || $wampConf['CreateSymlink'] != 'symlink' && $wampConf['CreateSymlink'] != 'copy')
@@ -170,9 +173,9 @@ if($wampConf['BackupHosts'] == 'on') {
 
 //dll to create symbolic links from php to apache/bin
 //Versions of ICU are 38, 40, 42, 44, 46, 48 to 57, 60 (PHP 7.2), 61 (PHP 7.2.5)
-//  62 (PHP 7.2.8), 63 (PHP 7.2.12), 64 (PHP 7.2.20), 65 (PHP 7.4.0)
+//  62 (PHP 7.2.8), 63 (PHP 7.2.12), 64 (PHP 7.2.20), 65 (PHP 7.4.0), 66 (PHP 7.4.6), 67 (PHP 8.0.0)
 $icu = array(
-	'number' => array('65','64', '63', '62', '61', '60', '57', '56', '55', '54', '53', '52', '51', '50', '49', '48', '46', '44', '42', '40', '38'),
+	'number' => array('67', '66', '65','64', '63', '62', '61', '60', '57', '56', '55', '54', '53', '52', '51', '50', '49', '48', '46', '44', '42', '40', '38'),
 	'name' => array('icudt', 'icuin', 'icuio', 'icule', 'iculx', 'icutest', 'icutu', 'icuuc'),
 	);
 $php_icu_dll = array();
@@ -197,6 +200,7 @@ $phpDllToCopy = array_merge(
 	'php5nsapi.dll',
 	'php5ts.dll',
 	'php7ts.dll', //For PHP 7
+	'php8ts.dll', //For PHP 8
 	)
 );
 
@@ -647,6 +651,7 @@ $apacheModNotDisable = array(
 	'authz_host_module',
 	'php5_module',
 	'php7_module',
+	'php_module',
 	);
 
 // Apache settings
