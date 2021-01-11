@@ -1,6 +1,6 @@
 <?php
 // 3.2.0 - txtProjects
-//
+// 3.2.1 - defaultDBMS - HelpMySQLMariaDB
 
 $langues = array(
 	'langue' => 'English',
@@ -45,6 +45,8 @@ $langues = array(
 	'portUsed' => 'Port defined for Apache: ',
 	'mysqlportUsed' => 'Port defined for MySQL: ',
 	'mariaportUsed' => 'Port defined for MariaDB: ',
+	'defaultDBMS' => 'default DBMS',
+	'HelpMySQLMariaDB' => 'How to use MySQL and/or MariaDB?<br>What is a default DBMS?<br>How to change the default DBMS?<br>Go to the related help: Left-click Wampmanager icon -> Help -> MariaDB - MySQL',
 	'nolocalhost' => 'It\'s a bad idea to add localhost in the url of launching projects. It is best to define VirtualHost in<br />wamp/bin/apache/apache%s/conf/extra/httpd-vhosts.conf<br />file and not add localhost in the url.',
 	);
 ?>

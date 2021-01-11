@@ -96,29 +96,42 @@ if(file_exists('wamplangues/index_'.$langue.'.php')) {
 }
 
 //initialisation
+
 // Récupération MySQL si supporté
+$nbDBMS = 0;
 $MySQLdb = '';
 if(isset($wampConf['SupportMySQL']) && $wampConf['SupportMySQL'] =='on') {
-	$defaultDBMSMySQL = ($wampConf['mysqlPortUsed'] == '3306') ? '&nbsp;-&nbsp;Default DBMS' : '';
+	$nbDBMS++;
+	$defaultDBMSMySQL = ($wampConf['mysqlPortUsed'] == '3306') ? "&nbsp;-&nbsp;".$langues['defaultDBMS'] : "";
 	$MySQLdb = <<< EOF
 <dt>{$langues['versm']}</dt>
-	<dd>${mysqlVersion}&nbsp;-&nbsp;{$langues['mysqlportUsed']}{$Mysqlport}{$defaultDBMSMySQL}&nbsp;-&nbsp; <a href='http://{$langues['docm']}'>{$langues['documentation']}</a></dd>
+	<dd>${mysqlVersion}&nbsp;-&nbsp;{$langues['mysqlportUsed']}{$Mysqlport}{$defaultDBMSMySQL}&nbsp;-&nbsp; <a href='http://{$langues['docm']}'>{$langues['documentation']} MySQL</a></dd>
 EOF;
 }
 
 // Récupération MariaDB si supporté
 $MariaDB = '';
 if(isset($wampConf['SupportMariaDB']) && $wampConf['SupportMariaDB'] =='on') {
-	$defaultDBMSMaria = ($wampConf['mariaPortUsed'] == '3306') ? '&nbsp;-&nbsp;Default DBMS' : '';
+	$nbDBMS++;
+	$defaultDBMSMaria = ($wampConf['mariaPortUsed'] == '3306') ? "&nbsp;-&nbsp;".$langues['defaultDBMS'] : "";
 	$MariaDB = <<< EOF
 <dt>{$langues['versmaria']}</dt>
-  <dd>${c_mariadbVersion}&nbsp;-&nbsp;{$langues['mariaportUsed']}{$wampConf['mariaPortUsed']}{$defaultDBMSMaria}&nbsp;-&nbsp; <a href='http://{$langues['docmaria']}'>{$langues['documentation']}</a></dd>
+  <dd>${c_mariadbVersion}&nbsp;-&nbsp;{$langues['mariaportUsed']}{$wampConf['mariaPortUsed']}{$defaultDBMSMaria}&nbsp;-&nbsp; <a href='http://{$langues['docmaria']}'>{$langues['documentation']} MariaDB</a></dd>
 EOF;
 }
+
+/* Help MySQL - MariaDB popup */
+$popupLink = '';
+if($nbDBMS > 1) {
+	$popupLink = <<< EOF
+ - <a class='popup'>MySQL - MariaDB<span>{$langues['HelpMySQLMariaDB']}</span></a>
+EOF;
+}
+//Default DBMS in first position
 if(empty($defaultDBMSMySQL))
-	$DBMSTypes = $MariaDB.$MySQLdb;
+	$DBMSTypes = $MariaDB.str_replace('</dd>',$popupLink.'</dd>',$MySQLdb);
 else
-	$DBMSTypes = $MySQLdb.$MariaDB;
+	$DBMSTypes = $MySQLdb.str_replace('</dd>',$popupLink.'</dd>',$MariaDB);
 
 // No Database Mysql System
 $noDBMS = (empty($MySQLdb) && empty($MariaDB)) ? true : false;
@@ -409,11 +422,9 @@ $pageContents = <<< EOPAGE
 <body>
   <div id="head">
     <div class="innerhead">
-	    <h1><abbr title="Windows">W</abbr><abbr title="Apache">A</abbr><abbr title="MySQL">M</abbr><abbr title="PHP">P</abbr></h1>
+	    <h1><abbr title="Windows">W</abbr><abbr title="Apache">a</abbr><abbr title="MySQL/MariaDB">m</abbr><abbr title="PHP">p</abbr><abbr title="server WEB local">server</abbr></h1>
 		   <ul>
-		    <li>PHP 5</li>
-			   <li>Apache 2.4</li>
-			   <li>MySQL 5</li>
+			   <li>Apache 2.4</li><li>-</li><li>MySQL 5 &amp; 8</li><li>-</li><li>MariaDB 10</li><li>-</li><li>PHP 5 &amp; 7</li>
 		   </ul>
      </div>
 		<ul class="utility">

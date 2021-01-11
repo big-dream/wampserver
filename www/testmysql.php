@@ -16,5 +16,7 @@ if ($mysqli->connect_error) {
 }
 echo '<p>Connection OK '. $mysqli->host_info.'</p>';
 echo '<p>Server '.$mysqli->server_info.'</p>';
+echo '<p>Initial charset: '.$mysqli->character_set_name().'</p>';
+
 $mysqli->close();
 ?>

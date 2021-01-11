@@ -15,6 +15,7 @@
 // $w_wampReport - $w_dowampReport
 // 3.1.9 $w_settings 'BackupHosts'
 // 3.2.0 $w_verifySymlink  - $w_settings['NotVerifyHosts']
+// 3.2.1 $w_addingVer - $w_addingVerTxt - $w_goto - $w_FileRepository
 
 // Projects sub-menu
 $w_projectsSubMenu = 'Vos projets';
@@ -87,6 +88,7 @@ $w_empty = 'Vider';
 $w_emptyAll = 'Vider TOUS les';
 $w_dnsorder = 'Vérifier l\'ordre de recherche DNS';
 $w_deleteVer = 'Supprimer versions inutilisées';
+$w_addingVer = 'Ajouter version Apache, PHP, MySQL, MariaDB, etc.';
 $w_deleteListenPort = 'Supprimer un Listen port Apache';
 $w_delete = 'Supprimer';
 $w_defaultDBMS = 'SGBD par défaut :';
@@ -96,6 +98,8 @@ $w_reinstallServices = 'Réinstaller tous les services';
 $w_wampReport = 'Rapport de configuration Wampserver';
 $w_dowampReport = 'Créer '.$w_wampReport;
 $w_verifySymlink = 'Vérifier les liens symboliques';
+$w_goto = 'Aller à :';
+$w_FileRepository = 'Liens dépôts fichiers & addons Wampserver';
 
 //Divers
 $w_ext_spec = 'Extensions spéciales';
@@ -116,5 +120,9 @@ $w_EnterTime = "Entrez le temps en secondes";
 $w_Integer = "Nombre entier";
 $w_EnterInteger = "Entrez un nombre entier";
 $w_MysqlMariaUser = "Entrer un nom utilisateur valide. Si vous ne savez pas, laissez 'root' par défaut.";
+
+// Textes longs
+// Les guillemets " dans les textes doivent être échappés : \"
+$w_addingVerTxt = "Tous les \"addons\", c'est-à-dire tous les installeurs de versions Apache, PHP, MySQL ou MariaDB ainsi que les installeurs des mises à jour (Wampserver, Aestan Tray Menu, xDebug, etc.) et des applications Web (PhpMyAdmin, Adminer) sont sur:\r\n\r\n'https://sourceforge.net/projects/wampserver/'\r\n\r\nIl suffit de télécharger les fichiers-installeurs que vous voulez et de les lancer par un clic-droit sur le nom du fichier téléchargé puis \"Exécuter en tant qu'administrateur\" pour que l'addon ou l'application soit ajouté à votre version de Wampserver.\r\n\r\nEnsuite, changer de version Apache, PHP, MySQL ou MariaDB est l'affaire de trois clics:\r\nClic-Gauche -> PHP|Apache|MySQL|MariaDB -> Version -> Choisir la version\r\nLe changement de version ne reprend pas les modifications de paramètres que vous auriez pu faire ni ne transfère les bases de données de l'ancienne version vers la nouvelle.\r\n\r\nUn dépôt bien mieux organisé que Sourceforge et toujours à jour existe :\r\n\r\n'http://wampserver.aviatechno.net'\r\n\r\nLes liens sur les dépôts sont dans Clic-Droit -> Aide\r\n";
 
 ?>

@@ -1,5 +1,7 @@
 <?php
 //3.2.0 use write_file instead of fwrite, fclose
+//3.2.1 improvement of the VirtualHost copy request message
+
 if(!defined('WAMPTRACE_PROCESS')) require('config.trace.php');
 if(WAMPTRACE_PROCESS) {
 	$errorTxt = "script ".__FILE__;
@@ -53,10 +55,10 @@ if(substr($wampConf['apacheVersion'],0,3) == '2.4' && substr($newApacheVersion,0
 		$virtualHost = check_virtualhost();
 		$copyFile = false;
 		if($virtualHost['include_vhosts'] && $virtualHost['vhosts_exist'] && $virtualHost['nb_Server'] > 0) {
-			echo "\n\n**********************************************************\n";
-			echo "** Want to copy the VirtualHost already configured for Apache ".$c_apacheVersion."\n";
+			echo "\n\n*************************************************************\n";
+			echo "** Do you want to copy the already configured VirtualHosts from Apache ".$c_apacheVersion."\n";
 			echo "** to Apache ".$newApacheVersion."?\n\n";
-			echo "Hit y then Enter for 'YES' - Enter for 'NO'\n\n";
+			echo "Press the Y key and then the Enter key for 'YES'\nPress only the Enter key for 'NO'\n\n";
 			$touche = strtoupper(trim(fgets(STDIN)));
 			if($touche === "Y") {
 				if(copy($oldVhost,$newVhost) === false) {

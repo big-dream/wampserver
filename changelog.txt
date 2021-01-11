@@ -1,4 +1,19 @@
 Changelog
+--- Wampserver 3.2.1
+- Improve reinstall all services
+- Check SERVICE_START_NAME for all services
+- See Event Viewer error Apache Service if not started
+- Add require refreshVerifyFiles.php
+- Fix Default DBMS if none
+- Display default DBMS
+- Fix first php date.timezone in submenus
+- ThreadStackSize added into httpd.conf
+- Displaying some Apache settings
+- Improve automatic cleanup of log files
+- Aestan Tray Menu - Support text menu items
+To use or unactive MariaDB or MySQL, read the file mariadb_mysql.txt
+This update is cumulative Updates 3.0.1 to 3.2.1. It may be reinstalled in case of modified files by error
+
 --- Wampserver 3.2.0
 - Aestan Tray Menu (Wampmanager.exe) complete redevelopment
   Compiled with Delphi 10.3.1 Community Edition
@@ -25,8 +40,6 @@ Changelog
 - Support VirtualHost IDNA (Internationalized Domain Names in Applications) ServerName
 - Possibility to backup hosts file before modification (Wamp settings)
 - Non-systematic rewriting of some files
-To use or unactive MariaDB, read the file mariadb_mysql.txt
-This update is cumulative Updates 3.0.1 to 3.1.9. It may be reinstalled in case of modified files by error
 
 --- Wampserver 3.1.8
 - Use of PHPIniDir "${APACHE_DIR}/bin" in httpd.conf

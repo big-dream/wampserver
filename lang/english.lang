@@ -4,6 +4,7 @@
 //3.0.8 - $w_noDBMS
 //3.1.1   $w_cmdWindows - $w_mysqlCommand - $w_mariadbCommand - $w_apacheCommand - $w_services_msc
 //3.2.0		$w_helpForums - $w_helpUse
+//3.2.1   $w_apacheSettings - $w_apacheDefaults
 
 $w_allServicesRunning = 'All services running';
 $w_oneServiceRunning = '%n of %t services running';
@@ -31,6 +32,8 @@ $w_wwwDirectory = 'www directory';
 $w_logFiles = 'Log files';
 $w_configFiles = 'Config files';
 $w_apacheModules = 'Apache modules';
+$w_apacheSettings = 'Apache settings';
+$w_apacheDefaults = 'Default Directives';
 $w_phpSettings = 'PHP settings';
 $w_aliasDirectories = 'Alias directories';
 $w_services = 'Services';

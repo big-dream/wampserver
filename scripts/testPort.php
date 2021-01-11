@@ -111,7 +111,7 @@ if(!$only_process) {
 	}
 	else {
 		$message .=   "Your port ".$port." is actually used by :\n\n";
-		$gotinfo = false;
+		$gotInfo = false;
 		fwrite($fp, $out);
 		while (!feof($fp)) {
 			$line = fgets($fp, 128);
