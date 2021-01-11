@@ -1,6 +1,7 @@
 <?php
-// Update 3.2.3
+// Update 3.2.4
 // PHP 8.0.0 support
+// xDebug 3 support
 
 if(!defined('WAMPTRACE_PROCESS')) require 'config.trace.php';
 if(WAMPTRACE_PROCESS) {
@@ -173,9 +174,9 @@ if($wampConf['BackupHosts'] == 'on') {
 
 //dll to create symbolic links from php to apache/bin
 //Versions of ICU are 38, 40, 42, 44, 46, 48 to 57, 60 (PHP 7.2), 61 (PHP 7.2.5)
-//  62 (PHP 7.2.8), 63 (PHP 7.2.12), 64 (PHP 7.2.20), 65 (PHP 7.4.0), 66 (PHP 7.4.6), 67 (PHP 8.0.0)
+//  62 (PHP 7.2.8), 63 (PHP 7.2.12), 64 (PHP 7.2.20), 65 (PHP 7.4.0), 66 (PHP 7.4.6), 67, 68 (PHP 8.0.0)
 $icu = array(
-	'number' => array('67', '66', '65','64', '63', '62', '61', '60', '57', '56', '55', '54', '53', '52', '51', '50', '49', '48', '46', '44', '42', '40', '38'),
+	'number' => array('68', '67', '66', '65','64', '63', '62', '61', '60', '57', '56', '55', '54', '53', '52', '51', '50', '49', '48', '46', '44', '42', '40', '38'),
 	'name' => array('icudt', 'icuin', 'icuio', 'icule', 'iculx', 'icutest', 'icutu', 'icuuc'),
 	);
 $php_icu_dll = array();
@@ -233,7 +234,9 @@ $phpParams = array (
 	'max_input_time',
 	'max_input_vars',
 	'memory_limit',
+	'mysqli.allow_local_infile',
 	'opcache.enable',
+	'opcache.jit',
 	'output_buffering',
 	'post_max_size',
 	'realpath_cache_size',
@@ -250,6 +253,7 @@ $phpParams = array (
 	'zlib.output_compression',
 	'zlib.output_compression_level',
 	'error_reporting',
+	'xdebug.mode',
 	'xdebug.remote_enable',
 	'xdebug.profiler_enable',
 	'xdebug.profiler_enable_trigger',
@@ -325,8 +329,15 @@ $phpParamsNotOnOff = array(
 	'auto_append_file' => array('change' => false),
 	'upload_tmp_dir' => array('change' => false),
 	'error_reporting' => array('change' => false),
+	'opcache.jit' => array('change' => false),
 	'zend.enable_gc' => array('change' => false),
 	'zlib.output_compression_level' => array('change' => false),
+	'xdebug.mode' => array(
+		'change' => true,
+		'title' => 'xDebug Mode',
+		'quoted' => false,
+		'values' => array('off', 'develop', 'coverage', 'debug', 'gcstats', 'profile', 'trace'),
+		),
 	'xdebug.overload_var_dump' => array('change' => false),
 );
 //Parameters to be changed into php.ini CLI the same way as for php.ini
@@ -365,6 +376,7 @@ $mysqlParams = array (
 	'skip-grant-tables',
 	'table_definition_cache',
 	'default_authentication_plugin',
+	'secure_file_priv',
 );
 //MySQL parameters with values not On or Off cannot be switched on or off
 //Can be changed if 'change' = true && 'title' && 'values'
@@ -462,6 +474,7 @@ $mysqlParamsNotOnOff = array(
 		'msg' => "\n\nWARNING!! WARNING!!\nThis option causes the server to start without using the privilege system at all, WHICH GIVES ANYONE WITH ACCESS TO THE SERVER UNRESTRICTED ACCESS TO ALL DATABASES.\nThis option also causes the server to suppress during its startup sequence the loading of user-defined functions (UDFs), scheduled events, and plugins that were installed.\n\nYou should leave this option 'uncommented' ONLY for the time required to perform certain operations such as the replacement of a lost password for 'root'.\n",
 		),
 	'default_authentication_plugin' => array('change' => false,),
+	'secure_file_priv' => array('change' => false,),
 );
 
 //MariaDB parameters

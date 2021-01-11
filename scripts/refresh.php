@@ -1,7 +1,5 @@
 <?php
-// - 3.2.3 - Improve Create definitions of TextMenu
-//   Support Windows command sc for mysql and mariadb services
-//   improve display of PHP error_reporting
+// - 3.2.4 - Support PHP 8 and xDebug 3
 
 if(!defined('WAMPTRACE_PROCESS')) require 'config.trace.php';
 if(WAMPTRACE_PROCESS) {
@@ -906,9 +904,11 @@ $notLine = false;
 
 foreach ($ext as $extname=>$extstatus)
 {
-  if ($ext[$extname] == 1)
+  if ($ext[$extname] == 1) {
+  	$NBextPHPlines++;
     $extText .= 'Type: item; Caption: "'.$extname.'"; Glyph: 13; Action: multi; Actions: php_ext_'.$extname.'
 ';
+	}
   elseif($ext[$extname] == -1)
   {
 		if(!$notLine) {
@@ -972,6 +972,7 @@ foreach ($ext as $extname=>$extstatus)
   }
   else
   {
+  	$NBextPHPlines++;
     $extText .= 'Type: item; Caption: "'.$extname.'"; Action: multi; Actions: php_ext_'.$extname.'
 ';
 	}
@@ -980,7 +981,6 @@ $extText .= $extTextNoline.$extTextNoDll.$extTextInfo;
 
 foreach ($ext as $extname=>$extstatus)
 {
-	$NBextPHPlines++;
 	if($ext[$extname] == 1 || $ext[$extname] == 0) {
 		$SwitchAction = ($ext[$extname] == 1 ? 'off' : 'on');
 	$extText .= <<< EOF
@@ -1022,7 +1022,8 @@ Action: run; FileName: "'.$c_phpExe.'";Parameters: "msg.php '.$msgNum.' '.base64
 ';
 	}
 }
-$NBextPHPlines = ceil(($NBextPHPlines + 2)/2);
+//error_log("NBext=".$NBextPHPlines);
+$NBextPHPlines = ceil(($NBextPHPlines)/2);
 
 $tpl = str_replace(';WAMPPHP_EXTSTART',$extText,$tpl);
 unset($extText,$extTextNoline,$extTextNoDll,$extTextInfo);
@@ -1041,17 +1042,20 @@ foreach($phpParams as $next_param_name=>$next_param_text) {
   if (isset($myphpini[$next_param_text])) {
   	if(empty($myphpini[$next_param_text]))
   		$params_for_wampini[$next_param_name] = '0';
-  	if(array_key_exists($next_param_name, $phpParamsNotOnOff)) {
+  	if((stripos($next_param_name, 'xdebug') !== false) && $zend_extensions['php_xdebug']['loaded'] == '0') {
+			$params_for_wampini[$next_param_name] = -4; //Extension not loaded - Parameter not to display
+		}
+  	elseif(array_key_exists($next_param_name, $phpParamsNotOnOff)) {
   		if($phpParamsNotOnOff[$next_param_name]['change'] !== true) {
   	  	$params_for_wampini[$next_param_name] = -2;
   	  	$phpErrorMsg = "\nIf you want to change this value, you can do it directly in the file:\n".$c_phpConfFile."\nNot to change the wrong file, the best way to access this file is:\nWampmanager icon->PHP->php.ini\n";
   		}
   		else {
-  	  $params_for_wampini[$next_param_name] = -3;
+  	  	$params_for_wampini[$next_param_name] = -3;
+  	  	if($next_param_name == 'xdebug.mode' && $myphpini[$next_param_name] == false)
+  	  		$myphpini[$next_param_name] = 'off';
   		}
   	}
-  	elseif((stripos($next_param_name, 'xdebug') !== false) && $zend_extensions['php_xdebug']['loaded'] == '0')
-			$params_for_wampini[$next_param_name] = -4; //Extension not loaded - Parameter not to display
   	elseif(strtolower($myphpini[$next_param_text]) == "off")
   		$params_for_wampini[$next_param_name] = '0';
   	elseif($myphpini[$next_param_text] == 0)
@@ -1081,9 +1085,9 @@ $information_only = false;
 $xDebugSep = false;
 $NBparamPHP = $NBparamPHPinfo = $NBparamPHPcomment = $NBparamPHPxdebug = 0;
 foreach ($params_for_wampini as $paramname=>$paramstatus) {
-	$NBparamPHP++;
 	$seeInfoGlyphException[$paramname] = false;
-	if((stripos($paramname, 'xdebug') !== false) && $zend_extensions['php_xdebug']['loaded'] == '1') {
+	$xdebugParam = (stripos($paramname, 'xdebug') !== false) ? true : false;
+	if($xdebugParam && $zend_extensions['php_xdebug']['loaded'] == '1') {
 		$NBparamPHPxdebug++;
 		if(!$xDebugSep) {
 			$xDebugSep = true;
@@ -1091,13 +1095,18 @@ foreach ($params_for_wampini as $paramname=>$paramstatus) {
 ';
 		}
 	}
-  if ($params_for_wampini[$paramname] == 1)
-    $phpConfText .= 'Type: item; Caption: "'.$paramname.'"; Glyph: 13; Action: multi; Actions: '.$phpParams[$paramname].'
+  if ($params_for_wampini[$paramname] == 1) {
+		if(!$xdebugParam) $NBparamPHP++;
+	  $phpConfText .= 'Type: item; Caption: "'.$paramname.'"; Glyph: 13; Action: multi; Actions: '.$phpParams[$paramname].'
 ';
-  elseif ($params_for_wampini[$paramname] == 0) //It does not display non-existent settings in php.ini
+	}
+  elseif ($params_for_wampini[$paramname] == 0) { //It does not display non-existent settings in php.ini
+		if(!$xdebugParam) $NBparamPHP++;
     $phpConfText .= 'Type: item; Caption: "'.$paramname.'"; Action: multi; Actions: '.$phpParams[$paramname].'
 ';
+	}
 	elseif ($params_for_wampini[$paramname] == -3) { // Indicate different from 0 or 1 or On or Off but can be changed
+		if(!$xdebugParam) $NBparamPHP++;
 		$action_sup[] = $paramname;
 		$phpConfText .= 'Type: submenu; Caption: "'.$paramname.' = '.$myphpini[$paramname].'"; Submenu: '.$paramname.'; Glyph: 9
 ';
@@ -1160,7 +1169,8 @@ foreach ($params_for_wampini as $paramname=>$paramstatus) {
 	}
 } // end foreach $params_for_wampini
 // $NBparamPHPlines used for BigMenus (Aestan Tray Menu columns menus)
-$NBparamPHPlines = $NBparamPHP -($NBparamPHPinfo + $NBparamPHPcomment + $NBparamPHPxdebug) + 1;
+//error_log("NBparamPHP=".$NBparamPHP." - NBparamPHPinfo=".$NBparamPHPinfo." - NBparaPHPcomment=".$NBparamPHPcomment." - NBparamPHPxdebug=".$NBparamPHPxdebug);
+$NBparamPHPlines = $NBparamPHP + 1;
 unset($NBparamPHP,$NBparamPHPinfo,$NBparamPHPcomment,$NBparamPHPxdebug);
 
 //Check for supplemtary actions

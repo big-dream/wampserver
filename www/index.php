@@ -6,7 +6,7 @@
 // and Hervé Leclerc <herve.leclerc@alterway.fr>
 // Icons by Mark James <http://www.famfamfam.com/lab/icons/silk/>
 // Version 2.5 -> 3.0.0 by Dominique Ottello aka Otomatic
-// 3.1.9 - Support VirtualHost IDNA ServerName
+// 3.2.4 - Support PHP 8
 //
 //
 //
@@ -424,7 +424,7 @@ $pageContents = <<< EOPAGE
     <div class="innerhead">
 	    <h1><abbr title="Windows">W</abbr><abbr title="Apache">a</abbr><abbr title="MySQL/MariaDB">m</abbr><abbr title="PHP">p</abbr><abbr title="server WEB local">server</abbr></h1>
 		   <ul>
-			   <li>Apache 2.4</li><li>-</li><li>MySQL 5 &amp; 8</li><li>-</li><li>MariaDB 10</li><li>-</li><li>PHP 5 &amp; 7</li>
+			   <li>Apache 2.4</li><li>-</li><li>MySQL 5 &amp; 8</li><li>-</li><li>MariaDB 10</li><li>-</li><li>PHP 5, 7 &amp; 8</li>
 		   </ul>
      </div>
 		<ul class="utility">
