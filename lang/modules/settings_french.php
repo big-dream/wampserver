@@ -16,6 +16,7 @@
 // 3.1.9 $w_settings 'BackupHosts'
 // 3.2.0 $w_verifySymlink  - $w_settings['NotVerifyHosts']
 // 3.2.1 $w_addingVer - $w_addingVerTxt - $w_goto - $w_FileRepository
+// 3.2.2 $w_MysqlMariaUser et $w_EnterSize modifiés - $w_MySQLsqlmodeInfo $w_mysql_mode $w_phpMyAdminHelp $w_PhpMyAdMinHelpTxt
 
 // Projects sub-menu
 $w_projectsSubMenu = 'Vos projets';
@@ -33,7 +34,6 @@ $w_portForMyql = 'Port pour MySQL';
 $w_testPortMysql = 'Tester le port 3306';
 $w_testPortMysqlUsed = 'Tester port MySQL utilisé : ';
 $w_testPortMariaUsed = 'Tester port MariaDB utilisé : ';
-$w_enterPort = 'Entrer le numéro de port souhaité';
 
 // Right-click Settings
 $w_wampSettings = 'Paramètres Wamp';
@@ -113,16 +113,24 @@ $w_no_moduleload = "Pas de 'LoadModule'";
 $w_mysql_none = "aucun";
 $w_mysql_user = "mode utilisateur";
 $w_mysql_default = "par défaut";
+$w_mysql_mode = "Explications de sql-mode";
 $w_Size = "Taille";
-$w_EnterSize = "Entrez la taille : xxxx suivie par M pour Mega ou G pour Giga";
 $w_Time = "Temps";
-$w_EnterTime = "Entrez le temps en secondes";
 $w_Integer = "Nombre entier";
+$w_phpMyAdminHelp = "Aide PhpMyAdmin";
+
+// PromptText pour Aestan Tray Menu variables de type: prompt
+// Peuvent contenir \r\n pour plusieurs lignes
 $w_EnterInteger = "Entrez un nombre entier";
-$w_MysqlMariaUser = "Entrer un nom utilisateur valide. Si vous ne savez pas, laissez 'root' par défaut.";
+$w_enterPort = "Entrer le numéro de port souhaité";
+$w_EnterSize = "Entrez la taille : xxxx suivie par M pour Mega ou G pour Giga.\r\nLe symbole M ou G doit être accolé au nombre.\r\nPar exemple : 64M ; 256M ; 1G";
+$w_EnterTime = "Entrez le temps en secondes";
+$w_MysqlMariaUser = "Entrer un nom utilisateur valide. Si vous ne savez pas, laissez 'root' par défaut.\r\nSi vous avez mis un mot de passe à root ou à l'utilisateur choisi, il faudra taper ce mot de passe lors de la demande de la console\r\n'Enter password:'\r\nSans mot de passe, uniquement touche Entrée.";
 
 // Textes longs
-// Les guillemets " dans les textes doivent être échappés : \"
+// Les guillemets " dans les textes doivent être échappés : \" - Peuvent contenir \r\n pour plusieurs lignes
 $w_addingVerTxt = "Tous les \"addons\", c'est-à-dire tous les installeurs de versions Apache, PHP, MySQL ou MariaDB ainsi que les installeurs des mises à jour (Wampserver, Aestan Tray Menu, xDebug, etc.) et des applications Web (PhpMyAdmin, Adminer) sont sur:\r\n\r\n'https://sourceforge.net/projects/wampserver/'\r\n\r\nIl suffit de télécharger les fichiers-installeurs que vous voulez et de les lancer par un clic-droit sur le nom du fichier téléchargé puis \"Exécuter en tant qu'administrateur\" pour que l'addon ou l'application soit ajouté à votre version de Wampserver.\r\n\r\nEnsuite, changer de version Apache, PHP, MySQL ou MariaDB est l'affaire de trois clics:\r\nClic-Gauche -> PHP|Apache|MySQL|MariaDB -> Version -> Choisir la version\r\nLe changement de version ne reprend pas les modifications de paramètres que vous auriez pu faire ni ne transfère les bases de données de l'ancienne version vers la nouvelle.\r\n\r\nUn dépôt bien mieux organisé que Sourceforge et toujours à jour existe :\r\n\r\n'http://wampserver.aviatechno.net'\r\n\r\nLes liens sur les dépôts sont dans Clic-Droit -> Aide\r\n";
+$w_MySQLsqlmodeInfo = "MySQL/MariaDB sql-mode\r\nLe serveur SQL peut fonctionner dans différents modes SQL en fonction de la valeur de la directive sql-mode.\r\nDéfinir un ou plusieurs modes restreint certaines possibilités et exige une plus grande rigeur dans la syntaxe SQL et la validation des données.\r\nLe fonctionnement de la directive sql-mode du fichier my.ini est le suivant.\r\n\r\n- sql-mode: par défaut\r\nLa directive sql-mode n'existe pas ou est commentée (;sql-mode=\"....\")\r\nLes modes par défaut de la version de MySQL/MariaDB sont appliqués\r\n\r\n- sql-mode: mode utilisateur\r\nLa directive sql-mode est remplie avec des modes définis par l'utilisateur, par exemple :\r\nsql-mode=\"NO_ZERO_DATE,NO_ZERO_IN_DATE,NO_AUTO_CREATE_USER\"\r\n\r\n- sql-mode: aucun\r\nLa directive sql-mode est vide mais doit exister :\r\nsql-mode=\"\"\r\naucun mode SQL n'est appliqué.\r\n";
+$w_PhpMyAdMinHelpTxt = "-- PhpMyAdmin\r\nAu lancement de PhpMyAdmin, il vous sera demandé un nom utilisateur et un mot de passe.\r\nAprès installation de Wampserver 3, le nom utilisateur par défaut est \"root\" (Sans les guillemets) et il n'y a pas de mot de passe, ce qui veut dire que vous devez laisser la case Mot de passe du formulaire d'accès vide.\r\n\r\nPhpMyAdmin est configuré pour vous permettre d'accéder à MySQL ou à MariaDB selon les SGBD qui sont actifs.\r\nSi les deux SGBD sont activés, vous verrez un menu déroulant sur l'écran de connexion, appelé \"Choix du serveur\", le serveur par défaut sera affiché en premier dans la liste déroulante. Sélectionnez ici le SGBD que vous souhaitez utiliser dans le cadre de la procédure de connexion.\r\nN'oubliez pas que si vous avez différents comptes d'utilisateurs, vous devez utiliser le bon pour le SGBD sélectionné.\r\nAUSSI : Si vous avez le même compte, c'est-à-dire \"root\" sur les deux SGBD, si vous avez défini des mots de passe différents, vous devez utiliser le bon mot de passe pour le compte et le SGBD.\r\n";
 
 ?>

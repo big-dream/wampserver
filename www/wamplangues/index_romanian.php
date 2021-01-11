@@ -1,6 +1,9 @@
 <?php
+// Romanian language file for Index page
+// Translated by Ciprian Murariu <ciprianmp[at]yahoo[dot]com>
 // 3.1.4 - txtTLDdev
-//
+// 3.2.0 - txtProjects
+// 3.2.1 - defaultDBMS - HelpMySQLMariaDB
 
 $langues = array(
 	'langue' => 'Română',
@@ -21,7 +24,8 @@ $langues = array(
 	'phpExt' => 'Extensii încarcate: ',
 	'titrePage' => 'Instrumente',
 	'txtProjet' => 'Proiectele Tale',
-	'txtNoProjet' => 'Nu există niciun Proiect.<br />Pentru a crea unul, nu trebuie decât sa creaţi un director (folder) în \'www\'.',
+	'txtNoProjet' => 'Nu există încă niciun Proiect.<br />Pentru a crea unul, nu trebuie decât să creaţi un director (folder) în \'www\'.',
+	'txtProjects' => 'Acestea vă sunt directoarele din %s<br />Pentru a le putea folosi ca un link http, acestea trebuiesc declarate ca VirtualHost',
 	'txtAlias' => 'Aliasuri',
 	'txtNoAlias' => 'Nu există niciun Alias.<br />Pentru a crea unul, foloseşte meniul WAMPSERVER.',
 	'txtVhost' => 'VirtualHost',
@@ -30,7 +34,7 @@ $langues = array(
 	'txtTLDdev' => 'Numele Serverului %s foloseşte TLD %s care este exclusiv folosit de browserele web. Foloseşte un alt TLD (.test spre examplu)',
 	'txtServerNameIp' => 'IP %s pentru Numele Serverului %s este invalid în fişierul %s',
 	'txtVhostNotClean' => 'Fişierul %s nu a fost golit. Rămân exemple de VirtualHost precum: dummy-host.example.com',
-	'txtNoVhost' => 'Niciun VirtualHost definit. Adaugă câte unul pentru fiecare proiect ăn fişierul: wamp/bin/apache/apache%s/conf/extra/httpd-vhosts.conf',
+	'txtNoVhost' => 'Niciun VirtualHost definit. Adaugă câte unul pentru fiecare proiect în fişierul: wamp/bin/apache/apache%s/conf/extra/httpd-vhosts.conf',
 	'txtNoIncVhost' => 'Şterge comentariul sau adaugă linia <i>Include conf/extra/httpd-vhosts.conf</i> în fişierul wamp/bin/apache/apache%s/conf/httpd.conf',
 	'txtNoVhostFile' => 'Fişierul: %s nu există',
 	'txtNoPath' => 'Calea %s pentru %s nu există (Fişierul %s)',
@@ -44,6 +48,8 @@ $langues = array(
 	'portUsed' => 'Portul definit pentru Apache: ',
 	'mysqlportUsed' => 'Portul definit pentru MySQL: ',
 	'mariaportUsed' => 'Portul definit pentru MariaDB: ',
+	'defaultDBMS' => 'DBMS implicit',
+	'HelpMySQLMariaDB' => 'Cum să folosiţi MySQL şi/sau MariaDB?<br />Ce înseamnă DBMS implicit?<br />Cum să schimbaţi DBMS implicit?<br />Citiţi pagina de Ajutor: Click-dreapta pe icon-ul Wampmanager -> Ajutor -> MariaDB - MySQL',
 	'nolocalhost' => 'Nu este o idee bună sa adăugaţi localhost în adresa (url-ul) proiectelor. Este recomandată definirea unui VirtualHost corespunzător în fişierul<br />wamp/bin/apache/apache%s/conf/extra/httpd-vhosts.conf<br />şi evitarea folosirii localhost în adrese (url).',
 	);
 ?>

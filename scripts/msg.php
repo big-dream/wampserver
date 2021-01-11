@@ -7,7 +7,7 @@ $msgId = $_SERVER['argv'][1];
 $doReport = false;
 $iw = 2;while(!empty($_SERVER['argv'][$iw])){if($_SERVER['argv'][$iw] == 'doreport') $doReport = true;$iw++;};
 $nb_arg = $_SERVER['argc'] - 1;
-if(!defined('WAMPTRACE_PROCESS')) require('config.trace.php');
+if(!defined('WAMPTRACE_PROCESS')) require 'config.trace.php';
 if(WAMPTRACE_PROCESS) {
 	$errorTxt = "script ".__FILE__;
 	$iw = 1; while(!empty($_SERVER['argv'][$iw])) {$errorTxt .= " ".$_SERVER['argv'][$iw];$iw++;}

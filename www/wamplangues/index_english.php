@@ -46,7 +46,7 @@ $langues = array(
 	'mysqlportUsed' => 'Port defined for MySQL: ',
 	'mariaportUsed' => 'Port defined for MariaDB: ',
 	'defaultDBMS' => 'default DBMS',
-	'HelpMySQLMariaDB' => 'How to use MySQL and/or MariaDB?<br>What is a default DBMS?<br>How to change the default DBMS?<br>Go to the related help: Left-click Wampmanager icon -> Help -> MariaDB - MySQL',
+	'HelpMySQLMariaDB' => 'How to use MySQL and/or MariaDB?<br>What is a default DBMS?<br>How to change the default DBMS?<br>Go to the related help: Right-click Wampmanager icon -> Help -> MariaDB - MySQL',
 	'nolocalhost' => 'It\'s a bad idea to add localhost in the url of launching projects. It is best to define VirtualHost in<br />wamp/bin/apache/apache%s/conf/extra/httpd-vhosts.conf<br />file and not add localhost in the url.',
 	);
 ?>

@@ -5,6 +5,7 @@
 //3.1.1   $w_cmdWindows - $w_mysqlCommand - $w_mariadbCommand - $w_apacheCommand - $w_services_msc
 //3.2.0		$w_helpForums - $w_helpUse
 //3.2.1   $w_apacheSettings - $w_apacheDefaults
+//3.2.2 $w_helpFile modifié
 
 $w_allServicesRunning = 'All services running';
 $w_oneServiceRunning = '%n of %t services running';
@@ -14,7 +15,7 @@ $w_serverOffline = 'local server';
 $w_serverOnline = 'server Online';
 
 $w_about = 'About...';
-$w_helpFile = 'Help File';
+$w_helpFile = 'Files & Documentation';
 $w_help = 'Help';
 $w_helpForums = 'Support forums';
 $w_helpUse = 'Operating instructions';

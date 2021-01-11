@@ -14,6 +14,10 @@
 // $w_enterServiceNameAll - $w_settings['NotVerifyPATH'] - $w_MysqlMariaUser
 // 3.1.4 $w_settings 'NotVerifyTLD' 'Cleaning' 'AutoCleanLogs' 'AutoCleanLogsMax' 'AutoCleanLogsMax' 'AutoCleanTmp' 'AutoCleanTmpMax' 'iniCommented'
 // $w_wampReport - $w_dowampReport
+// 3.1.9 $w_settings 'BackupHosts'
+// 3.2.0 $w_verifySymlink  - $w_settings['NotVerifyHosts']
+// 3.2.1 $w_addingVer - $w_addingVerTxt - $w_goto - $w_FileRepository
+// 3.2.2 $w_MysqlMariaUser $w_EnterSize modified
 
 // Projects sub-menu
 $w_projectsSubMenu = 'Proiecte personale';
@@ -31,7 +35,6 @@ $w_portForMysql = 'Portul MySQL';
 $w_testPortMysql = 'Testeazã portul 3306';
 $w_testPortMysqlUsed = 'Testeazã portul MySQL: ';
 $w_testPortMariaUsed = 'Testeazã portul MariaDB: ';
-$w_enterPort = 'Introdu numãrul noului port';
 
 // Right-click Settings
 $w_wampSettings = 'Setãri Wamp';
@@ -55,6 +58,7 @@ $w_settings = array(
 	'mysqlUseConsolePrompt' => 'Modificã prompterul implicit al consolei MySQL',
 	'NotVerifyPATH' => 'Nu testa CALEA',
 	'NotVerifyTLD' => 'Nu testa TLD',
+	'NotVerifyHosts' => 'Nu verifica fiºierul hosts',
 	'Cleaning' => 'Curãþare Automatã',
 	'AutoCleanLogs' => 'Curãþã automat fiºierele jurnal',
 	'AutoCleanLogsMax' => 'Numãr de linii înainte de curãþare',
@@ -63,6 +67,7 @@ $w_settings = array(
 	'AutoCleanTmpMax' => 'Numãr de fiºiere înainte de curãþare',
 	'ForTestOnly' => 'Numai în scopul testãrii',
 	'iniCommented' => 'Directive php.ini comentate (; la începutul liniei)',
+	'BackupHosts' => 'Fiºier hosts de rezervã',
 );
 
 // Right-click Tools
@@ -84,6 +89,7 @@ $w_misc = 'Diverse';
 $w_emptyAll = 'Goleºte TOATE';
 $w_dnsorder = 'Verificã ordinea de cãutare a DNS';
 $w_deleteVer = 'ªterge versiunile neutilizate';
+$w_addingVer = 'Adaugã versiuni de Apache, PHP, MySQL, MariaDB, etc.';
 $w_deleteListenPort = 'ªterge un port de Intrare Apache';
 $w_delete = 'ªterge';
 $w_defaultDBMS = 'DBMS implicit:';
@@ -92,6 +98,9 @@ $w_changeCLI = 'Schimbã versiunea PHP CLI';
 $w_reinstallServices = 'Reinstaleazã toate serviciile';
 $w_wampReport = 'Raportul de Configurare Wampserver';
 $w_dowampReport = 'Genereazã '.$w_wampReport;
+$w_verifySymlink = 'Verificã link-uri simbolice';
+$w_goto = 'Mergi la:';
+$w_FileRepository = 'Link-uri cãtre arhiva de fiºiere ºi addon-uri pentru Wampserver';
 
 //miscellaneous
 $w_ext_spec = 'Extensii speciale';
@@ -106,11 +115,19 @@ $w_mysql_none = "niciunul";
 $w_mysql_user = "modul utilizator";
 $w_mysql_default = "implicit";
 $w_Size = "Mãrimea";
-$w_EnterSize = "Introdu Mãrimea: xxxx urmat de M pentru Mega sau G pentru Giga";
 $w_Time = "Timul";
-$w_EnterTime = "Introdu timpul în secunde";
 $w_Integer = "Numãr Întreg";
+
+// PromptText for Aestan Tray Menu type: prompt variables
+// Quotation marks " in texts must be escaped: \" - May have \r\n for multilines
 $w_EnterInteger = "Introdu un numãr întreg";
-$w_MysqlMariaUser = "Introdu un nume de utilizator valabil. Dacã nu-l cuno?ti, pãstreazã 'root' implicit.";
+$w_enterPort = 'Introdu numãrul noului port';
+$w_EnterSize = "Introdu Mãrimea: xxxx urmat de M pentru Mega sau G pentru Giga.\r\nNumãrul trebuie însoþit de simbolul M or G.\r\nExemplu : 64M ; 256M ; 1G";
+$w_EnterTime = "Introdu timpul în secunde";
+$w_MysqlMariaUser = "Introdu un nume de utilizator valabil. Dacã nu-l cunoºti, pãstreazã 'root' implicit.\r\nIf you have set a password for either root or the chosen user, you will need to type that password when prompted for 'Enter password:' from the console. Without password, Enter key";
+
+// Long texts
+// Quotation marks " in texts must be escaped: \" - May have \r\n for multilines
+$w_addingVerTxt ="Toate \"addon-urile\", ex. toate installer-ele pentru versiunile Apache, PHP, MySQL sau MariaDB cât ºi cele pentru actualizãri (Wampserver, Aestan Tray Menu, xDebug, etc.), precum ºi aplicaþiile web (PhpMyAdmin, Adminer) se gãsesc la adresa\r\n\r\n'https://sourceforge.net/projects/wampserver/'\r\n\r\nDescãrcaþi fiºierele pe care le doriþi ºi lansaþi-le apãsând click-dreapta pe numele lor, iar apoi \"Ruleazã ca administrator\" pentru a adãuga addon-ul sau aplicaþia respectivã la versiunea existentã de Wampserver.\r\n\r\nApoi, schimbarea versiunii de Apache, PHP, MySQL sau MariaDB se face în doar trei paºi:\r\nClick-stânga pe icon -> PHP|Apache|MySQL|MariaDB -> Schimbã versiunea -> Versiune\r\n\r\nSchimbarea versiunii nu va realiza automat ºi schimbarea parametrilor modificaþi anterior ºi nici nu va transfera bazele de date de la vechea versiune la cea nouã.\r\n\r\nO arhivã mult mai bine organizatã ºi permanent la zi decât cea de la Sourceforge existã la adresa:\r\n\r\n'http://wampserver.aviatechno.net'.\r\n\r\nLink-urile la arhive se regãsesc cu Click-dreapta pe icon -> Ajutor\r\n";
 
 ?>

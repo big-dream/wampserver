@@ -1,4 +1,15 @@
 Changelog
+--- Wampserver 3.2.2
+- Aestan Tray Menu - PromptText multiline support
+- Functions for PromptText multiligne
+- Viewing log file sizes
+- Obsolete code cleanup
+- Removing unnecessary functions
+- Redundancy check
+- Miscellaneous improvements
+To use or unactive MariaDB or MySQL, read the file mariadb_mysql.txt
+This update is cumulative Updates 3.0.1 to 3.2.2. It may be reinstalled in case of modified files by error
+
 --- Wampserver 3.2.1
 - Improve reinstall all services
 - Check SERVICE_START_NAME for all services
@@ -11,8 +22,6 @@ Changelog
 - Displaying some Apache settings
 - Improve automatic cleanup of log files
 - Aestan Tray Menu - Support text menu items
-To use or unactive MariaDB or MySQL, read the file mariadb_mysql.txt
-This update is cumulative Updates 3.0.1 to 3.2.1. It may be reinstalled in case of modified files by error
 
 --- Wampserver 3.2.0
 - Aestan Tray Menu (Wampmanager.exe) complete redevelopment

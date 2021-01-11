@@ -47,6 +47,7 @@ Type: submenu; Caption: "${w_version}"; SubMenu: mariadbVersion; Glyph: 3
 Type: servicesubmenu; Caption: "${w_service} '${c_mariadbService}'"; Service: ${c_mariadbService}; SubMenu: mariadbService
 Type: submenu; Caption: "${w_mariaSettings}"; SubMenu: mariadb_params; Glyph: 25
 Type: item; Caption: "${w_mariadbConsole}"; Action: run; FileName: "${c_mariadbConsole}";Parameters: "-u %MariaUser% -p"; Glyph: 0
+Type: separator; Caption: "${w_helpFile}";
 Type: item; Caption: "my.ini"; Glyph: 6; Action: run; FileName: "${c_editor}"; parameters: "${c_mariadbConfFile}"
 Type: item; Caption: "${w_mariadbLog}	(${logFilesSize['mariadb.log']})"; Glyph: 6; Action: run; FileName: "${c_logviewer}"; parameters: "${c_installDir}/${logDir}mariadb.log"
 Type: item; Caption: "${w_mariadbDoc}"; Action: run; FileName: "${c_navigator}"; Parameters: "${c_edge}http://mariadb.com/kb/en/mariadb/documentation"; Glyph: 35
@@ -199,7 +200,9 @@ foreach ($mariadbVersionList as $oneMariaDBVersion) {
     $mareplacemenu .= <<< EOF
 [switchMariaDB${oneMariaDBVersion}]
 Action: service; Service: ${c_mariadbService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated
+Action: run; FileName: "net"; Parameters: "stop ${c_mariadbService}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
 Action: run; FileName: "${c_mariadbExe}"; Parameters: "${c_mariadbServiceRemoveParams}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
+Action: run; FileName: "sc"; Parameters: "\\\\. delete ${c_mariadbService}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
 Action: closeservices;
 Action: run; FileName: "{$c_phpCli}";Parameters: "switchMariaDBVersion.php ${oneMariaDBVersion}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
 Action: run; FileName: "{$c_phpCli}";Parameters: "switchMariaPort.php ${c_UsedMariaPort}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
@@ -373,7 +376,7 @@ foreach ($params_for_mariadb as $paramname=>$paramstatus)
 				$mariadbini['sql-mode'] = 'none';
       	$mariadbConfTextInfo .= 'Type: separator; Caption: "sql-mode: '.$w_mysql_none.'"
 ';
-      	$mariadbConfTextInfo .= 'Type: separator; Caption: "sql-mode="""" in my.ini"
+				$mariadbConfTextInfo .= 'Type: submenu; Caption: "'.$w_mysql_mode.'"; Submenu: mysql-mode; Glyph: 22
 ';
 				$mariadbConfTextMode = 'Type: submenu; Caption: "'.$paramname.'"; Submenu: '.$paramname.$typebase.'; Glyph: 9
 ';
@@ -382,7 +385,7 @@ foreach ($params_for_mariadb as $paramname=>$paramstatus)
 				$valeurs = $default_valeurs;
       	$mariadbConfTextInfo .= 'Type: separator; Caption: "sql-mode:  '.$w_mysql_default.'"
 ';
-      	$mariadbConfTextInfo .= 'Type: separator; Caption: ";sql-mode=""..."" commented in my.ini"
+				$mariadbConfTextInfo .= 'Type: submenu; Caption: "'.$w_mysql_mode.'"; Submenu: mysql-mode; Glyph: 22
 ';
 				foreach($valeurs as $val) {
 					$mariadbConfTextInfo .= 'Type: item; Caption: "'.$val.'"; Action: multi; Actions: none
@@ -396,6 +399,8 @@ foreach ($params_for_mariadb as $paramname=>$paramstatus)
 				$valeurs = explode(',',$mariadbini['sql-mode']);
 				$valeurs = array_map('trim',$valeurs);
      		$mariadbConfTextInfo .= 'Type: separator; Caption: "sql-mode: '.$w_mysql_user.'"
+';
+				$mariadbConfTextInfo .= 'Type: submenu; Caption: "'.$w_mysql_mode.'"; Submenu: mysql-mode; Glyph: 22
 ';
 				$MyUserError = false;
 				foreach($valeurs as $val) {
@@ -562,7 +567,7 @@ if(count($MenuSup) > 0) {
 
 $tpl = str_replace(';WAMPMARIADB_PARAMSSTART',$mariadbConfText,$tpl);
 $TestPort3306 = ';';
-unset($mariadbConfText);
+unset($mariadbConfText,$mariadbConfTextInfo,$mariadbConfForInfo,$mariadbConfTextMode);
 }
 
 ?>

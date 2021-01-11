@@ -47,8 +47,8 @@ ${DBMSHeader}
 Type: submenu; Caption: "${w_version}"; SubMenu: mysqlVersion; Glyph: 3
 Type: servicesubmenu; Caption: "${w_service} '${c_mysqlService}'"; Service: ${c_mysqlService}; SubMenu: mysqlService
 Type: submenu; Caption: "${w_mysqlSettings}"; SubMenu: mysql_params; Glyph: 25
-;Type: item; Caption: "${w_mysqlConsole}"; Action: run; FileName: "${c_mysqlConsole}"; Parameters: "-u root -p"; Glyph: 0
 Type: item; Caption: "${w_mysqlConsole}"; Action: run; FileName: "${c_mysqlConsole}"; Parameters: "-u %MysqlUser% -p"; Glyph: 0
+Type: separator; Caption: "${w_helpFile}";
 Type: item; Caption: "my.ini"; Glyph: 33; Action: run; FileName: "${c_editor}"; parameters: "${c_mysqlConfFile}"
 Type: item; Caption: "${w_mysqlLog}	(${logFilesSize['mysql.log']})"; Glyph: 33; Action: run; FileName: "${c_logviewer}"; parameters: "${c_installDir}/${logDir}mysql.log"
 Type: item; Caption: "${w_mysqlDoc}"; Action: run; FileName: "${c_navigator}"; Parameters: "${c_edge}http://dev.mysql.com/doc/index.html"; Glyph: 35
@@ -206,7 +206,9 @@ foreach ($mysqlVersionList as $oneMysqlVersion) {
   	$myreplacemenu .= <<< EOF
 [switchMysql${oneMysqlVersion}]
 Action: service; Service: ${c_mysqlService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated
+Action: run; FileName: "net"; Parameters: "stop ${c_mysqlService}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
 Action: run; FileName: "${c_mysqlExe}"; Parameters: "${c_mysqlServiceRemoveParams}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
+Action: run; FileName: "sc"; Parameters: "\\\\. delete ${c_mysqlService}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
 Action: closeservices;
 Action: run; FileName: "${c_phpCli}";Parameters: "switchMysqlVersion.php ${oneMysqlVersion}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
 Action: run; FileName: "${c_mysqlVersionDir}/mysql${oneMysqlVersion}/${mysqlConf['mysqlExeDir']}/${mysqlConf['mysqlExeFile']}"; Parameters: "${mysqlConf['mysqlServiceInstallParams']}"; ShowCmd: hidden; Flags: waituntilterminated
@@ -396,7 +398,7 @@ foreach ($params_for_mysqlini as $paramname=>$paramstatus)
 				$mysqlini['sql-mode'] = 'none';
       	$mysqlConfTextInfo .= 'Type: separator; Caption: "sql-mode: '.$w_mysql_none.'"
 ';
-      	$mysqlConfTextInfo .= 'Type: separator; Caption: "sql-mode="""" in my.ini"
+				$mysqlConfTextInfo .= 'Type: submenu; Caption: "'.$w_mysql_mode.'"; Submenu: mysql-mode; Glyph: 22
 ';
 				$mysqlConfTextMode = 'Type: submenu; Caption: "'.$paramname.'"; Submenu: '.$paramname.$typebase.'; Glyph: 9
 ';
@@ -405,7 +407,7 @@ foreach ($params_for_mysqlini as $paramname=>$paramstatus)
 				$valeurs = $default_valeurs;
       	$mysqlConfTextInfo .= 'Type: separator; Caption: "sql-mode:  '.$w_mysql_default.'"
 ';
-      	$mysqlConfTextInfo .= 'Type: separator; Caption: ";sql-mode=""..."" commented in my.ini"
+				$mysqlConfTextInfo .= 'Type: submenu; Caption: "'.$w_mysql_mode.'"; Submenu: mysql-mode; Glyph: 22
 ';
 				foreach($valeurs as $val) {
 					$mysqlConfTextInfo .= 'Type: item; Caption: "'.$val.'"; Action: multi; Actions: none
@@ -419,6 +421,8 @@ foreach ($params_for_mysqlini as $paramname=>$paramstatus)
 				$valeurs = explode(',',$mysqlini['sql-mode']);
 				$valeurs = array_map('trim',$valeurs);
      		$mysqlConfTextInfo .= 'Type: separator; Caption: "sql-mode: '.$w_mysql_user.'"
+';
+				$mysqlConfTextInfo .= 'Type: submenu; Caption: "'.$w_mysql_mode.'"; Submenu: mysql-mode; Glyph: 22
 ';
 				$MyUserError = false;
 				foreach($valeurs as $val) {
@@ -585,7 +589,7 @@ if(count($MenuSup) > 0) {
 
 $tpl = str_replace(';WAMPMYSQL_PARAMSSTART',$mysqlConfText,$tpl);
 $TestPort3306 = ';';
-unset($mysqlConfText);
+unset($mysqlConfText,$mysqlConfTextInfo,$mysqlConfForInfo);
 }
 
 ?>

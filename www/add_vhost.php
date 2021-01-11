@@ -35,10 +35,10 @@ foreach ($languages as $i_langue) {
 }
 $langueswitcher .= '</select></form>';
 
-include('wamplangues/add_vhost_english.php');
+include 'wamplangues/add_vhost_english.php';
 if(file_exists('wamplangues/add_vhost_'.$langue.'.php')) {
 	$langue_temp = $langues;
-	include('wamplangues/add_vhost_'.$langue.'.php');
+	include 'wamplangues/add_vhost_'.$langue.'.php';
 	$langues = array_merge($langue_temp, $langues);
 }
 

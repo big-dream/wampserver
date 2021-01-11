@@ -1,13 +1,16 @@
 <?php
+// Romanian language file for VirtualHosts form
+// Translated by Ciprian Murariu <ciprianmp[at]yahoo[dot]com>
 //3.1.1 - NotwwwDir
 //3.1.3 - VirtualHostPortNone'
 //3.1.4 - txtTLDdev
+//3.1.9 - VirtualHostName modified - Accept diacritical characters (IDN)
 $langues = array(
 	'langue' => 'Română',
 	'locale' => 'romanian',
 	'addVirtual' => 'Adaugă un VirtualHost',
 	'backHome' => 'Înapoi la homepage',
-	'VirtualSubMenuOn' => '<code>Sub-meniul VirtualHost</code> trebuie setat la (Activat) în Meniul Click-Dreapta <code>Setări Wamp</code>. Apoi reîncarcă această pagină',
+	'VirtualSubMenuOn' => '<code>Sub-meniul VirtualHost</code> trebuie setat la (Activat) în Meniul Click-dreapta <code>Setări Wamp</code>. Apoi reîncarcă această pagină',
 	'UncommentInclude' => 'Anulează comentariul <small>(Elimină simbolul #)</small> liniei <code>#Include conf/extra/httpd-vhosts.conf</code><br />în fişierul %s',
 	'FileNotExists' => 'Fişierul <code>%s</code> nu există',
 	'txtTLDdev' => 'Numele Serverului %s foloseşte TLD %s care este exclusiv folosit de browserele web. Foloseşte un alt TLD (.test spre examplu)',
@@ -19,7 +22,7 @@ $langues = array(
 	'NoFirst' => '<code>localhost</code> trebuie să fie primul VirtualHost definit în fişierul <code>%s</code>',
 	'ServerNameInvalid' => 'Numele Serverului <code>%s</code> nu este valid.',
 	'LocalIpInvalid' => 'IP-ul local <code>%s</code> nu este valid.',
-	'VirtualHostName' => 'Numele <code>VirtualHost</code> Fără spaţii - fără underscore(_) ',
+	'VirtualHostName' => 'Numele <code>VirtualHost</code> Fără spaţii - Fără underscore(_) ',
 	'VirtualHostFolder' => 'Completează <code>calea</code> absolută către <code>directorul</code> VirtualHost <i>Exemplu: C:/wamp/www/project/ sau E:/www/site1/</i> ',
 	'VirtualHostIP' => '<code class="option">Dacă</code> vrei să foloseşti VirtualHost după IP: <code class="option">IP local</code> 127.x.y.z ',
 	'VirtualHostPort' => '<code class="option">Dacă</code> vrei să foloseşti un alt "Port de Intrare" decât cel implicit <code class="option">Porturi acceptate</code> %s',
@@ -35,8 +38,8 @@ $langues = array(
 	'NoModify' => 'Imposibil de modificat <code>httpd-vhosts.conf</code> sau fişierele <code>hosts</code>',
 	'VirtualCreated' => 'Fişierele au fost modificate. VirtualHost <code>%s</code> a fost creat',
 	'CommandMessage' => 'Mesajele de la consolă pentru actualizarea DNS:',
-	'However' => 'Poţi adăuga un nou VirtualHost folosind "Adaugă un VirtualHost".<br />Oricum, pentru ca noul VirtualHost să fie luat în considerare de Serverul Apache, trebuie să apeşi pe<br /><code>Reporneşte DNS</code><br />din Meniul Click-Dreapta pe icon-ul Wampmanager din bară. <i>(Din păcate, acest lucru nu se poate face în mod automat)</i>',
-	'suppForm' => 'Elimină formularul VirtualHost',
+	'However' => 'Poţi adăuga un nou VirtualHost folosind "Adaugă un VirtualHost".<br />Oricum, pentru ca noul VirtualHost să fie luat în considerare de Serverul Apache, trebuie să apeşi pe<br /><code>Reporneşte DNS</code><br />din Meniul Click-dreapta pe icon-ul Wampmanager din bară. <i>(Din păcate, acest lucru nu se poate face în mod automat)</i>',
+	'suppForm' => 'Goleşte formularul VirtualHost',
 	'suppVhost' => 'Elimină VirtualHost',
 	'Required' => 'Obligatoriu',
 	'Optional' => 'Opţional',

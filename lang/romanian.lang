@@ -5,6 +5,8 @@
 //        $w_apacheDoc - $w_mysqlDoc - $w_mariadbDoc - $w_phpDoc - $w_doc
 //3.0.8 - $w_noDBMS
 //3.1.1   $w_cmdWindows - $w_mysqlCommand - $w_mariadbCommand - $w_apacheCommand - $w_services_msc
+//3.2.0		$w_helpForums - $w_helpUse
+//3.2.1   $w_apacheSettings - $w_apacheDefaults
 
 $w_translated_by = 'Tradus în limba românã de Ciprian Murariu';
 
@@ -18,6 +20,8 @@ $w_serverOnline = 'Server Online';
 $w_about = 'Despre...';
 $w_helpFile = 'Fiºier Ajutor';
 $w_help = 'Ajutor';
+$w_helpForums = 'Forumuri de sprijin';
+$w_helpUse = 'Instrucþiuni de operare';
 $w_exit = 'Ieºire';
 $w_version = 'Schimbã Versiunea';
 $w_service = 'Administreazã Serviciul';
@@ -32,6 +36,8 @@ $w_wwwDirectory = 'directorul www';
 $w_logFiles = 'Fiºiere Jurnal';
 $w_configFiles = 'Fiºiere Configurare';
 $w_apacheModules = 'Module Apache';
+$w_apacheSettings = 'Setãri Apache';
+$w_apacheDefaults = 'Directive implicite';
 $w_phpSettings = 'Setãri PHP';
 $w_aliasDirectories = 'Directoare Alias';
 $w_services = 'Servicii';

@@ -1,9 +1,8 @@
 <?php
-//Change 3.2.0
-// function write_file
+// 3.2.0 function write_file
+// 3.2.2 modify switchPhpVersion function for LoadModule in httpd.conf
 //
-//
-if(!defined('WAMPTRACE_PROCESS')) require('config.trace.php');
+if(!defined('WAMPTRACE_PROCESS')) require 'config.trace.php';
 if(WAMPTRACE_PROCESS) {
 	$errorTxt = "script ".__FILE__;
 	$iw = 1; while(!empty($_SERVER['argv'][$iw])) {$errorTxt .= " ".$_SERVER['argv'][$iw];$iw++;}
@@ -262,37 +261,18 @@ function switchPhpVersion($newPhpVersion) {
 
 	}
 
-	// modifying the conf apache file
-	$httpdContents = file($c_apacheConfFile);
-	$newHttpdContents = '';
-	$change = false;
-	foreach ($httpdContents as $line)
-	{
-		if (strpos($line,'LoadModule') !== false && (strpos($line,'php5_module') !== false || strpos($line,'php7_module') !== false))
-		{
-			$c_phpVersionDirA = (substr($c_apacheVersion,0,3) == '2.4') ? str_replace($c_installDir, '${INSTALL_DIR}',$c_phpVersionDir) : $c_phpVersionDir ;
-			$newline = 'LoadModule '.$phpConf['apache'][$apacheVersion]['LoadModuleName'].' "'.$c_phpVersionDirA.'/php'.$newPhpVersion.'/'.$phpConf['apache'][$apacheVersion]['LoadModuleFile'].'"'."\r\n";
-			if($line !== $newline) {
-				$newHttpdContents .= $newline;
-				$change = true;
-			}
-		}
-    elseif (!empty($phpConf['apache'][$apacheVersion]['AddModule']) && strstr($line,'AddModule') && strstr($line,'php')) {
-    	$newHttpdContents .= 'AddModule '.$phpConf['apache'][$apacheVersion]['AddModule']."\r\n";
-    	$change = true;
-    }
-		else
-			$newHttpdContents .= $line;
+	// modifying httpd.conf apache file for LoadModule php5_module or php7_module
+	// New method with preg_replace 3.2.2
+	$httpdFileContents = file_get_contents_dos($c_apacheConfFile);
+	$c_phpVersionDirA = (substr($c_apacheVersion,0,3) == '2.4') ? str_replace($c_installDir, '${INSTALL_DIR}',$c_phpVersionDir) : $c_phpVersionDir ;
+	$search = '~^(LoadModule[ \t]+)(php7_module|php5_module)([ \t]+".+/bin/php/)(.+)(/)(.+\.dll)"\r?$~mi';
+	$replacement = '${1}'.$phpConf['apache'][$apacheVersion]['LoadModuleName'].' "'.$c_phpVersionDirA.'/php'.$newPhpVersion.'${5}'.$phpConf['apache'][$apacheVersion]['LoadModuleFile'].'"';
+	$httpdFileContents = preg_replace($search, $replacement, $httpdFileContents, -1 , $count);
+	if($count > 0) {
+		write_file($c_apacheConfFile,$httpdFileContents);
 	}
-	if($change) {
-		$fileput = file_put_contents($c_apacheConfFile,$newHttpdContents);
-		if($fileput === false) {
-			error_log("Error file_put_contents for file ".$c_apacheConfFile);
-		}
-		else {
-			if(WAMPTRACE_PROCESS) error_log("File ".$c_apacheConfFile." -+- HAS BEEN WRITTEN -+- (file_put_contents)\n",3,WAMPTRACE_FILE);
-		}
-	}
+	unset($httpdFileContents);
+	// End of new method
 
 	//modifying the conf of WampServer
 	$wampIniNewContents['phpIniDir'] = $phpConf['phpIniDir'];
@@ -974,6 +954,22 @@ function FileSizeConvert($bytes) {
     }
   }
   return $result;
+}
+
+//Function to replace some characters by entities
+//for Aestan Tray Menu PromptText fields and Text menu items
+//TypeAll = true  : \r\n by #13 and , by &#44;
+//TypeAll = false : \r\n by nothing and , by space
+function ReplaceAestan($value,$What = 'all') {
+	if($What == 'all') {
+		$search  = array("\r\n","\r","\n",',');
+		$replace = array("#13",'','','&#44;');
+	}
+	else {
+		$search  = array("\r\n","\r","\n",', ',',');
+		$replace = array('','','',' ',' ');
+	}
+	return str_replace($search,$replace,$value);
 }
 
 // Function test of IPv6 support
