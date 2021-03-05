@@ -7,6 +7,7 @@
 //3.1.1   $w_cmdWindows - $w_mysqlCommand - $w_mariadbCommand - $w_apacheCommand - $w_services_msc
 //3.2.0		$w_helpForums - $w_helpUse
 //3.2.1   $w_apacheSettings - $w_apacheDefaults
+//3.2.2	$w_helpFile modified
 
 $w_translated_by = 'Tradus în limba românã de Ciprian Murariu';
 
@@ -18,7 +19,7 @@ $w_serverOffline = 'Server local';
 $w_serverOnline = 'Server Online';
 
 $w_about = 'Despre...';
-$w_helpFile = 'Fiºier Ajutor';
+$w_helpFile = 'Fiºiere ºi Documentaþii';
 $w_help = 'Ajutor';
 $w_helpForums = 'Forumuri de sprijin';
 $w_helpUse = 'Instrucþiuni de operare';

@@ -32,19 +32,19 @@ $message .=  "===== Tested by command netstat filtered on port ".$port." =====\n
 //Port tested by netstat for TCP and TCPv6
 $tcp = array('TCP', 'TCPv6');
 foreach($tcp as $value) {
-$command = 'netstat -anop '.$value.' | FINDSTR /C:":'.$port.'"';
+$command = 'CMD /D /C netstat -anop '.$value.' | FINDSTR /C:":'.$port.'"';
 $output = `$command`;
 //error_log("output=".$output);
 if(!empty($output)) {
 	$message .=  "\nTest for ".$value."\n";
 	if(preg_match("~^[ \t]*TCP.*:".$port." .*LISTENING[ \t]*([0-9]{1,5}).*$~m", $output, $pid) > 0) {
 		$message .=  "Your port ".$port." is used by a processus with PID = ".$pid[1]."\n";
-		$command = 'tasklist /FI "PID eq '.$pid[1].'" /FO TABLE /NH';
+		$command = 'CMD /D /C tasklist /FI "PID eq '.$pid[1].'" /FO TABLE /NH';
 		$output = `$command`;
 		if(!empty($output)) {
 			if(preg_match("~^(.+[^ \t])[ \t]+".$pid[1]." ([a-zA-Z]+[^ \t]*).+$~m", $output, $matches) > 0) {
 				$message .=  "The processus of PID ".$pid[1]." is '".$matches[1]."' Session: ".$matches[2]."\n";
-				$command = 'tasklist /SVC | FINDSTR /C:"'.$pid[1].'"';
+				$command = 'CMD /D /C tasklist /SVC | FINDSTR /C:"'.$pid[1].'"';
 				$output = `$command`;
 				if(!empty($output)) {
 					if(preg_match("~^(.+[^ \t])[ \t]+".$pid[1]." ([a-zA-Z]+[^ \t]*).+$~m", $output, $matches) > 0) {
@@ -64,7 +64,7 @@ if(!empty($output)) {
 									else {
 										$message .= $matches[2]." means that there are no service related to PID ".$pid[1]."\n";
 										if($wampConf['SupportMySQL'] == 'on' && version_compare($c_mysqlVersion,'8.0.0', '>=')) {
-											$command = 'tasklist /SVC /FI "IMAGENAME eq mysqld.exe" | FINDSTR /C:"'.$c_mysqlService.'"';
+											$command = 'CMD /D /C tasklist /SVC /FI "IMAGENAME eq mysqld.exe" | FINDSTR /C:"'.$c_mysqlService.'"';
 											$output = `$command`;
 											if(!empty($output)) {
 												if(preg_match("~^(mysqld\.exe)[ \t]+([0-9]+)[ \t]+(".$c_mysqlService.").*$~m",$output, $matches) > 0) {

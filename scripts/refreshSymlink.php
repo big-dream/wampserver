@@ -1,6 +1,8 @@
 <?php
+// - 3.2.5 add CMD /D /C to Command Windows to avoid
+//         automatic autorun of registry keys
+
 //Script to rebuild symbolic links
-//
 if(!defined('WAMPTRACE_PROCESS')) require 'config.trace.php';
 if(WAMPTRACE_PROCESS) {
 	$errorTxt = "script ".__FILE__;
@@ -17,7 +19,7 @@ $doReport = (!empty($_SERVER['argv'][3]) && $_SERVER['argv'][3] == 'doreport') ?
 
 if($wampConf['CreateSymlink'] == 'copy') {
 	echo "Stop Apache service\n";
-	$command = "net stop ".$c_apacheService;
+	$command = "CMD /D /C net stop ".$c_apacheService;
 	`$command`;
 }
 
@@ -27,7 +29,7 @@ $checkSymlinkResult = CheckSymlink($newPhpVersion);
 
 if($wampConf['CreateSymlink'] == 'copy') {
 	echo "Start Apache service\n";
-	$command = "net start ".$c_apacheService;
+	$command = "CMD /D /C net start ".$c_apacheService;
 	`$command`;
 }
 

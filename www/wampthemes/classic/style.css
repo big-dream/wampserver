@@ -88,12 +88,19 @@ ul.aliases a, ul.vhost a {
 	background: url('img/pngFolderGo.png') 0 100% no-repeat;
 }
 
-li.projectsdir {
+li.projectsdir, li.phpmynot {
 	line-height:95%;
-	margin-top:10px;
-	padding-right:15px;
 	font-size: 0.72em;
 	color: #04569A;
+	margin-top:10px;
+	padding-right:15px;
+}
+
+li.phpmynot {
+	margin:0;
+	padding:0;
+	float:left;
+	width:17em;
 }
 
 dl {
@@ -104,12 +111,12 @@ dl {
 dt {
 	font-weight: bold;
 	text-align: right;
-	width: 11em;
+	width: 15em;
 	clear: both;
 }
 
 dd {
-	margin: -1.35em 0 0 12em;
+	margin: -1.35em 0 0 16em;
 	padding-bottom: 0.4em;
 	overflow: auto;
 }
@@ -122,6 +129,18 @@ dd ul li {
 	padding: 0 0 0 20px;
 	background: url('img/pngPlugin.png') 2px 50% no-repeat;
 	line-height: 1.35;
+}
+dd.ddphpext {
+	margin-left:1.5em;
+}
+
+ul.phpext {
+	margin-top:1.5em;
+}
+
+ul.phpext li {
+	width: 6%;
+  min-width: 100px;
 }
 
 .divider1 {

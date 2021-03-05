@@ -376,6 +376,7 @@ $mysqlParams = array (
 	'skip-grant-tables',
 	'table_definition_cache',
 	'default_authentication_plugin',
+	'local_infile',
 	'secure_file_priv',
 );
 //MySQL parameters with values not On or Off cannot be switched on or off
@@ -474,7 +475,10 @@ $mysqlParamsNotOnOff = array(
 		'msg' => "\n\nWARNING!! WARNING!!\nThis option causes the server to start without using the privilege system at all, WHICH GIVES ANYONE WITH ACCESS TO THE SERVER UNRESTRICTED ACCESS TO ALL DATABASES.\nThis option also causes the server to suppress during its startup sequence the loading of user-defined functions (UDFs), scheduled events, and plugins that were installed.\n\nYou should leave this option 'uncommented' ONLY for the time required to perform certain operations such as the replacement of a lost password for 'root'.\n",
 		),
 	'default_authentication_plugin' => array('change' => false,),
-	'secure_file_priv' => array('change' => false,),
+	'local_infile' => array('change' => false,
+	'msg' => "\nlocal_infile: If set to 1, LOCAL is supported for LOAD DATA INFILE statements.\nIf set to 0, usually for security reasons, attempts to perform a LOAD DATA LOCAL will fail with an error message."),
+	'secure_file_priv' => array('change' => false,
+	'msg' => "\nsecure_file_priv: LOAD DATA, SELECT ... INTO and LOAD FILE() will only work with files in the specified path.\nIf not set, the default, or set to empty string, the statements will work with any files that can be accessed."),
 );
 
 //MariaDB parameters
@@ -494,6 +498,7 @@ $mariadbParams = array (
 	'sort_buffer_size',
 	'prompt',
 	'skip-grant-tables',
+	'secure_file_priv',
 );
 //MariaDB parameters with values not On or Off cannot be switched on or off
 //Can be changed if 'change' = true && 'title' && 'values'
@@ -581,8 +586,10 @@ $mariadbParamsNotOnOff = array(
 		),
 	'skip-grant-tables' => array(
 		'change' => false,
-		'msg' => "\n\nWARNING!! WARNING!!\nThis option causes the server to start without using the privilege system at all, WHICH GIVES ANYONE WITH ACCESS TO THE SERVER UNRESTRICTED ACCESS TO ALL DATABASES.\nThis option also causes the server to suppress during its startup sequence the loading of user-defined functions (UDFs), scheduled events, and plugins that were installed.\n\nYou should leave this option 'uncommented' ONLY for the time required to perform certain operations such as the replacement of a lost password for 'root'.\n",
-		),
+		'msg' => "\n\nWARNING!! WARNING!!\nThis option causes the server to start without using the privilege system at all, WHICH GIVES ANYONE WITH ACCESS TO THE SERVER UNRESTRICTED ACCESS TO ALL DATABASES.\nThis option also causes the server to suppress during its startup sequence the loading of user-defined functions (UDFs), scheduled events, and plugins that were installed.\n\nYou should leave this option 'uncommented' ONLY for the time required to perform certain operations such as the replacement of a lost password for 'root'.\n"),
+	'secure_file_priv' => array(
+		'change' => false,
+		'msg' => "\nsecure_file_priv: LOAD DATA, SELECT ... INTO and LOAD FILE() will only work with files in the specified path.\nIf not set, the default, or set to empty string, the statements will work with any files that can be accessed."),
 );
 
 // Adding parameters to WampServer modifiable
@@ -601,6 +608,7 @@ $wamp_Param = array(
 	'HomepageAtStartup',
 	'ShowphmyadMenu',
 	'ShowadminerMenu',
+	'ShowWWWdirMenu',
 	'BackupHosts',
 	'##Cleaning',
 	'AutoCleanLogs',

@@ -18,6 +18,8 @@
 // 3.2.1 $w_addingVer - $w_addingVerTxt - $w_goto - $w_FileRepository
 // 3.2.2 $w_MysqlMariaUser and $w_EnterSize modified -  - $w_MySQLsqlmodeInfo $w_mysql_mode $w_phpMyAdminHelp $w_PhpMyAdMinHelpTxt
 // 3.2.3 https for wampserver.aviatechno
+// 3.2.5 $w_emptyLogs - $w_emptyPHPlog - $w_emptyApaErrLog - $w_emptyApaAccLog - $w_emptyMySQLog - $w_emptyMariaLog - $w_emptyAllLog
+//       $w_testAliasDir - $w_verifyxDebugdll - $w_apacheLoadedIncludes - $w_settings 'ShowWWWdirMenu'
 
 // Projects sub-menu
 $w_projectsSubMenu = 'Your projects';
@@ -68,6 +70,7 @@ $w_settings = array(
 	'ForTestOnly' => 'Only for test purpose',
 	'iniCommented' => 'Commented php.ini directives (; at the beginning of the line)',
 	'BackupHosts' => 'Backup hosts file',
+	'ShowWWWdirMenu' => 'Show www folder in Menu',
 );
 
 // Right-click Tools
@@ -84,9 +87,21 @@ $w_UseAlternatePort = 'Use a port other than %s';
 $w_AddListenPort = 'Add a Listen port for Apache';
 $w_vhostConfig = 'Show VirtualHost examined by Apache';
 $w_apacheLoadedModules = 'Show Apache loaded Modules';
+$w_apacheLoadedIncludes = 'Show Apache loaded Includes';
+$w_testAliasDir = 'Check relationships Alias  <-> Directory';
+$w_verifyxDebugdll = 'Check for unused xDebug dlls';
 $w_empty = 'Empty';
 $w_misc = 'Miscellaneous';
 $w_emptyAll = 'Empty ALL';
+
+$w_emptyLogs = 'Empty logs';
+$w_emptyPHPlog = 'Empty PHP error log';
+$w_emptyApaErrLog = 'Empty Apache error log';
+$w_emptyApaAccLog = 'Empty Apache access log';
+$w_emptyMySQLog = 'Empty MySQL log';
+$w_emptyMariaLog = 'Empty MariaDB log';
+$w_emptyAllLog ='Empty all log files';
+
 $w_dnsorder = 'Check DNS search order';
 $w_deleteVer = 'Delete unused versions';
 $w_addingVer = 'Add Apache, PHP, MySQL, MariaDB, etc. versions.';

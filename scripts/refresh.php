@@ -1,5 +1,9 @@
 <?php
-// - 3.2.4 - Support PHP 8 and xDebug 3
+//3.2.5 - See all PhpMyAdmin versions in menu
+//        Check PhpMyAdmin version versus PHP version
+//      - add CMD /D /C to Command Windows to avoid
+//        automatic autorun of registry keys
+
 
 if(!defined('WAMPTRACE_PROCESS')) require 'config.trace.php';
 if(WAMPTRACE_PROCESS) {
@@ -21,28 +25,6 @@ require 'config.inc.php';
 require 'wampserver.lib.php';
 //Verify some files
 require 'refreshVerifyFiles.php';
-
-// Get PhpMyAdmin version
-$phpmyadminVersion = '';
-$phmyadOK = false;
-if(file_exists($aliasDir.'phpmyadmin.conf')) {
-	$phmyadOK = true;
-	$myalias = @file_get_contents($aliasDir.'phpmyadmin.conf');
-	//Alias /phpmyadmin "J:/wamp/apps/phpmyadmin4.7.3/"
-	if(preg_match('~^Alias\s*/phpmyadmin\s*".*apps/phpmyadmin([0-9\.]*)/"\s?$~m',$myalias,$matches) > 0 )
-	$phpmyadminVersion = $matches[1];
-}
-
-// Get adminer version
-$adminerVersion = '';
-$adminerOK = false;
-if(file_exists($aliasDir.'adminer.conf')) {
-	$adminerOK = true;
-	$myalias = @file_get_contents($aliasDir.'adminer.conf');
-	//Alias /adminer "J:/wamp/apps/adminer4.3.1/"
-	if(preg_match('~^Alias\s*/adminer\s*".*apps/adminer([0-9\.]*)/"\s?$~m',$myalias,$matches) > 0 )
-	$adminerVersion = $matches[1];
-}
 
 // *******************
 // language management
@@ -130,6 +112,8 @@ else {
 // we need to change some options, otherwise the variables are replaced by their content.
 // Option to launch Homepage at startup
 $RunAtStart = ($wampConf['HomepageAtStartup'] == 'on' ? '' : ';');
+// Option to see www dir in menu
+$ShowWWWdir = ($wampConf['ShowWWWdirMenu'] == 'on' ? '' : ';');
 // Item submenu Apache Check port used (if not 80)
 $ApaTestPortUsed = ($wampConf['apacheUseOtherPort'] == 'on' ? '' : ';');
 // Item Tools submenu Check MySQL port used (if not 3306)
@@ -144,10 +128,6 @@ if(!empty($MariadbDefault) && !empty($MysqlDefault))
 else
 	$DefaultDBMS = (empty($MariadbDefault) ? 'MariaDB '.$c_mariadbVersion : 'MySQL '.$c_mysqlVersion);
 
-// Show PhpMyAdmin in Wampmanager menu
-$phmyadMenu = (($phmyadOK && $wampConf['ShowphmyadMenu'] == 'on') ? '' : ';');
-// Show Adminer in Wampmanager menu
-$adminerMenu = (($adminerOK && $wampConf['ShowadminerMenu'] == 'on') ? '' : ';');
 // Instructions for use file
 $c_useFileExists = ';';
 if(file_exists($c_installDir.'/instructions_utilisation.pdf')) {
@@ -168,7 +148,7 @@ $w_translated_by = (isset($w_translated_by )) ? $w_translated_by : '';
 
 //Retrieve Windows charset
 $Windows_Charset = '';
-$command = 'powershell [System.Text.Encoding]::Default | FINDSTR /I /C:"WebName"';
+$command = 'CMD /D /C powershell [System.Text.Encoding]::Default | FINDSTR /I /C:"WebName"';
 $output = `$command`;
 if(preg_match('/^WebName[\t ]+:[\t ]([a-zA-Z0-9\-]+)\r?$/i',$output,$matches) > 0) {
 	$Windows_Charset = $matches[1];
@@ -290,7 +270,6 @@ if($doReport) {
 	$wampReport['gen2'] .= <<< EOF
 
 - PHP ${c_phpCliVersion} for CLI (Internal Wampserver PHP scripts)
-- PhpMyAdmin ${phpmyadminVersion} - Adminer ${adminerVersion}
 EOF;
 	$wampConfSections = @parse_ini_file($configurationFile,true);
 	$wampReport['gen2'] .= "\n------ Wampserver configuration ------";
@@ -305,11 +284,28 @@ EOF;
 }
 
 //Warnings at the end if needed
-$WarningsAtEnd = false;
+$WarningsAtEnd 	= false;
 $WarningMenu = ';WAMPMENULEFTEND
 ';
 $WarningText = '';
 
+// Get PhpMyAdmin version's
+GetPhpMyAdminVersions();
+
+// Get adminer version
+$adminerVersion = '';
+$adminerOK = false;
+if(file_exists($aliasDir.'adminer.conf')) {
+	$adminerOK = true;
+	$myalias = @file_get_contents($aliasDir.'adminer.conf');
+	//Alias /adminer "J:/wamp/apps/adminer4.3.1/"
+	if(preg_match('~^Alias\s*/adminer\s*".*apps/adminer([0-9\.]*)/"\s?$~m',$myalias,$matches) > 0 )
+	$adminerVersion = $matches[1];
+}
+// Show Adminer in Wampmanager menu
+$adminerMenu = (($adminerOK && $wampConf['ShowadminerMenu'] == 'on') ? '' : ';');
+
+//-------------------------------------------------
 //Warning if hosts file is not writable
 if(!$c_hostsFile_writable) {
 	$WarningsAtEnd = true;
@@ -654,11 +650,55 @@ $search = ';WAMPITEMSTEXTSTART
 ';
 $tpl = str_replace($search,$search.$TextSubmenus,$tpl);
 unset($TextMenus,$TextSubmenus,$TextSubmenuName,$TextSubmenuCaption,$tempText);
+
 // Do CustomPrompt replacement
 $search = ';WAMPPROMPTCUSTOMSTART
 ';
 $tpl = str_replace($search,$search.$PromptCustom,$tpl);
 unset($PromptCustom,$PromptTemp);
+
+//******************************
+// Create PhpMyAdmin menu item's
+// Show PhpMyAdmin in Wampmanager menu ?
+if($phmyadOK && $wampConf['ShowphmyadMenu'] == 'on') {
+	$ItemMenuPMA = $SubPhpMyAdmin = '';
+	foreach($phpMyAdminAlias as $value) {
+		$glyph = (($value['compat']) ? 39 : 23);
+		$ItemMenuPMA .= <<< EOF
+	${SupportDBMS}Type: item; Caption: "${w_phpmyadmin}	${value['version']}"; Action: run; FileName: "${c_navigator}"; Parameters: "${c_edge}http://localhost${UrlPort}/${value['alias']}/"; Glyph: ${glyph}
+
+EOF;
+	}
+	if($phpmyadminCount > 1 ) {
+		$subPhpMyAdmin = <<< EOF
+${SupportDBMS}Type: submenu; Caption: "PhpMyAdmin"; Submenu: MultiplephpMyAdmin; Glyph: 39
+
+EOF;
+	// Do PhpMyAdmin replacements
+		$search = ';WAMPPHPMYADMIN
+';
+		$tpl = str_replace($search,$search.$subPhpMyAdmin,$tpl);
+		$search = ';WAMPMULTIPLEPHPMYADMIN
+';
+		$tpl = str_replace($search,$search.$ItemMenuPMA,$tpl);
+		// Add warnings PhpMyAdmin if needed
+		if($WarningsPMA) {
+			$WarningTextAll = '
+Type: Separator;
+';
+			$tpl = str_replace('WAMPMULTIPLEPHPMYADMINEND',$WarningTextAll.$WarningMenuPMA.$WarningTextPMA,$tpl);
+		}
+	}
+	else {
+		$search = ';WAMPPHPMYADMIN
+';
+		$tpl = str_replace($search,$search.$ItemMenuPMA,$tpl);
+	}
+
+	unset($ItemMenuPMA,$SubPhpMyAdmin);
+}
+// END of PhpMyAdmin menu
+//***********************
 
 // ****************************************
 // Create menu with the available languages
@@ -769,7 +809,7 @@ foreach ($phpVersionList as $onePhpVersion)
 Action: service; Service: ${c_apacheService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated
 Action: run; FileName: "${c_phpCli}";Parameters: "switchPhpVersion.php ${onePhpVersion}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
 Action: run; FileName: "${c_phpCli}";Parameters: "refresh.php";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-Action: run; FileName: "net"; Parameters: "start ${c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
+Action: run; FileName: "CMD"; Parameters: "/D /C net start ${c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
 Action: resetservices
 Action: readconfig
 
@@ -988,7 +1028,7 @@ foreach ($ext as $extname=>$extstatus)
 Action: service; Service: ${c_apacheService}; ServiceAction: stop; Flags: waituntilterminated
 Action: run; FileName: "${c_phpCli}";Parameters: "switchPhpExt.php ${extname} ${SwitchAction}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
 Action: run; FileName: "${c_phpCli}";Parameters: "refresh.php";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-Action: run; FileName: "net"; Parameters: "start ${c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
+Action: run; FileName: "CMD"; Parameters: "/D /C net start ${c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
 Action: resetservices
 Action: readconfig
 
@@ -1002,7 +1042,7 @@ EOF;
 Action: service; Service: ${c_apacheService}; ServiceAction: stop; Flags: waituntilterminated
 Action: run; FileName: "${c_phpCli}";Parameters: "switchPhpExt.php ${extcontent} ${SwitchAction}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
 Action: run; FileName: "${c_phpCli}";Parameters: "refresh.php";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-Action: run; FileName: "net"; Parameters: "start ${c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
+Action: run; FileName: "CMD"; Parameters: "/D /C net start ${c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
 Action: resetservices
 Action: readconfig
 
@@ -1221,7 +1261,7 @@ EOF;
 Action: service; Service: ${c_apacheService}; ServiceAction: stop; Flags: waituntilterminated
 Action: run; FileName: "${c_phpCli}";Parameters: "changePhpParam.php ${quoted} ${action} ${tz}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
 Action: run; FileName: "${c_phpCli}";Parameters: "refresh.php";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-Action: run; FileName: "net"; Parameters: "start ${c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
+Action: run; FileName: "CMD"; Parameters: "/D /C net start ${c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
 Action: resetservices
 Action: readconfig
 
@@ -1257,7 +1297,7 @@ Type: separator; Caption: "'.$phpParamsNotOnOff[$action]['title'].'"
 Action: service; Service: ${c_apacheService}; ServiceAction: stop; Flags: waituntilterminated
 Action: run; FileName: "${c_phpRun}";Parameters: "changePhpParam.php ${quoted} ${action} ${param_value}${param_third}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
 Action: run; FileName: "${c_phpCli}";Parameters: "refresh.php";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-Action: run; FileName: "net"; Parameters: "start ${c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
+Action: run; FileName: "CMD"; Parameters: "/D /C net start ${c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
 Action: resetservices
 Action: readconfig
 
@@ -1289,7 +1329,7 @@ foreach ($params_for_wampini as $paramname=>$paramstatus)
 Action: service; Service: ${c_apacheService}; ServiceAction: stop; Flags: waituntilterminated
 Action: run; FileName: "${c_phpCli}";Parameters: "switchPhpParam.php ${phpParams[$paramname]} ${SwitchAction}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
 Action: run; FileName: "${c_phpCli}";Parameters: "refresh.php";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-Action: run; FileName: "net"; Parameters: "start ${c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
+Action: run; FileName: "CMD"; Parameters: "/D /C net start ${c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
 Action: resetservices
 Action: readconfig
 
@@ -1393,16 +1433,16 @@ foreach ($apacheVersionList as $oneApacheVersion)
     $myreplacemenu .= <<< EOF
 [switchApache${oneApacheVersion}]
 Action: service; Service: ${c_apacheService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated
-Action: run; Filename: "sc"; Parameters: "\\\\. stop ${c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
-Action: run; Filename: "sc"; Parameters: "\\\\. delete ${c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
+Action: run; Filename: "CMD"; Parameters: "/D /C sc stop ${c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
+Action: run; Filename: "CMD"; Parameters: "/D /C sc delete ${c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
 Action: closeservices; Flags: ignoreerrors
 Action: run; Filename: "taskkill"; Parameters: "/FI ""IMAGENAME eq httpd.exe"" /T /F"; ShowCmd: hidden; Flags: waituntilterminated
 Action: run; FileName: "${c_phpExe}";Parameters: "switchApacheVersion.php ${oneApacheVersion}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
 Action: run; FileName: "${c_phpCli}";Parameters: "switchPhpVersion.php ${wampConf['phpVersion']}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
 Action: run; FileName: "${c_apacheVersionDir}/apache${oneApacheVersion}/${apacheConf['apacheExeDir']}/${apacheConf['apacheExeFile']}"; Parameters: "${apacheConf['apacheServiceInstallParams']}"; ShowCmd: hidden; Flags: waituntilterminated
-Action: run; Filename: "sc"; Parameters: "\\\\. config ${c_apacheService} start= demand"; ShowCmd: hidden; Flags: waituntilterminated
+Action: run; Filename: "CMD"; Parameters: "/D /C sc config ${c_apacheService} start= demand"; ShowCmd: hidden; Flags: waituntilterminated
 Action: run; FileName: "${c_phpExe}";Parameters: "switchWampPort.php ${c_UsedPort} notvhost";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-Action: run; FileName: "net"; Parameters: "start ${c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
+Action: run; FileName: "CMD"; Parameters: "/D /C net start ${c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
 Action: run; FileName: "${c_phpCli}";Parameters: "refresh.php";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
 Action: resetservices
 Action: readconfig
@@ -1521,7 +1561,7 @@ foreach ($mod as $modname=>$modstatus)
 Action: service; Service: ${c_apacheService}; ServiceAction: stop; Flags: waituntilterminated
 Action: run; FileName: "${c_phpCli}";Parameters: "switchApacheMod.php ${modname} ${SwitchAction}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
 Action: run; FileName: "${c_phpCli}";Parameters: "refresh.php";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-Action: run; FileName: "net"; Parameters: "start ${c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
+Action: run; FileName: "CMD"; Parameters: "/D /C net start ${c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
 Action: resetservices
 Action: readconfig
 
@@ -1541,7 +1581,7 @@ Action: run; FileName: "'.$c_phpExe.'";Parameters: "msg.php '.$msgNum.' '.base64
 $ApacheCompiledModules = '';
 $ApacheCompiledModules .= 'Type: separator; Caption: "Compiled in modules:"
 ';
-$command = $c_apacheExe." -l";
+$command = 'CMD /D /C '.$c_apacheExe." -l";
 $output = `$command`;
 if(preg_match_all('~^[ \t]+([a-zA-Z0-9_]+)\.c$~mi',$output,$matches) > 0) {
 	sort($matches[1]);
@@ -1596,7 +1636,7 @@ foreach($httpdConfParams as $key => $value) {
 $ApacheCompiledModules = '';
 $ApacheCompiledModules .= 'Type: separator; Caption: "Compiled in modules:"
 ';
-$command = $c_apacheExe." -l";
+$command = 'CMD /D /C '.$c_apacheExe." -l";
 $output = `$command`;
 if(preg_match_all('~^[ \t]+([a-zA-Z0-9_]+)\.c$~mi',$output,$matches) > 0) {
 	sort($matches[1]);
@@ -1645,7 +1685,7 @@ EOF;
 Action: service; Service: ${c_apacheService}; ServiceAction: stop; Flags: waituntilterminated
 Action: run; FileName: "${c_phpExe}";Parameters: "deleteAlias.php ${newalias_dir_del}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
 Action: run; FileName: "${c_phpCli}";Parameters: "refresh.php";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-Action: run; FileName: "net"; Parameters: "start ${c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
+Action: run; FileName: "CMD"; Parameters: "/D /C net start ${c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
 Action: resetservices
 Action: readconfig
 [edit_${newalias_dir}]
@@ -1826,13 +1866,11 @@ if($wampConf['AliasSubmenu'] == "on")
 	$myreplace = $myPattern."
 Type: separator; Caption: \"".$w_aliasSubMenu."\"
 ";
-	// Place projects into submenu Hosts
-	// Folder to ignore in projects
-	$AliasListIgnore = array ('.','..');
+	// Place alias into submenu
 	$AliasContents = array();
 	if (is_dir($aliasDir)) {
     $handle=opendir($aliasDir);
-    while (($file = readdir($handle))!==false) {
+    while (false !== ($file = readdir($handle))) {
 	    if (is_file($aliasDir.$file) && strstr($file, '.conf')) {
 		    $AliasContents[] = str_replace('.conf','',$file);
 	    }
@@ -2206,7 +2244,7 @@ foreach ($params_for_wampconf as $paramname=>$paramstatus) {
 Action: service; Service: ${c_apacheService}; ServiceAction: stop; Flags: waituntilterminated
 Action: run; FileName: "${php_exe_type}";Parameters: "switchWampParam.php ${wampConfParams[$paramname]} ${SwitchAction}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
 Action: run; FileName: "${c_phpCli}";Parameters: "refresh.php";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-Action: run; FileName: "net"; Parameters: "start ${c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
+Action: run; FileName: "CMD"; Parameters: "/D /C net start ${c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
 Action: resetservices
 Action: readconfig
 
@@ -2247,7 +2285,7 @@ Type: separator; Caption: "'.$wampParamsNotOnOff[$action]['title'].'"
 Action: service; Service: ${c_apacheService}; ServiceAction: stop; Flags: waituntilterminated
 Action: run; FileName: "${c_phpRun}";Parameters: "changeWampParam.php ${quoted} ${action} ${param_value}${param_third}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
 Action: run; FileName: "${c_phpCli}";Parameters: "refresh.php";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-Action: run; FileName: "net"; Parameters: "start ${c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
+Action: run; FileName: "CMD"; Parameters: "/D /C net start ${c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
 Action: resetservices
 Action: readconfig
 
@@ -2401,7 +2439,7 @@ if($doReport) {
 	$wampReportTxt .= "\n--------- wampmanager.ini (Last 4 lines) --------\n";
 	$wampReportTxt .= implode(PHP_EOL, array_slice(file($wampserverIniFile), -4));
 	$wampReportTxt .= @file_get_contents($c_installDir."/wampConfReportTemp.txt");
-	unlink($c_installDir."/wampConfReportTemp.txt");
+	@unlink($c_installDir."/wampConfReportTemp.txt");
 	$wampReportTxt .= "\n--------------------------------------------------\n";
 	//Error files to add (last 20 lines)
 	$wampErrorReportTxt = '';

@@ -1,0 +1,85 @@
+<?php
+//3.0.7 - $w_mariadbConsole - $w_mariadbLog - $w_mariaSettings
+//        $w_apacheDoc - $w_mysqlDoc - $w_mariadbDoc - $w_phpDoc - $w_doc
+//3.0.8 - $w_noDBMS
+//3.1.1   $w_cmdWindows - $w_mysqlCommand - $w_mariadbCommand - $w_apacheCommand - $w_services_msc
+//3.2.0		$w_helpForums - $w_helpUse
+//3.2.1   $w_apacheSettings - $w_apacheDefaults
+
+$w_translated_by = "Превод на български от Стефан Стефанов – Cheesus";
+$w_allServicesRunning = 'Всички услуги работят';
+$w_oneServiceRunning = 'Работи %n от %t услуги';
+$w_allServicesStopped = 'Не работи никоя от %t услуги';
+
+$w_serverOffline = 'локален сървър';
+$w_serverOnline = 'Сървърът е онлайн';
+
+$w_about = '&За програмата...';
+$w_helpFile = 'Помощни файлове';
+$w_help = 'Помощ';
+$w_helpForums = 'Форум за поддръжка';
+$w_helpUse = 'Указания за работа';
+$w_exit = 'Изход';
+$w_version = 'Версия';
+$w_service = 'Управление на услугата';
+$w_services_msc = 'Табло за управление на услугите';
+$w_doc = 'Документация';
+$w_cmdWindows = 'Конзола';
+
+$w_localhost = 'Localhost';
+$w_phpmyadmin = 'phpMyAdmin';
+$w_sqlitemanager = 'SQLiteManager';
+$w_wwwDirectory = 'Директория www';
+$w_logFiles = 'дневници';
+$w_configFiles = 'Конфигурационни файлове';
+$w_apacheModules = 'Модули на Apache';
+$w_apacheSettings = 'Настройки на Apache';
+$w_apacheDefaults = 'Директиви по подразбиране';
+$w_phpSettings = 'Настройки на PHP';
+$w_aliasDirectories = 'Псевдоними на директории';
+$w_services = 'Услуги';
+$w_apache = 'Apache';
+$w_apacheCommand = $w_cmdWindows.' '.$w_apache.'/bin';
+$w_apacheDoc = $w_doc.' за Apache';
+$w_mysql = 'MySQL';
+$w_mysqlDoc = $w_doc.' за MySQL';
+$w_mysqlSettings = 'Настройки на MySQL';
+$w_mariaSettings = 'Настройки на MariaDB';
+$w_mariadbDoc = $w_doc.' за MariaDB';
+$w_startServices = 'Стартирай всички услуги';
+$w_stopServices = 'Спри всички услуги';
+$w_restartServices = 'Рестартирай всички услуги';
+$w_putOnline = 'Постави онлайн';
+$w_putOffline = 'Постави офлайн';
+
+$w_apacheErrorLog = 'Дневник за грешки на Apache';
+$w_apacheAccessLog = 'Дневник за достъп на Apache';
+$w_phpLog = 'Дневник за грешки на PHP';
+$w_phpDoc = $w_doc.' за PHP';
+$w_mysqlLog = 'Дневник на MySQL';
+$w_mariadbLog = 'Дневник на MariaDB';
+$w_addAlias = 'Добави псевдоним';
+$w_editAlias = 'Редактирай псевдонима';
+$w_editHtaccess = 'Редактирай .htaccess';
+$w_deleteAlias = 'Изтрий псевдонима';
+$w_refresh = 'Презареди';
+$w_phpExtensions = 'Разширения на PHP';
+$w_addExtension = 'Добави разширение';
+
+$w_startResume = '&Стартирай/възобнови';
+$w_pauseService = '&Паузирай';
+$w_stopService = 'С&при';
+$w_restartService = '&Рестартирай';
+$w_testPort80 = 'Изпробвай порт 80';
+$w_installService = '&Инсталирай';
+$w_removeService = '&Премахни';
+$w_mysqlConsole = 'Конзола за MySQL';
+$w_mysqlCommand = $w_cmdWindows.' '.$w_mysql.'/bin';
+$w_mariadbConsole = 'Конзола за MariaDB';
+$w_mariadbCommand = $w_cmdWindows.' MariaDB/bin';
+
+$w_noDBMS = 'Липсва система за управление на база данни';
+
+$w_language = 'Език';
+
+?>

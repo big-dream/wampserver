@@ -1,5 +1,6 @@
 <?php
-// - 3.2.1 add ThreadStackSize into httpd.conf
+// - 3.2.5 add CMD /D /C to Command Windows to avoid
+//         automatic autorun of registry keys
 //
 if(!defined('WAMPTRACE_PROCESS')) require 'config.trace.php';
 if(WAMPTRACE_PROCESS) {
@@ -160,7 +161,7 @@ EOF;
 	}
 
 	//Get Apache variables (Define)
-	$command = $c_apacheExe." -t -D DUMP_RUN_CFG";
+	$command = 'CMD /D /C '.$c_apacheExe." -t -D DUMP_RUN_CFG";
 	$output = `$command`;
 	if(!empty($output)) {
 		if(preg_match_all("~^Define: (.+)=(.+)\r?$~m",$output, $matches) > 0 )

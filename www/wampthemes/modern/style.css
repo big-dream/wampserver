@@ -98,9 +98,9 @@ body {
 
 h2 {
 	font-family: 'rationaleregular', sans-serif;
-	font-size:2.5em;
+	font-size:1.8em;
 	text-transform:uppercase;
-	letter-spacing:-2px;
+	letter-spacing:-1px;
 	width: 100%;
 	margin: 0;
 	padding: 4% 0 0.5% 0;
@@ -133,6 +133,10 @@ ul.tools a {
 }
 ul.aliases a, ul.vhost a {
 	background: url('img/pngFolderGo.png') 0 100% no-repeat;
+}
+
+ul.phpext {
+	margin-top:0;
 }
 
 li.projectsdir {
@@ -174,6 +178,11 @@ dd ul li {
 	padding: 0 0 0 20px;
 	background: url('img/pngPlugin.png') 2px 50% no-repeat;
 	line-height: 1.6;
+}
+
+dd.ddphpext {
+	float:left;
+	margin-left:1.5em;
 }
 
 .divider1 {

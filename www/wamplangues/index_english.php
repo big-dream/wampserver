@@ -1,6 +1,6 @@
 <?php
-// 3.2.0 - txtProjects
-// 3.2.1 - defaultDBMS - HelpMySQLMariaDB
+// 3.2.5 - documentation-of added for languages requiring it
+// for English is identical to documentation
 
 $langues = array(
 	'langue' => 'English',
@@ -13,6 +13,7 @@ $langues = array(
 	'versp' => 'PHP Version:',
 	'server' => 'Server Software:',
 	'documentation' => 'Documentation',
+	'documentation-of' => 'Documentation',
 	'docp' => 'www.php.net/manual/en/',
 	'versm' => 'MySQL Version:',
 	'docm' => 'dev.mysql.com/doc/index.html',

@@ -18,6 +18,8 @@
 // 3.2.1 $w_addingVer - $w_addingVerTxt - $w_goto - $w_FileRepository
 // 3.2.2 $w_MysqlMariaUser et $w_EnterSize modifiés - $w_MySQLsqlmodeInfo $w_mysql_mode $w_phpMyAdminHelp $w_PhpMyAdMinHelpTxt
 // 3.2.3 https for wampserver.aviatechno
+// 3.2.5 $w_emptyLogs - $w_emptyPHPlog - $w_emptyApaErrLog - $w_emptyApaAccLog - $w_emptyMySQLog - $w_emptyMariaLog - $w_emptyAllLog
+//       $w_testAliasDir - $w_verifyxDebugdll - $w_apacheLoadedIncludes - $w_settings 'ShowWWWdirMenu'
 
 // Projects sub-menu
 $w_projectsSubMenu = 'Vos projets';
@@ -68,6 +70,7 @@ $w_settings = array(
 	'ForTestOnly' => 'Only for test purpose',
 	'iniCommented' => 'Directives php.ini commentées (; au début de la ligne)',
 	'BackupHosts' => 'Sauvegarde fichier hosts',
+	'ShowWWWdirMenu' => 'Afficher dossier www dans menu',
 );
 
 // Right-click Tools
@@ -84,9 +87,21 @@ $w_UseAlternatePort = 'Utiliser un port autre que %s';
 $w_AddListenPort = 'Ajouter un Listen port à Apache';
 $w_vhostConfig = 'Afficher les VirtualHost examinés par Apache';
 $w_apacheLoadedModules = 'Afficher les modules Apache chargés';
+$w_apacheLoadedIncludes = 'Afficher les includes Apache chargés';
+$w_testAliasDir = 'Vérifier relations Alias <-> Directory';
+$w_verifyxDebugdll = 'Vérifier xDebug dll inutilisé';
 $w_misc = 'Divers';
 $w_empty = 'Vider';
 $w_emptyAll = 'Vider TOUS les';
+
+$w_emptyLogs = 'Vider logs';
+$w_emptyPHPlog = 'Vider PHP error log';
+$w_emptyApaErrLog = 'Vider Apache error log';
+$w_emptyApaAccLog = 'Vider Apache access log';
+$w_emptyMySQLog = 'Vider MySQL log';
+$w_emptyMariaLog = 'Vider MariaDB log';
+$w_emptyAllLog ='Vider tous les fichiers de log';
+
 $w_dnsorder = 'Vérifier l\'ordre de recherche DNS';
 $w_deleteVer = 'Supprimer versions inutilisées';
 $w_addingVer = 'Ajouter version Apache, PHP, MySQL, MariaDB, etc.';
