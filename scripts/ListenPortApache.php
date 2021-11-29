@@ -1,5 +1,5 @@
 <?php
-// 3.2.0 use write_file instead of fwrite, fclose
+
 if(!defined('WAMPTRACE_PROCESS')) require 'config.trace.php';
 if(WAMPTRACE_PROCESS) {
 	$errorTxt = "script ".__FILE__;
@@ -7,15 +7,14 @@ if(WAMPTRACE_PROCESS) {
 	error_log($errorTxt."\n",3,WAMPTRACE_FILE);
 }
 
-require 'config.inc.php';
-require 'wampserver.lib.php';
+require_once 'config.inc.php';
+require_once 'wampserver.lib.php';
 
+$message = '';
 
-$c_listenPort = listen_ports();
+$c_listenPort = listen_ports($c_apacheConfFile);
 
-//action ($_SERVER['argv'][1])
 $action = trim($_SERVER['argv'][1]);
-//port ($_SERVER['argv'][2])
 $portToTreat = intval(trim($_SERVER['argv'][2]));
 
 $goodPort = true;
@@ -25,14 +24,12 @@ if($action == 'add') {
 	if($portToTreat <= 80 || $portToTreat == 8080 || ($portToTreat > 81 && $portToTreat < 1025) || $portToTreat > 65535 || in_array($portToTreat,$c_listenPort))
 		$goodPort = false;
 
-	if($goodPort) {
-
+	if($goodPort) {//---
 		$httpdFileContents = file_get_contents($c_apacheConfFile);
 		$count = 0;
-
 		$search = array(
-			"~^([ \t]*Define[ \t]+APACHE_DIR[ \t]+.*)\s?$~m",
-			"~^([ \t]*Listen[ \t]+\[::0\]:".$c_UsedPort.")\s?$~m",
+			"~^(Define[ \t]+APACHE_DIR.*VERSION_APACHE})~m",
+			"~^(Listen[ \t]+\[::0\]:".$c_UsedPort.")~m",
 		);
 		$replace = array (
 			'${1}'."\r\n".'Define MYPORT'.$portToTreat.' '.$portToTreat,
@@ -42,7 +39,7 @@ if($action == 'add') {
 		if($count == 2) {
 			write_file($c_apacheConfFile,$httpdFileContents);
 		}
-	}
+	}//--
 }
 elseif($action == 'delete') {
 	$goodPort = true;
@@ -51,42 +48,45 @@ elseif($action == 'delete') {
 	//Check if variable to delete is used in httpd-vhosts.conf
 	$httpdVhostFileContents = file_get_contents($c_apacheVhostConfFile);
 	if(strpos($httpdVhostFileContents,'MYPORT'.$portToTreat) !== false) {
-		echo "The port number you give: ".$portToTreat."\n\n";
-		echo "is used in httpd-vhosts.conf file as port number\n";
-		echo "with Apache variable \${MYPORT".$portToTreat."}\n";
-		echo "and cannot be suppressed\n\n";
-		echo "\nPress ENTER to continue...";
-  	trim(fgets(STDIN));
-  	exit;
+		$message .= "The port number you give: ".$portToTreat."\n\n";
+		$message .= "is used in httpd-vhosts.conf file as port number\n";
+		$message .= "with Apache variable \${MYPORT".$portToTreat."}\n\n";
+		$message .= "If you delete the Listen Port ".$portToTreat."\n";
+		$message .= "it will be replaced by port ".$c_UsedPort."\n";
+		$message .= "\nPress the Y key then ENTER for Y - Press ENTER only to exit";
+		Command_Windows($message,-1,-1,0,'Listen port Apache');
+  	$rep = strtoupper(trim(fgets(STDIN)));
+  	if($rep <> 'Y')	exit;
 	}
 	$count = 0;
 	$search = array(
-		"~^Define[ \t]+MYPORT".$portToTreat."[ \t]+.*\s?$~m",
-		"~^Listen[ \t]+.*MYPORT".$portToTreat.".*\s?$~m",
+		"~^(Define[ \t]+MYPORT".$portToTreat."[ \t]+".$portToTreat."\r?\n?)~m",
+		"~^(Listen[ \t]+.*MYPORT".$portToTreat."\}\r?\n?)~m",
+		"~^(Listen[ \t]+0.0.0.0:".$portToTreat."\r?\n?)~m",
+		"~^(Listen[ \t]+[::0]:".$portToTreat."\r?\n?)~m",
 	);
-	$replace = array (
-		'',
-		'',
-	);
+	$replace = '';
 	$httpdFileContents = preg_replace($search,$replace,$httpdFileContents, -1, $count);
-	if($count == 3) {
+	if($count > 0) {
 		$httpdFileContents = clean_file_contents($httpdFileContents,array(3,2));
 		write_file($c_apacheConfFile,$httpdFileContents);
 	}
 	//httpd-vhosts.conf file
-	$httpdVhostFileContents = file_get_contents($c_apacheVhostConfFile);
 	$count = 0;
-	$search = '~\$\{MYPORT'.$portToTreat.'}~mi';
+	$search = '~\$\{MYPORT'.$portToTreat.'\}~mi';
 	$replace = $c_UsedPort;
+	$httpdVhostFileContents = preg_replace($search,$replace,$httpdVhostFileContents, -1, $count);
 	if($count > 0) {
+		$c_apacheVhostConfFile = clean_file_contents($c_apacheVhostConfFile,array(3,2));
 		write_file($c_apacheVhostConfFile,$httpdVhostFileContents);
 	}
 }
 
 if(!$goodPort) {
-	echo "The port number you give: ".$portToTreat."\n\n";
-	echo "is not valid or already used or is default port\n";
-	echo "\nPress ENTER to continue...";
+	$message .= "The port number you give: ".$portToTreat."\n\n";
+	$message .= "is not valid or already used or is default port\n";
+	$message .= "\nPress ENTER to continue...";
+	Command_Windows($message,-1,-1,0,'Listen port Apache');
   trim(fgets(STDIN));
 }
 

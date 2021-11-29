@@ -3,6 +3,7 @@
 //3.1.3 - VirtualHostPortNone
 //3.1.4 - txtTLDdev
 //3.1.9 - VirtualHostName modified - Accept diacritical characters (IDN)
+//3.2.6 - HoweverWamp
 $langues = array(
 	'langue' => 'English',
 	'locale' => 'english',
@@ -36,9 +37,10 @@ $langues = array(
 	'NoModify' => 'Impossible to modify <code>httpd-vhosts.conf</code> or <code>hosts</code> files',
 	'VirtualCreated' => 'The files have been modified. Virtual host <code>%s</code> was created',
 	'CommandMessage' => 'Messages from the console to update DNS:',
-	'However' => 'You may add another VirtualHost by validate "Add a VirtualHost".<br>However, for these new VirtualHost are taken into account by Apache, you must run item<br><code>Restart DNS</code><br>from Right-Click Tools menu of Wampmanager icon. <i>(This can unfortunately not be done automatically)</i>',
-	'suppForm' => 'Suppress VirtualHost form',
-	'suppVhost' => 'Suppress VirtualHost',
+	'However' => 'You may add another VirtualHost by validate "Add a VirtualHost".<br>However, for these new VirtualHost are taken into account by Wampmanager (Apache), you must run item<br><code>Restart DNS</code><br>from Right-Click Tools menu of Wampmanager icon.</i>',
+	'HoweverWamp' => 'The created VirtualHost has been taken into account by Apache.<br>You may add another VirtualHost by validate "Add a VirtualHost".<br>You can start working on this new VirtualHost<br>But in order for these new VirtualHosts to be taken into account by the Wampmanager menus, you must launch the item<br><code>Refresh</code><br>from Right-Click menu of Wampmanager icon.</i>',
+	'suppForm' => 'Delete VirtualHost form',
+	'suppVhost' => 'Delete VirtualHost',
 	'Required' => 'Required',
 	'Optional' => 'Optional',
 	);

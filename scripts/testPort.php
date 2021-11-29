@@ -1,6 +1,5 @@
 <?php
-// 3.2.0 - Use write_file function instead of fopen, fwrite, fclose
-//         Improvement of process and PID research
+
 if(!defined('WAMPTRACE_PROCESS')) require('config.trace.php');
 if(WAMPTRACE_PROCESS) {
 	$errorTxt = "script ".__FILE__;
@@ -23,11 +22,12 @@ if(!empty($_SERVER['argv'][2])) {
 	else
 		$port = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : '80';
 }
+Command_Windows('Test witch use port',60,2,0,'Test witch use port '.$port);
 
 $doReport = (!empty($_SERVER['argv'][3]) && $_SERVER['argv'][3] == 'doreport') ? true : false;
 $message = ($doReport ? "--------------------------------------------------\n" : '');
 $message .=  "***** Test which uses port ".$port." *****\n\n";
-if($doReport) echo $message;
+if($doReport) Command_Windows($message);
 $message .=  "===== Tested by command netstat filtered on port ".$port." =====\n\n";
 //Port tested by netstat for TCP and TCPv6
 $tcp = array('TCP', 'TCPv6');
@@ -116,13 +116,13 @@ if(!$only_process) {
 		while (!feof($fp)) {
 			$line = fgets($fp, 128);
 			$responselines .= $line;
-			if (preg_match('#Server:#',$line))	{
+			if(preg_match('#Server:#',$line))	{
 				$message .=  $line;
 				$gotInfo = true;
 			}
 		}
 		fclose($fp);
-		if ($gotInfo != true) {
+		if($gotInfo != true) {
 		$message .= "Server information not available (might be Skype or IIS).\n";
 		//if(!empty($responselines) && is_string($responseline))
 			//$message .= "Response is: ".$responselines."\n";
@@ -134,21 +134,19 @@ if($doReport){
 	exit;
 }
 
-echo $message;
-	if(!empty($message)) {
-		echo "\n--- Do you want to copy the results into Clipboard?
---- Type 'y' to confirm - Press ENTER to continue...";
-    $confirm = trim(fgetc(STDIN));
-		$confirm = strtolower(trim($confirm ,'\''));
-		if ($confirm == 'y') {
-			write_file("temp.txt",$message, true);
-		}
-		exit();
- 	}
-
-echo '
-
-Press Enter to exit...';
+//echo $message;
+if(!empty($message)) {
+	$message .= "\n--- Do you want to copy the results into Clipboard?\n--- Press the Y key to confirm - Press ENTER to continue...";
+	Command_Windows($message,-1,-1,0,'Witch use port '.$port);
+  $confirm = trim(fgetc(STDIN));
+	$confirm = strtolower(trim($confirm ,'\''));
+	if($confirm == 'y') {
+		write_file("temp.txt",$message, true);
+	}
+	exit();
+}
+$message .= "\nPress Enter to exit...";
+Command_Windows($message,-1,-1,0,'Witch use port');
 trim(fgets(STDIN));
 
 ?>

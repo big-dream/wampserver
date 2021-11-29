@@ -7,6 +7,7 @@
 //3.2.0	$w_helpForums - $w_helpUse
 //3.2.1 $w_apacheSettings - $w_apacheDefaults
 //3.2.2 $w_helpFile modifié
+//3.2.6 $w_startedOn - $w_restartWamp - $w_phpCommand
 
 $w_allServicesRunning = 'Tous les services sont lancés';
 $w_oneServiceRunning = '%n service sur %t est lancé';
@@ -52,6 +53,11 @@ $w_stopServices = 'Arrêter les services';
 $w_restartServices = 'Redémarrer les services';
 $w_putOnline = 'Passer en ligne';
 $w_putOffline = 'Passer hors ligne';
+// Format ICU depuis https://unicode-org.github.io/icu/userguide/format_parse/datetime/#date-field-symbol-table
+// Faire très attention !
+$w_FormatDate = "dd-MM-Y HH:mm";
+$w_startedOn = 'Démarré le : ';
+$w_restartWamp = 'Redémarrer de zéro';
 
 $w_apacheErrorLog = 'Apache error log';
 $w_apacheAccessLog = 'Apache access log';
@@ -66,6 +72,7 @@ $w_deleteAlias = 'Supprimer l\'alias';
 $w_refresh = 'Rafraîchir';
 $w_phpExtensions = 'Extensions PHP';
 $w_addExtension = 'Ajouter une extension';
+$w_phpCommand = $w_cmdWindows.' PHP';
 
 $w_startResume = 'Démarrer le service';
 $w_pauseService = 'Mettre le service en pause';

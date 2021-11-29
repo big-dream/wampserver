@@ -1,6 +1,7 @@
 <?php
 // 3.2.5 - documentation-of added for languages requiring it
 // for English is identical to documentation
+// 3.2.6 - txtNoHosts
 
 $langues = array(
 	'langue' => 'English',
@@ -30,6 +31,7 @@ $langues = array(
 	'txtServerName' => 'The ServerName %s has syntax error in file %s',
 	'txtDocRoot' => 'The ServerName %s use DocumentRoot %s reserved to localhost',
 	'txtTLDdev' => 'The ServerName %s use TLD %s which is monopolized by web browsers. Use another TLD (.test for example)',
+	'txtNoHosts' => 'The ServerName %s is not defined into hosts file.',
 	'txtServerNameIp' => 'IP %s for Servername %s is not valid in file %s',
 	'txtVhostNotClean' => 'The %s file has not been cleaned. There remain VirtualHost examples like: dummy-host.example.com',
 	'txtNoVhost' => 'No VirtualHost yet. Add one for each project in the file: wamp/bin/apache/apache%s/conf/extra/httpd-vhosts.conf',

@@ -20,6 +20,12 @@
 // 3.2.3 https for wampserver.aviatechno
 // 3.2.5 $w_emptyLogs - $w_emptyPHPlog - $w_emptyApaErrLog - $w_emptyApaAccLog - $w_emptyMySQLog - $w_emptyMariaLog - $w_emptyAllLog
 //       $w_testAliasDir - $w_verifyxDebugdll - $w_apacheLoadedIncludes - $w_settings 'ShowWWWdirMenu'
+// 3.2.6 $w_compareApache - $w_versus - $w_restorefile - $w_restore - $w_apache_restore - $w_ApacheRestoreInfo - $w_apache_restore
+//       $w_ApacheCompareInfo - $w_apacheDefineVariables - $w_Refresh_Restart - $w_Refresh_Restart_Info
+//       $w_checkUpdates - $w_PhpMyAdminBigFileTxt - $w_apacheTools - $w_PHPloadedExt
+//       $w_settings 	apacheCompareVersion - apacheRestoreFiles - apacheGracefulRestart - LinksOnProjectsHomePage
+//                    ApacheWampParams - apachePhpCurlDll
+//       Suppress : $w_enterServiceNameApache - $w_enterServiceNameMysql - $w_enterServiceNameAll
 
 // Projects sub-menu
 $w_projectsSubMenu = 'Your projects';
@@ -71,6 +77,12 @@ $w_settings = array(
 	'iniCommented' => 'Commented php.ini directives (; at the beginning of the line)',
 	'BackupHosts' => 'Backup hosts file',
 	'ShowWWWdirMenu' => 'Show www folder in Menu',
+	'ApacheWampParams' => 'Wampserver settings for Apache',
+	'apacheCompareVersion' => 'Allow comparison of Apache settings.',
+	'apacheRestoreFiles' => 'Allow Apache files restoration',
+	'apacheGracefulRestart' => 'Allow Apache Graceful Restart',
+	'LinksOnProjectsHomePage' => 'Allow links on projects homepage',
+	'apachePhpCurlDll' => 'Allow Apache to use libcrypto-*.dll and libssl-*.dll from PHP',
 );
 
 // Right-click Tools
@@ -79,15 +91,13 @@ $w_restartDNS = 'Restart DNS';
 $w_testConf = 'Check httpd.conf syntax';
 $w_testServices = 'Check state of services';
 $w_changeServices = 'Change the names of services';
-$w_enterServiceNameApache = "Enter an index number for the Apache service. It will be added to 'wampapache'";
-$w_enterServiceNameMysql = "Enter an index number for the Mysql service. It will be added to 'wampmysqld'";
-$w_enterServiceNameAll = "Enter a number for the suffix of service names (empty to return original services)";
 $w_compilerVersions = 'Check Compiler VC, compatibility and ini files';
 $w_UseAlternatePort = 'Use a port other than %s';
 $w_AddListenPort = 'Add a Listen port for Apache';
 $w_vhostConfig = 'Show VirtualHost examined by Apache';
 $w_apacheLoadedModules = 'Show Apache loaded Modules';
 $w_apacheLoadedIncludes = 'Show Apache loaded Includes';
+$w_apacheDefineVariables = 'Show Apache variables (Define)';
 $w_testAliasDir = 'Check relationships Alias  <-> Directory';
 $w_verifyxDebugdll = 'Check for unused xDebug dlls';
 $w_empty = 'Empty';
@@ -116,6 +126,13 @@ $w_dowampReport = 'Create '.$w_wampReport;
 $w_verifySymlink = 'Verify symbolic links';
 $w_goto = 'Go to:';
 $w_FileRepository = 'Links to Wampserver repositories files & addons';
+$w_compareApache = 'Apache settings comparison';
+$w_versus = 'versus';
+$w_restorefile = 'Restore files saved at the installation of Apache';
+$w_restore = 'Restore';
+$w_checkUpdates = 'Check for updates';
+$w_apacheTools = 'Apache Tools';
+$w_PHPloadedExt = 'Show PHP loaded Extensions';
 
 //miscellaneous
 $w_ext_spec = 'Special extensions';
@@ -130,6 +147,9 @@ $w_mysql_none = "none";
 $w_mysql_user = "user mode";
 $w_mysql_default = "by default";
 $w_mysql_mode = "Explanations of sql-mode";
+$w_apache_restore = "Warning Apache restoration;";
+$w_apache_compare = "Warning Apache settings comparison";
+$w_Refresh_Restart = "Help ".$w_refresh.' - '.$w_restartWamp;
 $w_Size = "Size";
 $w_Time = "Time";
 $w_Integer = "Integer Value";
@@ -148,5 +168,9 @@ $w_MysqlMariaUser = "Enter a valid username. If you don't know, keep 'root' by d
 $w_addingVerTxt ="All \"addons\", i.e. all installers of Apache, PHP, MySQL or MariaDB versions as well as installers of updates (Wampserver, Aestan Tray Menu, xDebug, etc.) and web applications (PhpMyAdmin, Adminer) are on\r\n\r\n'https://sourceforge.net/projects/wampserver/'\r\n\r\nJust download the installer files you want and launch them by right-clicking on the name of the downloaded file then \"Run as administrator\" to have the addon or application added to your version of Wampserver.\r\n\r\nThen, changing Apache, PHP, MySQL or MariaDB version is a matter of three clicks:\r\nLeft-Click -> PHP|Apache|MySQL|MariaDB -> Version -> Choose version\r\n\r\nThe version change does not include any parameter changes you might have made, nor does it transfer databases from the old version to the new one.\r\n\r\nA much better organized and always up to date repository than Sourceforge exists:\r\n\r\n'https://wampserver.aviatechno.net'.\r\n\r\nThe links to the repositories are in Right-Click -> Help\r\n";
 $w_MySQLsqlmodeInfo = "MySQL/MariaDB sql-mode\r\nThe SQL server may run in different SQL modes depending on the value of the sql-mode directive.\r\nSetting one or more modes restricts certain possibilities and requires greater rigor in SQL syntax and data validation.\r\nThe operation of the sql-mode directive in the my.ini file is as follows.\r\n\r\n- sql-mode: by default\r\nThe sql-mode directive does not exist or is commented out (;sql-mode=\"...\")\r\nThe default modes of the MySQL/MariaDB version are applied\r\n\r\n- sql-mode: user mode\r\nThe sql-mode directive is populated with user-defined modes, for example :\r\nsql-mode=\"NO_ZERO_DATE,NO_ZERO_IN_DATE,NO_AUTO_CREATE_USER\"\r\n\r\n- sql-mode: none\r\nThe sql-mode directive is empty but must exist:\r\nsql-mode=\"\"\r\nno SQL mode is applied.";
 $w_PhpMyAdMinHelpTxt = "-- PhpMyAdmin\r\nWhen starting phpMyAdmin, you will be asked for a user name and password.\r\nAfter installing Wampserver 3, the default username is \"root\" (without quotes) and there is no password, which means that you must leave the form Password box empty.\r\n\r\nPhpMyAdmin is configured to allow you access to either MySQL or MariaDB depending on which ones are active.\r\nIf both DBMS's are activated, you will see a dropdown on the Login screen, called \"Server Choice\", the default server will be shown first in the dropdown list. Select the DBMS you want to use here as part of the login process.\r\nREMEMBER, if you have different user accounts you must use the correct one for the selected DBMS.\r\nALSO: If you have the same account i.e. `root` on both DBMS's, if you have set different passwords, you need to use the right password for the account and DBMS.\r\n";
+$w_PhpMyAdminBigFileTxt = "\r\n-- Importing large files\r\nWhen importing large files, the maximum memory and/or time limits may be exceeded.\r\nAny changes to the memory and time limits should not be made in php.ini but in the wamp(64)\\alias\\phpmyadmin.conf file.\r\n";
+$w_ApacheRestoreInfo = "--- Restoring Apache Files\r\nSince Apache 2.4.41, at the end of a release installation, the operational files httpd.conf and httpd-vhosts.conf are copied to a backup folder.\r\nIn case of problems or unwanted changes to Apache you can restore these two files to the original Apache configuration.\r\nOf course, IN THIS CASE YOU WILL LOSE ANY CONFIGURATION CHANGES YOU MAY HAVE MADE AFTER INSTALLATION, such as module or include loads.";
+$w_ApacheCompareInfo = "--- Comparing Apache versions\r\nIf you have at least two versions of Apache, you have the possibility to compare the current version with a previous version.\r\nThe following are compared:\r\n- LoadModule\r\n- Include\r\n- httpd-vhosts.conf files\r\n- httpd-ssl.conf files\r\n- openssl.cnf files\r\n- Presence and content of the Certs folder\r\nYou have the possibility to copy the configuration of an old version on the current version.\r\n*** WARNING *** No backups will be made, it is your responsibility to make backups BEFORE copying the configurations.";
+$w_Refresh_Restart_Info = "--- Differences between '".$w_refresh."' and '".$w_restartWamp."'\r\n-- ".$w_refresh.":\r\n- Performs various checks,\r\n- Rereads the configuration files of Wampserver, Apache, PHP, MySQL and MariaDB,\r\n- Modifies the Wampmanager configuration file accordingly and updates the menus,\r\n- Performs a 'Graceful Restart Apache',\r\n- Reloads the Aestan Tray menu.\r\nThere is no interruption of the Apache, PHP, MySQL and MariaDB connections.\r\n\r\n-- ".$w_restartWamp.":\r\n- Stop the services :".$c_apacheService.", ".$c_mysqlService." and ".$c_mariadbService.",\r\n- Empty all the log files,\r\n- Empty the tmp folder,\r\n- Exit Wampserver,\r\n- Starts Wampserver 'normally'.\r\nThere is thus a total cut of the connections Apache, PHP, MySQL and MariaDB and put back in place these under other identifications";
 
 ?>

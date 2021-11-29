@@ -1,4 +1,22 @@
 Changelog
+
+--- Wampserver 3.2.6
+- Support for PHP 8.1
+- Improve default_file for MySQL and MariaDB service
+- Support of Apache Graceful Restart
+- Restart Wampserver in one click
+- Display date/time of last startup
+- Apache configurations comparison
+- Ability to update Apache configuration when changing version
+  LoadModule - Include - Listen port - httpd-vhosts.conf - httpd-ssl.conf
+  openssl.cnf - apache2.4.xx\conf\Certs\ folder if existing
+- Ability to restore httpd.conf and httpd-vhosts.conf
+  saved when installing an Apache version
+- Improved display of command windows
+- Ability to check for updates to Wampserver, Aestan Tray Menu, Apache, PHP, MySQL, MariaDB, etc.
+To use or unactive MariaDB or MySQL, read the file mariadb_mysql.txt
+This update is cumulative Updates 3.0.1 to 3.2.6. It may be reinstalled in case of modified files by error
+
 --- Wampserver 3.2.5
 - See all PhpMyAdmin versions in a submenu
 - Check PhpMyAdmin version versus PHP version
@@ -10,9 +28,6 @@ Changelog
 - Apache Includes viewer tool
 - Verification Tool Alias <-> Directory match
 - Unused dll xDebug file verification tool
-To use or unactive MariaDB or MySQL, read the file mariadb_mysql.txt
-This update is cumulative Updates 3.0.1 to 3.2.4. It may be reinstalled in case of modified files by error
-
 --- Wampserver 3.2.4
 - Support for PHP 8
 - Support for xDebug 3

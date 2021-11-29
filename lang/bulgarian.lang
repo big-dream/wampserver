@@ -6,12 +6,12 @@
 //3.2.0		$w_helpForums - $w_helpUse
 //3.2.1   $w_apacheSettings - $w_apacheDefaults
 
-$w_translated_by = "Превод на български от Стефан Стефанов – Cheesus";
-$w_allServicesRunning = 'Всички услуги работят';
+$w_translated_by = "Превод на български: Стефан Стефанов – Cheesus";
+$w_allServicesRunning = 'Работят всички услуги';
 $w_oneServiceRunning = 'Работи %n от %t услуги';
 $w_allServicesStopped = 'Не работи никоя от %t услуги';
 
-$w_serverOffline = 'локален сървър';
+$w_serverOffline = 'Локален сървър';
 $w_serverOnline = 'Сървърът е онлайн';
 
 $w_about = '&За програмата...';
@@ -39,13 +39,13 @@ $w_phpSettings = 'Настройки на PHP';
 $w_aliasDirectories = 'Псевдоними на директории';
 $w_services = 'Услуги';
 $w_apache = 'Apache';
-$w_apacheCommand = $w_cmdWindows.' '.$w_apache.'/bin';
-$w_apacheDoc = $w_doc.' за Apache';
+$w_apacheCommand = $w_cmdWindows.' за '.$w_apache.'/bin';
+$w_apacheDoc = $w_doc.' на Apache';
 $w_mysql = 'MySQL';
-$w_mysqlDoc = $w_doc.' за MySQL';
+$w_mysqlDoc = $w_doc.' на MySQL';
 $w_mysqlSettings = 'Настройки на MySQL';
 $w_mariaSettings = 'Настройки на MariaDB';
-$w_mariadbDoc = $w_doc.' за MariaDB';
+$w_mariadbDoc = $w_doc.' на MariaDB';
 $w_startServices = 'Стартирай всички услуги';
 $w_stopServices = 'Спри всички услуги';
 $w_restartServices = 'Рестартирай всички услуги';
@@ -55,7 +55,7 @@ $w_putOffline = 'Постави офлайн';
 $w_apacheErrorLog = 'Дневник за грешки на Apache';
 $w_apacheAccessLog = 'Дневник за достъп на Apache';
 $w_phpLog = 'Дневник за грешки на PHP';
-$w_phpDoc = $w_doc.' за PHP';
+$w_phpDoc = $w_doc.' на PHP';
 $w_mysqlLog = 'Дневник на MySQL';
 $w_mariadbLog = 'Дневник на MariaDB';
 $w_addAlias = 'Добави псевдоним';
@@ -74,7 +74,7 @@ $w_testPort80 = 'Изпробвай порт 80';
 $w_installService = '&Инсталирай';
 $w_removeService = '&Премахни';
 $w_mysqlConsole = 'Конзола за MySQL';
-$w_mysqlCommand = $w_cmdWindows.' '.$w_mysql.'/bin';
+$w_mysqlCommand = $w_cmdWindows.' за '.$w_mysql.'/bin';
 $w_mariadbConsole = 'Конзола за MariaDB';
 $w_mariadbCommand = $w_cmdWindows.' MariaDB/bin';
 

@@ -1,9 +1,9 @@
 <?php
 // 3.2.0 - txtProjects
 // 3.2.1 - defaultDBMS - HelpMySQLMariaDB
-
 // 3.2.5 - documentation-of ajouté pour les langues le nécessitant
 // pour le Français est identique à documentation
+// 3.2.6 - txtNoHosts
 $langues = array(
 	'langue' => 'Français',
 	'locale' => 'french',
@@ -27,6 +27,7 @@ $langues = array(
 	'txtServerName' => 'Le ServerName %s comporte des erreurs de syntaxe dans le fichier %s',
 	'txtDocRoot' => 'Le ServerName %s utilise le DocumentRoot %s réservé à localhost',
 	'txtTLDdev' => 'Le ServerName %s utilise le TLD %s qui est accaparé par les navigateurs internet. Utilisez un autre TLD (.test par exemple)',
+	'txtNoHosts' => 'Le ServerName %s n\'est pas déclaré dans le fichier hosts.',
 	'txtServerNameIp' => 'L\'IP %s du Servername %s n\'est pas valide dans le fichier %s',
 	'txtVhostNotClean' => 'Le fichier %s n\'a pas été nettoyé. Il reste des exemples de VirtualHost comme : dummy-host.example.com',
 	'txtNoProjet' => 'Aucun projet.<br /> Pour en ajouter un nouveau, créez simplement un répertoire dans \'www\'.',

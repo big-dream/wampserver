@@ -1,5 +1,5 @@
 <?php
-//3.2.0 use write_file instead of fwrite, fclose
+
 if(!defined('WAMPTRACE_PROCESS')) require 'config.trace.php';
 if(WAMPTRACE_PROCESS) {
 	$errorTxt = "script ".__FILE__;
@@ -79,9 +79,10 @@ if($count > 0) {
 	write_file($c_mysqlConfFile,$myIniFileContents);
 }
 if(!empty($changeError)) {
-	echo "********************* WARNING ********************\n\n";
-	echo $changeError;
-	echo "\nPress ENTER to continue...";
+	$message = "********************* WARNING ********************\n\n";
+	$message .= $changeError;
+	$message .= "\nPress ENTER to continue...";
+	Command_Windows($message,-1,-1,0,'Change Mysql parameter');
   trim(fgets(STDIN));
 }
 

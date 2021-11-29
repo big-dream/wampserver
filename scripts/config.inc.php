@@ -1,7 +1,4 @@
 <?php
-// Update 3.2.4
-// PHP 8.0.0 support
-// xDebug 3 support
 
 if(!defined('WAMPTRACE_PROCESS')) require 'config.trace.php';
 if(WAMPTRACE_PROCESS) {
@@ -9,10 +6,10 @@ if(WAMPTRACE_PROCESS) {
 	$iw = 1; while(!empty($_SERVER['argv'][$iw])) {$errorTxt .= " ".$_SERVER['argv'][$iw];$iw++;}
 	error_log($errorTxt."\n",3,WAMPTRACE_FILE);
 }
-
+$wamp_versions_here = array();
 $configurationFile = '../wampmanager.conf';
 // Loading Wampserver configuration
-$wampConf = @parse_ini_file($configurationFile);
+$wampConf = @parse_ini_file($configurationFile,false,INI_SCANNER_RAW);
 $c_installDir = $wampConf['installDir'];
 $configurationFile = $c_installDir.'/wampmanager.conf';
 $templateFile = $c_installDir.'/wampmanager.tpl';
@@ -29,6 +26,7 @@ $logFilesList = glob($c_installDir.'/'.$logDir.'*.log');
 
 //We enter the variables of the template with the local conf
 $c_wampVersion = $wampConf['wampserverVersion'];
+$wamp_versions_here += array('wamp_update' => $c_wampVersion);
 $c_wampMode = $wampConf['wampserverMode'];
 $c_wampserverID = ($c_wampMode == '32bit') ? '{wampserver32}' : '{wampserver64}';
 $c_wampVersionInstall = !empty($wampConf['installVersion']) ? $wampConf['installVersion'] : 'unknown';
@@ -80,18 +78,13 @@ $c_apacheServiceInstallParams = $wampConf['apacheServiceInstallParams'];
 $c_apacheServiceRemoveParams = $wampConf['apacheServiceRemoveParams'];
 $c_apacheVersionDir = $c_installDir.'/bin/apache';
 $c_apacheBinDir = $c_apacheVersionDir.'/apache'.$wampConf['apacheVersion'].'/'.$wampConf['apacheExeDir'];
-$c_apacheConfFile = $c_apacheVersionDir.'/apache'.$wampConf['apacheVersion'].'/'.$wampConf['apacheConfDir'].'/'.$wampConf['apacheConfFile'];
+$c_apacheConfDir = $c_apacheVersionDir.'/apache'.$wampConf['apacheVersion'].'/'.$wampConf['apacheConfDir'];
+$c_apacheConfFile = $c_apacheConfDir.'/'.$wampConf['apacheConfFile'];
 $c_apacheVhostConfFile = $c_apacheVersionDir.'/apache'.$wampConf['apacheVersion'].'/'.$wampConf['apacheConfDir'].'/extra/httpd-vhosts.conf';
 $c_apacheAutoIndexConfFile = $c_apacheVersionDir.'/apache'.$wampConf['apacheVersion'].'/'.$wampConf['apacheConfDir'].'/extra/httpd-autoindex.conf';
+$c_apacheDefineConf = $c_apacheVersionDir.'/apache'.$c_apacheVersion.'/wampdefineapache.conf';
 $c_apacheExe = $c_apacheBinDir.'/'.$wampConf['apacheExeFile'];
-
-// We retrieve the Apache variables (Define)
-$c_apacheDefineConf = $c_apacheVersionDir.'/apache'.$wampConf['apacheVersion'].'/wampdefineapache.conf';
-if(file_exists($c_apacheDefineConf)) {
-	$c_ApacheDefine = @parse_ini_file($c_apacheDefineConf);
-}
-else
-	$c_ApacheDefine = array();
+$c_apacheVarNotChange = array('APACHE24', 'VERSION_APACHE', 'INSTALL_DIR', 'APACHE_DIR', 'SRVROOT');
 
 //Variables for PHP
 $c_phpVersion = $wampConf['phpVersion'];
@@ -101,9 +94,12 @@ $c_phpConfFile = $c_apacheVersionDir.'/apache'.$wampConf['apacheVersion'].'/'.$w
 $c_phpConfFileIni = $c_phpVersionDir.'/php'.$c_phpVersion.'/'.$wampConf['phpConfFile'];
 $c_phpCliConfFile = $c_phpVersionDir.'/php'.$c_phpCliVersion.'/'.$wampConf['phpConfFile'];
 $c_phpExe = $c_phpVersionDir.'/php'.$c_phpCliVersion.'/'.$wampConf['phpExeFile'];
+$c_phpWebExe = $c_phpVersionDir.'/php'.$c_phpVersion.'/'.$wampConf['phpExeFile'];
 $c_phpCli = $c_phpVersionDir.'/php'.$c_phpCliVersion.'/'.$wampConf['phpCliFile'];
-$phpExtDir = $c_phpVersionDir.'/php'.$wampConf['phpVersion'].'/ext/';
-$phpCliMinVersion = "5.5.0";
+$c_phBinDir = $c_phpVersionDir.'/php'.$wampConf['phpVersion'].'/';
+$c_phpExtDir = $c_phpVersionDir.'/php'.$wampConf['phpVersion'].'/ext/';
+$phpCliMinVersion = "5.6.40";
+
 
 //Variables for MySQL
 $c_mysqlService = $wampConf['ServiceMysql'];
@@ -132,10 +128,6 @@ $c_mariadbConfFile = $c_mariadbVersionDir.'/mariadb'.$wampConf['mariadbVersion']
 $c_mariadbConsole = $c_mariadbVersionDir.'/mariadb'.$c_mariadbVersion.'/'.$wampConf['mariadbExeDir'].'/mysql.exe';
 $c_mariadbExeAnti = str_replace('/','\\',$c_mariadbExe);
 $c_mariadbConfFileAnti = str_replace('/','\\',$c_mariadbConfFile);
-
-//Check symlink or copy PHP dll into Apache bin folder
-if(empty($wampConf['CreateSymlink']) || $wampConf['CreateSymlink'] != 'symlink' && $wampConf['CreateSymlink'] != 'copy')
-	$wampConf['CreateSymlink'] = 'symlink';
 
 //Check hosts file writable
 $c_hostsFile = str_replace("\\","/",getenv('WINDIR').'/system32/drivers/etc/hosts');
@@ -174,9 +166,10 @@ if($wampConf['BackupHosts'] == 'on') {
 
 //dll to create symbolic links from php to apache/bin
 //Versions of ICU are 38, 40, 42, 44, 46, 48 to 57, 60 (PHP 7.2), 61 (PHP 7.2.5)
-//  62 (PHP 7.2.8), 63 (PHP 7.2.12), 64 (PHP 7.2.20), 65 (PHP 7.4.0), 66 (PHP 7.4.6), 67, 68 (PHP 8.0.0)
+// 62 (PHP 7.2.8), 63 (PHP 7.2.12), 64 (PHP 7.2.20), 65 (PHP 7.4.0), 66 (PHP 7.4.6)
+// 67, 68 (PHP 8.0.0), 70 (PHP 8.1.0)
 $icu = array(
-	'number' => array('68', '67', '66', '65','64', '63', '62', '61', '60', '57', '56', '55', '54', '53', '52', '51', '50', '49', '48', '46', '44', '42', '40', '38'),
+	'number' => array('70', '68', '67', '66', '65','64', '63', '62', '61', '60', '57', '56', '55', '54', '53', '52', '51', '50', '49', '48', '46', '44', '42', '40', '38'),
 	'name' => array('icudt', 'icuin', 'icuio', 'icule', 'iculx', 'icutest', 'icutu', 'icuuc'),
 	);
 $php_icu_dll = array();
@@ -203,6 +196,16 @@ $phpDllToCopy = array_merge(
 	'php7ts.dll', //For PHP 7
 	'php8ts.dll', //For PHP 8
 	)
+);
+
+//Existing dlls in apache/bin and in php
+//symbolic links created only if
+//'apachePhpCurlDll' is on in wampmanager.conf
+$phpDllApacheDll = array (
+	'libcrypto-1_1-x64.dll',
+	'libssl-1_1-x64.dll',
+	'libcrypto-1_1.dll',
+	'libssl-1_1.dll',
 );
 
 //Values must be the same as in php.ini - xdebug parameters must be the latest
@@ -258,10 +261,11 @@ $phpParams = array (
 	'xdebug.profiler_enable',
 	'xdebug.profiler_enable_trigger',
 	'xdebug.show_local_vars',
+	'xdebug.log_level',
 	);
 
 //PHP parameters with values not On or Off cannot be switched on or off
-//Can be changed if 'change' = true && 'title' && 'values'
+//Can be changed if 'change' = true and 'title' & 'values' not empty
 //Parameter name must be also into $phpParams array
 //To manualy enter value, 'Choose' must be the last 'values' and 'title' must be 'Size' or 'Seconds' or 'Integer'
 //Warning : specific treatment for date.timezone - Don't modify.
@@ -336,10 +340,22 @@ $phpParamsNotOnOff = array(
 		'change' => true,
 		'title' => 'xDebug Mode',
 		'quoted' => false,
-		'values' => array('off', 'develop', 'coverage', 'debug', 'gcstats', 'profile', 'trace'),
+		'values' => array('off', 'develop', 'coverage', 'debug', 'gcstats', 'profile', 'trace', 'develop,debug'),
 		),
 	'xdebug.overload_var_dump' => array('change' => false),
+	'xdebug.log_level' => array(
+		'change' => true,
+		'title' => 'xDebug log level',
+		'quoted' => false,
+		'values' => array('0','1','3','5','7','10'),
+		'infos' => array('Criticals','Connection','Warnings','Communication','Information','Debug Breakpoint'),
+	),
 );
+//PHP parameters that doesn't support Apache Graceful Restart but only Apache Service Restart
+$phpParamsNotGraceful = array(
+	'xdebug.', //All xdebug parameters
+);
+
 //Parameters to be changed into php.ini CLI the same way as for php.ini
 $phpCLIparams = array(
 	'date.timezone',
@@ -365,10 +381,11 @@ $mysqlParams = array (
 	'lc-messages',
 	'log_error_verbosity',
 	'max_allowed_packet',
-	'innodb_lock_wait_timeout',
-	'innodb_buffer_pool_size',
+	'innodb-lock-wait-timeout',
+	'innodb-buffer-pool-size',
+	'innodb-log-file-size',
+	'innodb-default-row-format',
 	'myisam_sort_buffer_size',
-	'innodb_log_file_size',
 	'query_cache_size',
 	'sql-mode',
 	'sort_buffer_size',
@@ -415,35 +432,35 @@ $mysqlParamsNotOnOff = array(
 		'quoted' => false,
 		'values' => array('16M', '32M', '64M', 'Choose'),
 		),
-	'innodb_lock_wait_timeout' => array(
+	'innodb-lock-wait-timeout' => array(
 		'change' => true,
 		'title' => 'Seconds',
 		'quoted' => false,
 		'values' => array('20', '30', '50', '120', 'Choose'),
 		),
-	'innodb_buffer_pool_size' => array(
+	'innodb-buffer-pool-size' => array(
 		'change' => true,
 		'title' => 'Size',
 		'quoted' => false,
 		'values' => array('16M', '32M', '64M', '128M', '256M', 'Choose'),
 		),
-	'innodb_log_file_size' => array(
+	'innodb-log-file-size' => array(
 		'change' => true,
 		'title' => 'Size',
 		'quoted' => false,
 		'values' => array('4M', '8M', '16M', '32M', '64M', 'Choose'),
+		),
+	'innodb-default-row-format' => array(
+		'change' => true,
+		'title' => 'Text',
+		'quoted' => false,
+		'values' => array('dynamic','compact','redundant'),
 		),
 	'myisam_sort_buffer_size' => array(
 		'change' => true,
 		'title' => 'Size',
 		'quoted' => false,
 		'values' => array('16M', '32M', '64M', 'Choose'),
-		),
-	'innodb_log_file_size' => array(
-		'change' => true,
-		'title' => 'Size',
-		'quoted' => false,
-		'values' => array('4M', '8M', '16M', '32M', '64M', 'Choose'),
 		),
 	'query_cache_size' => array(
 		'change' => true,
@@ -472,7 +489,7 @@ $mysqlParamsNotOnOff = array(
 		),
 	'skip-grant-tables' => array(
 		'change' => false,
-		'msg' => "\n\nWARNING!! WARNING!!\nThis option causes the server to start without using the privilege system at all, WHICH GIVES ANYONE WITH ACCESS TO THE SERVER UNRESTRICTED ACCESS TO ALL DATABASES.\nThis option also causes the server to suppress during its startup sequence the loading of user-defined functions (UDFs), scheduled events, and plugins that were installed.\n\nYou should leave this option 'uncommented' ONLY for the time required to perform certain operations such as the replacement of a lost password for 'root'.\n",
+		'msg' => "\n\nWARNING!! WARNING!!\nMySQL my.ini file directive 'skip-grant tables' is uncommented\nThis option causes the server to start without using the privilege system at all,\nWHICH GIVES ANYONE WITH ACCESS TO THE SERVER UNRESTRICTED ACCESS TO ALL DATABASES.\nThis option also causes the server to suppress during its startup sequence the loading of:\nuser-defined functions (UDFs), scheduled events, and plugins that were installed.\n\nYou should leave this option 'uncommented' ONLY for the time required\nto perform certain operations such as the replacement of a lost password for 'root'.\n",
 		),
 	'default_authentication_plugin' => array('change' => false,),
 	'local_infile' => array('change' => false,
@@ -489,10 +506,11 @@ $mariadbParams = array (
 	'lc-messages',
 	'log_warnings',
 	'max_allowed_packet',
-	'innodb_lock_wait_timeout',
-	'innodb_buffer_pool_size',
+	'innodb-lock-wait-timeout',
+	'innodb-buffer-pool-size',
+	'innodb-default-row-format',
+	'innodb-log-file-size',
 	'myisam_sort_buffer_size',
-	'innodb_log_file_size',
 	'query_cache_size',
 	'sql-mode',
 	'sort_buffer_size',
@@ -537,23 +555,29 @@ $mariadbParamsNotOnOff = array(
 		'quoted' => false,
 		'values' => array('16M', '32M', '64M', 'Choose'),
 		),
-	'innodb_lock_wait_timeout' => array(
+	'innodb-lock-wait-timeout' => array(
 		'change' => true,
 		'title' => 'Seconds',
 		'quoted' => false,
 		'values' => array('20', '30', '50', '120', 'Choose'),
 		),
-	'innodb_buffer_pool_size' => array(
+	'innodb-buffer-pool-size' => array(
 		'change' => true,
 		'title' => 'Size',
 		'quoted' => false,
 		'values' => array('16M', '32M', '64M', '128M', '256M', 'Choose'),
 		),
-	'innodb_log_file_size' => array(
+	'innodb-log-file-size' => array(
 		'change' => true,
 		'title' => 'Size',
 		'quoted' => false,
 		'values' => array('4M', '8M', '16M', '32M', '64M', 'Choose'),
+		),
+	'innodb-default-row-format' => array(
+		'change' => true,
+		'title' => 'Text',
+		'quoted' => false,
+		'values' => array('dynamic','compact'),
 		),
 	'key_buffer_size' => array(
 		'change' => true,
@@ -586,8 +610,8 @@ $mariadbParamsNotOnOff = array(
 		),
 	'skip-grant-tables' => array(
 		'change' => false,
-		'msg' => "\n\nWARNING!! WARNING!!\nThis option causes the server to start without using the privilege system at all, WHICH GIVES ANYONE WITH ACCESS TO THE SERVER UNRESTRICTED ACCESS TO ALL DATABASES.\nThis option also causes the server to suppress during its startup sequence the loading of user-defined functions (UDFs), scheduled events, and plugins that were installed.\n\nYou should leave this option 'uncommented' ONLY for the time required to perform certain operations such as the replacement of a lost password for 'root'.\n"),
-	'secure_file_priv' => array(
+		'msg' => "\n\nWARNING!! WARNING!!\nmariaDB my.ini file directive 'skip-grant tables' is uncommented\nThis option causes the server to start without using the privilege system at all,\nWHICH GIVES ANYONE WITH ACCESS TO THE SERVER UNRESTRICTED ACCESS TO ALL DATABASES.\nThis option also causes the server to suppress during its startup sequence the loading of:\nuser-defined functions (UDFs), scheduled events, and plugins that were installed.\n\nYou should leave this option 'uncommented' ONLY for the time required\nto perform certain operations such as the replacement of a lost password for 'root'.\n"),
+		'secure_file_priv' => array(
 		'change' => false,
 		'msg' => "\nsecure_file_priv: LOAD DATA, SELECT ... INTO and LOAD FILE() will only work with files in the specified path.\nIf not set, the default, or set to empty string, the statements will work with any files that can be accessed."),
 );
@@ -595,8 +619,9 @@ $mariadbParamsNotOnOff = array(
 // Adding parameters to WampServer modifiable
 // by "Settings" sub-menu on right-click Wampmanager icon
 // Needs $w_settings['parameter'] in wamp\lang\modules\settings_english.php
-// Obsolete settings will be completely deleted in future versions
-//
+// #  	At the beginning = Separator only
+// ##   	               = Separator + SubMenu
+// ###  	               = Last item in SubMenu
 $wamp_Param = array(
 	'VirtualHostSubMenu',
 	'AliasSubmenu',
@@ -610,16 +635,22 @@ $wamp_Param = array(
 	'ShowadminerMenu',
 	'ShowWWWdirMenu',
 	'BackupHosts',
+	'##ApacheWampParams', //do not modify - submenu ApacheWampParams is used in Apache configuration
+	'apacheRestoreFiles',
+	'apacheCompareVersion',
+	'apachePhpCurlDll',
+	'###apacheGracefulRestart',
 	'##Cleaning',
 	'AutoCleanLogs',
 	'AutoCleanLogsMax',
 	'AutoCleanLogsMin',
 	'AutoCleanTmp',
-	'AutoCleanTmpMax',
+	'###AutoCleanTmpMax',
 	'##DaredevilOptions',
 	'NotVerifyPATH',
 	'NotVerifyTLD',
 	'NotVerifyHosts',
+	'###LinksOnProjectsHomePage',
 );
 //Wampserver parameters with values not On or Off cannot be switched on or off
 //Can be changed if 'change' = true && 'title' && 'values'
@@ -688,6 +719,7 @@ $apacheParams = array(
 	'ThreadPerChild' => '[0-9]+',
 	'ThreadLimit' => '[0-9]+',
 );
+
 $apacheParamsDefault = array(
 	'ThreadPerChild' => 64,
 	'ThreadLimit' => 1920,
@@ -711,24 +743,34 @@ $AesBigMenu = array(
 // TextMenus -> Aestan Tray Menu text menu items since 3.2.2.9
 // Font size, color since 3.2.3.0
 // Meaning of the items in the order:
-// Indice 0 Submenu Name -+- Indice 1 Caption submenu
-// Indice 2 Type 0=info 1=custom 2=Warning 3=Confirm 4=Error
-// Indice 3 Font size -+- Indice 4 Font color RGB delphi mode (Example $00D77800)
-// Indice 5 Background color -+- Indice 6 Title
-// Indice 7 Text : only one line, #13 for line feed ; &#44; for comma
-//   End-of-line and comma conversions are done by refresh.php
-// Indice 8 number of characters per line max (wordwrap) 0 = no limit
-// Indice except Type, Font size, Font color, Background color and WordWrap may be variables.
+// Indice 0 : Submenu Name -+- Indice 1 Caption submenu
+// Indice 2 : Type 0=info 1=custom 2=Warning 3=Confirm 4=Error
+// Indice 3 : Font size -+- Indice 4 : Font color RGB delphi mode (Example $00D77800)
+// Indice 5 : Background color -+- Indice 6 : Title
+// Indice 7 : Text = only one line (Write \r\n for line feed)
+//   End-of-line and comma conversions (#13 for line feed ; &#44; for comma)
+//   are done by the php script refresh.php
+// Indice 8 : number of characters per line max (wordwrap) 0 = no limit
+// Indice 9 : indice of Glyph - -1 for none
+// ----------
+// All indices except Type, Font size, Font color, Background color and WordWrap
+//     may be variable names into single quotes
+// Indice 7 may be the concatenation of the contents of several variables
+//          in which case it must be an array of variable names into single quotes
 $AesTextMenus = array(
 	// Add Apache, PHP, MySQL, MariaDB, etc. versions.
-	array('AddingVersions','$w_addingVer',0,10,'$00000000','$00EEEEEE','$w_addingVer','$w_addingVerTxt',96),
-	array('mysql-mode','$w_mysql_mode',0,10,'$00000000','$00EEEEEE','$w_mysql_mode','$w_MySQLsqlmodeInfo',96),
-	array('phpmyadmin-help','$w_phpMyAdminHelp',0,10,'$00000000','$00EEEEEE','$w_phpMyAdminHelp','$w_PhpMyAdMinHelpTxt',112),
+	array('AddingVersions','$w_addingVer',0,10,'$00000000','$00EEEEEE','$w_addingVer','$w_addingVerTxt',96,22),
+	array('mysql-mode','$w_mysql_mode',0,10,'$00000000','$00EEEEEE','$w_mysql_mode','$w_MySQLsqlmodeInfo',96,22),
+	array('phpmyadmin-help','$w_phpMyAdminHelp',0,10,'$00000000','$00EEEEEE','$w_phpMyAdminHelp',array('$w_PhpMyAdMinHelpTxt','$w_PhpMyAdminBigFileTxt'),112,22),
+	array('apacherestore-help','$w_apache_restore',2,10,'$00000000','$00EEEEEE','$w_apache_restore','$w_ApacheRestoreInfo',96,23),
+	array('apachecompare-help','$w_apache_compare',2,10,'$00000000','$00EEEEEE','$w_apache_compare','$w_ApacheCompareInfo',96,23),
+	array('refresh-restart-help','$w_Refresh_Restart',0,10,'$00000000','$00EEEEEE','$w_Refresh_Restart','$w_Refresh_Restart_Info',96,22),
 );
 
 // PromptCustom -> Aestan Tray Menu Variable type prompt since 3.2.3.0
 // Section [PromptCustom] Name PromptKeyx=
-// Indices: 0 Prompt Name, 1 Font Size, 2 Background Color, 3 Font Color, 4 Value BackGround Color, 5 Value Text Color
+// Indices = 0 : Prompt Name, 1 : Font Size, 2 : Background Color
+//           3 : Font Color,  4 : Value BackGround Color, 5 : Value Text Color
 // Example : PromptKey1=Prompt1,12,$00D77800,$00FCFDFE,$00FFFFFF,$000000FF
 // PromptKey0 are default values for all Prompt
 // PromptKey0=Default,12,$00EEEEEE,$00000000

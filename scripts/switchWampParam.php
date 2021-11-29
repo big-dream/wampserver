@@ -1,6 +1,4 @@
 <?php
-// - 3.2.5 add CMD /D /C to Command Windows to avoid
-//         automatic autorun of registry keys
 
 if(!defined('WAMPTRACE_PROCESS')) require 'config.trace.php';
 if(WAMPTRACE_PROCESS) {
@@ -183,12 +181,17 @@ else {
 	if($goodParam) {
 		$wampIniNewContents[$_SERVER['argv'][1]] = $_SERVER['argv'][2];
 		wampIniSet($configurationFile, $wampIniNewContents);
+		if($_SERVER['argv'][1] == 'apachePhpCurlDll') {
+			$wampConf['apachePhpCurlDll'] = $_SERVER['argv'][2];
+			linkPhpDllToApacheBin($c_phpVersion);
+		}
 	}
 	else {
-		echo "The parameter '".$_SERVER['argv'][1]."' cannot be switched '".$_SERVER['argv'][2]."'\n\n";
-		echo $errorMessage."\n\n";
-		echo "----- Switch canceled -----\n\n";
-		echo "\nPress ENTER to continue...";
+		$message = "The parameter '".$_SERVER['argv'][1]."' cannot be switched '".$_SERVER['argv'][2]."'\n\n";
+		$message .= $errorMessage."\n\n";
+		$message .= "----- Switch canceled -----\n\n";
+		$message .=  "\nPress ENTER to continue...";
+		Command_Windows($message,-1,-1,0,'Switch Wampmanager parameter');
  		trim(fgets(STDIN));
 	}
 }
