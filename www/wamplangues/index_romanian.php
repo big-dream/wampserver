@@ -4,6 +4,9 @@
 // 3.1.4 - txtTLDdev
 // 3.2.0 - txtProjects
 // 3.2.1 - defaultDBMS - HelpMySQLMariaDB
+// 3.2.5 - documentation-of added for languages requiring it
+// for English is identical to documentation
+// 3.2.6 - txtNoHosts
 
 $langues = array(
 	'langue' => 'Română',
@@ -16,6 +19,7 @@ $langues = array(
 	'versp' => 'Versiune PHP:',
 	'server' => 'Aplicaţie Server:',
 	'documentation' => 'Documentaţie',
+	'documentation-of' => 'Documentaţie',
 	'docp' => 'www.php.net/manual/en/',
 	'versm' => 'Versiune MySQL:',
 	'docm' => 'dev.mysql.com/doc/index.html',
@@ -32,6 +36,7 @@ $langues = array(
 	'txtServerName' => 'Numele Serverului %s are o eroare de sintaxă în fişierul %s',
 	'txtDocRoot' => 'Numele Serverului %s foloseşte DocumentRoot %s rezervat pentru localhost',
 	'txtTLDdev' => 'Numele Serverului %s foloseşte TLD %s care este exclusiv folosit de browserele web. Foloseşte un alt TLD (.test spre examplu)',
+	'txtNoHosts' => 'Numele Serverului %s nu a fost definit în fișierul hosts.',
 	'txtServerNameIp' => 'IP %s pentru Numele Serverului %s este invalid în fişierul %s',
 	'txtVhostNotClean' => 'Fişierul %s nu a fost golit. Rămân exemple de VirtualHost precum: dummy-host.example.com',
 	'txtNoVhost' => 'Niciun VirtualHost definit. Adaugă câte unul pentru fiecare proiect în fişierul: wamp/bin/apache/apache%s/conf/extra/httpd-vhosts.conf',

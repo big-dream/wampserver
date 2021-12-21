@@ -26,6 +26,7 @@
 //       $w_settings  apacheCompareVersion - apacheRestoreFiles - apacheGracefulRestart - LinksOnProjectsHomePage
 //                    ApacheWampParams - apachePhpCurlDll
 //       Suppression de : $w_enterServiceNameApache - $w_enterServiceNameMysql - $w_enterServiceNameAll
+// 3.2.7 $w_showExcludedPorts
 
 // Projects sub-menu
 $w_projectsSubMenu = 'Vos projets';
@@ -98,6 +99,7 @@ $w_vhostConfig = 'Afficher les VirtualHost examinés par Apache';
 $w_apacheLoadedModules = 'Afficher les modules Apache chargés';
 $w_apacheLoadedIncludes = 'Afficher les includes Apache chargés';
 $w_apacheDefineVariables = 'Afficher les variables Apache (Define)';
+$w_showExcludedPorts = 'Voir les ports exclus par le Systéme';
 $w_testAliasDir = 'Vérifier relations Alias <-> Directory';
 $w_verifyxDebugdll = 'Vérifier xDebug dll inutilisé';
 $w_misc = 'Divers';

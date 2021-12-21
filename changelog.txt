@@ -1,4 +1,11 @@
 Changelog
+--- Wampserver 3.2.7
+- Fix display defects
+- Fix minor bugs
+- Update language files: Romanian and Chinese
+- Possibility to display the ports locked by the system
+To use or unactive MariaDB or MySQL, read the file mariadb_mysql.txt
+This update is cumulative Updates 3.0.1 to 3.2.7. It may be reinstalled in case of modified files by error
 
 --- Wampserver 3.2.6
 - Support for PHP 8.1
@@ -14,8 +21,6 @@ Changelog
   saved when installing an Apache version
 - Improved display of command windows
 - Ability to check for updates to Wampserver, Aestan Tray Menu, Apache, PHP, MySQL, MariaDB, etc.
-To use or unactive MariaDB or MySQL, read the file mariadb_mysql.txt
-This update is cumulative Updates 3.0.1 to 3.2.6. It may be reinstalled in case of modified files by error
 
 --- Wampserver 3.2.5
 - See all PhpMyAdmin versions in a submenu

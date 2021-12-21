@@ -5,6 +5,7 @@
 //3.1.3 - VirtualHostPortNone'
 //3.1.4 - txtTLDdev
 //3.1.9 - VirtualHostName modified - Accept diacritical characters (IDN)
+//3.2.6 - HoweverWamp
 $langues = array(
 	'langue' => 'Română',
 	'locale' => 'romanian',
@@ -39,6 +40,7 @@ $langues = array(
 	'VirtualCreated' => 'Fişierele au fost modificate. VirtualHost <code>%s</code> a fost creat',
 	'CommandMessage' => 'Mesajele de la consolă pentru actualizarea DNS:',
 	'However' => 'Poţi adăuga un nou VirtualHost folosind "Adaugă un VirtualHost".<br />Oricum, pentru ca noul VirtualHost să fie luat în considerare de Serverul Apache, trebuie să apeşi pe<br /><code>Reporneşte DNS</code><br />din Meniul Click-dreapta pe icon-ul Wampmanager din bară. <i>(Din păcate, acest lucru nu se poate face în mod automat)</i>',
+	'HoweverWamp' => 'VirtualHost creat a fost încărcat de Apache.<br />Poți adăuga un nou VirtualHost prin apăsarea pe "Adaugă un VirtualHost".<br />Poți începe să lucrezi la noul VirtualHost,<br />dar pentru ca aceste noi VirtualHosts să fie afișate în meniurile Wampmanager, trebuie să apeși <br><code>Reîncarcă</code><br />din meniul Click-Dreapta pe icon-ul Wampmanager din bară.</i>',
 	'suppForm' => 'Goleşte formularul VirtualHost',
 	'suppVhost' => 'Elimină VirtualHost',
 	'Required' => 'Obligatoriu',

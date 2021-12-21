@@ -7,6 +7,8 @@
 //3.2.1   $w_apacheSettings - $w_apacheDefaults
 //3.2.2   $w_helpFile modified
 //3.2.6   $w_startedOn - $w_restartWamp - $w_phpCommand
+//3.2.7   $w_changelog - $w_warning
+//        --- Suppress: $w_putOnline - $w_putOffline
 
 $w_allServicesRunning = 'All services running';
 $w_oneServiceRunning = '%n of %t services running';
@@ -50,17 +52,17 @@ $w_mariadbDoc = 'MariaDB '.$w_doc;
 $w_startServices = 'Start All Services';
 $w_stopServices = 'Stop All Services';
 $w_restartServices = 'Restart All Services';
-$w_putOnline = 'Put Online';
-$w_putOffline = 'Put Offline';
 // Format ICU from https://unicode-org.github.io/icu/userguide/format_parse/datetime/#date-field-symbol-table
 // be careful
 $w_FormatDate = "Y-MM-dd hh:mm a";
 $w_startedOn = 'Launched on: ';
 $w_restartWamp = 'Restart from zero';
+$w_warning = 'WARNING'.
 
 $w_apacheErrorLog = 'Apache error log';
 $w_apacheAccessLog = 'Apache access log';
 $w_phpLog = 'PHP error log';
+$w_changelog ='Changelog';
 $w_phpDoc = 'PHP '.$w_doc;
 $w_mysqlLog = 'MySQL log';
 $w_mariadbLog = 'MariaDB log';

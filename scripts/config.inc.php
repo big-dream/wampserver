@@ -29,8 +29,17 @@ $c_wampVersion = $wampConf['wampserverVersion'];
 $wamp_versions_here += array('wamp_update' => $c_wampVersion);
 $c_wampMode = $wampConf['wampserverMode'];
 $c_wampserverID = ($c_wampMode == '32bit') ? '{wampserver32}' : '{wampserver64}';
-$c_wampVersionInstall = !empty($wampConf['installVersion']) ? $wampConf['installVersion'] : 'unknown';
 $c_navigator = $wampConf['navigator'];
+$c_wampVersionInstall = 'unknown';
+$c_wampVersionUpdate = '';
+if(!empty($wampConf['installVersion'])) {
+	$c_wampVersionInstall = $wampConf['installVersion'];
+	if(!empty($wampConf['installDate'])) $c_wampVersionInstall .= ' installed on '.$wampConf['installDate'];
+	if($c_wampVersion <> $wampConf['installVersion']) {
+		if(!empty($wampConf['update'.$c_wampVersion]))
+			$c_wampVersionUpdate .= 'Updated to '.$c_wampVersion.' on '.$wampConf['update'.$c_wampVersion];
+	}
+}
 
 // See Message For information items in configuration submenus
 $seeInfoMessage = true;

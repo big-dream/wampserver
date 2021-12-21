@@ -1,8 +1,8 @@
 <?php
-// ç®€ä½“ä¸­æ–‡è¯­è¨€æ–‡ä»¶
-// é¡¹ç›®å’Œ VirtualHosts å­èœå•
-// è®¾ç½®å’Œå·¥å…·å³é”®å•å‡»å­èœå•
-// 3.0.7 æ–°å¢ž $w_listenForApache - $w_AddListenPort - $w_deleteListenPort - $w_settings['SupportMariaDB']
+// ¼òÌåÖÐÎÄÓïÑÔÎÄ¼þ
+// ÏîÄ¿ºÍ VirtualHosts ×Ó²Ëµ¥
+// ÉèÖÃºÍ¹¤¾ßÓÒ¼üµ¥»÷×Ó²Ëµ¥
+// 3.0.7 ÐÂÔö $w_listenForApache - $w_AddListenPort - $w_deleteListenPort - $w_settings['SupportMariaDB']
 // $w_settings['DaredevilOptions']
 // $w_Size - $w_EnterSize - $w_Time - $w_EnterTime - $w_Integer - $w_EnterInteger - $w_add_VirtualHost
 // 3.0.8 $w_settings['SupportMySQL'] - $w_portUsedMaria - $w_testPortMariaUsed
@@ -16,165 +16,165 @@
 // 3.1.9 $w_settings 'BackupHosts'
 // 3.2.0 $w_verifySymlink  - $w_settings['NotVerifyHosts']
 // 3.2.1 $w_addingVer - $w_addingVerTxt - $w_goto - $w_FileRepository
-// 3.2.2 å·²ä¿®æ”¹ $w_MysqlMariaUser å’Œ $w_EnterSize -  - $w_MySQLsqlmodeInfo $w_mysql_mode $w_phpMyAdminHelp $w_PhpMyAdMinHelpTxt
-// 3.2.3 wampserver.aviatechno è°ƒæ•´ä¸º https
+// 3.2.2 ÒÑÐÞ¸Ä $w_MysqlMariaUser ºÍ $w_EnterSize -  - $w_MySQLsqlmodeInfo $w_mysql_mode $w_phpMyAdminHelp $w_PhpMyAdMinHelpTxt
+// 3.2.3 wampserver.aviatechno µ÷ÕûÎª https
 // 3.2.5 $w_emptyLogs - $w_emptyPHPlog - $w_emptyApaErrLog - $w_emptyApaAccLog - $w_emptyMySQLog - $w_emptyMariaLog - $w_emptyAllLog
 //       $w_testAliasDir - $w_verifyxDebugdll - $w_apacheLoadedIncludes - $w_settings 'ShowWWWdirMenu'
 
-// é¡¹ç›®å­èœå•
-$w_projectsSubMenu = 'é¡¹ç›®åˆ—è¡¨';
-// è™šæ‹Ÿä¸»æœºå­èœå•
-$w_virtualHostsSubMenu = 'è™šæ‹Ÿä¸»æœºåˆ—è¡¨';
-$w_add_VirtualHost = 'è™šæ‹Ÿä¸»æœºç®¡ç†';
-$w_aliasSubMenu = 'åˆ«åï¼ˆAliasï¼‰åˆ—è¡¨';
-$w_portUsed = 'Apache ä½¿ç”¨çš„ç«¯å£ï¼š ';
-$w_portUsedMysql = 'MySQL ä½¿ç”¨çš„ç«¯å£ï¼š ';
-$w_portUsedMaria = 'MariaDB ä½¿ç”¨çš„ç«¯å£ï¼š ';
-$w_testPortUsed = 'æµ‹è¯•ç«¯å£æ˜¯å¦è¢«ä½¿ç”¨ï¼š ';
-$w_portForApache = 'Apache ä½¿ç”¨çš„ç«¯å£';
-$w_listenForApache = 'æ–°å¢ž Apache ç«¯å£ç›‘å¬';
-$w_portForMysql = 'MySQL ç«¯å£';
-$w_testPortMysql = 'æµ‹è¯• 3306 ç«¯å£';
-$w_testPortMysqlUsed = 'æµ‹è¯• MySQL ä½¿ç”¨çš„ç«¯å£ï¼š ';
-$w_testPortMariaUsed = 'æµ‹è¯• MariaDB ä½¿ç”¨çš„ç«¯å£ï¼š ';
+// ÏîÄ¿×Ó²Ëµ¥
+$w_projectsSubMenu = 'ÏîÄ¿ÁÐ±í';
+// ÐéÄâÖ÷»ú×Ó²Ëµ¥
+$w_virtualHostsSubMenu = 'ÐéÄâÖ÷»úÁÐ±í';
+$w_add_VirtualHost = 'ÐéÄâÖ÷»ú¹ÜÀí';
+$w_aliasSubMenu = '±ðÃû£¨Alias£©ÁÐ±í';
+$w_portUsed = 'Apache Ê¹ÓÃµÄ¶Ë¿Ú£º ';
+$w_portUsedMysql = 'MySQL Ê¹ÓÃµÄ¶Ë¿Ú£º ';
+$w_portUsedMaria = 'MariaDB Ê¹ÓÃµÄ¶Ë¿Ú£º ';
+$w_testPortUsed = '²âÊÔ¶Ë¿ÚÊÇ·ñ±»Ê¹ÓÃ£º ';
+$w_portForApache = 'Apache Ê¹ÓÃµÄ¶Ë¿Ú';
+$w_listenForApache = 'ÐÂÔö Apache ¶Ë¿Ú¼àÌý';
+$w_portForMysql = 'MySQL ¶Ë¿Ú';
+$w_testPortMysql = '²âÊÔ 3306 ¶Ë¿Ú';
+$w_testPortMysqlUsed = '²âÊÔ MySQL Ê¹ÓÃµÄ¶Ë¿Ú£º ';
+$w_testPortMariaUsed = '²âÊÔ MariaDB Ê¹ÓÃµÄ¶Ë¿Ú£º ';
 
-// å³é”®å­èœå•-è®¾ç½®
-$w_wampSettings = 'Wamp è®¾ç½®';
+// ÓÒ¼ü×Ó²Ëµ¥-ÉèÖÃ
+$w_wampSettings = 'Wamp ÉèÖÃ';
 $w_settings = array(
     'urlAddLocalhost' => 'Add localhost in url',
-    'VirtualHostSubMenu' => 'æ˜¾ç¤ºè™šæ‹Ÿä¸»æœºèœå•',
-    'AliasSubmenu' => 'æ˜¾ç¤ºåˆ«åï¼ˆAliasï¼‰èœå•',
-    'ProjectSubMenu' => 'æ˜¾ç¤ºé¡¹ç›®èœå•',
-    'HomepageAtStartup' => 'å¯åŠ¨ Wampserver æ—¶è‡ªåŠ¨æ‰“å¼€ localhost ',
-    'MenuItemOnline' => 'æ˜¾ç¤ºåˆ‡æ¢åœ¨çº¿/ç¦»çº¿èœå•',
-    'ItemServicesNames' => 'å·¥å…·èœå•é¡¹: æ›´æ”¹æœåŠ¡åç§°',
-    'NotCheckVirtualHost' => 'ä¸æ£€æŸ¥è™šæ‹Ÿä¸»æœºæ˜¯å¦å·²å®šä¹‰',
-    'NotCheckDuplicate' => 'ä¸æ£€æŸ¥ ServerName æ˜¯å¦é‡å¤',
-    'VhostAllLocalIp' => 'å…è®¸åœ¨è™šæ‹Ÿä¸»æœºä¸­ä½¿ç”¨æœ¬åœ°IPï¼ˆéž 127.* ï¼‰',
-    'SupportMySQL' => 'å¯ç”¨ MySQL',
-    'SupportMariaDB' => 'å¯ç”¨ MariaDB',
-    'DaredevilOptions' => 'æ›´æ”¹ä¸‹åˆ—å€¼æœ‰é£Žé™©ï¼Œä¸ç†Ÿæ‚‰è€…å‹¿æ”¹ï¼',
-    'ShowphmyadMenu' => 'æ˜¾ç¤º PHPMyAdmin èœå•',
-    'ShowadminerMenu' => 'æ˜¾ç¤º Adminer èœå•',
-    'mariadbUseConsolePrompt' => 'ä¿®æ”¹é»˜è®¤çš„ MariaDB æŽ§åˆ¶å°æç¤º',
-    'mysqlUseConsolePrompt' => 'ä¿®æ”¹é»˜è®¤çš„ MySQL æŽ§åˆ¶å°æç¤º',
-    'NotVerifyPATH' => 'ä¸æ£€éªŒ PATH',
-    'NotVerifyTLD' => 'ä¸æ£€éªŒ TLD',
-    'NotVerifyHosts' => 'ä¸æ£€éªŒ hosts æ–‡ä»¶',
-    'Cleaning' => 'è‡ªåŠ¨æ¸…ç†',
-    'AutoCleanLogs' => 'è‡ªåŠ¨æ¸…ç†æ—¥å¿—æ–‡ä»¶',
-    'AutoCleanLogsMax' => 'æ¸…ç†å‰æ—¥å¿—è¡Œæ•°',// æ—¥å¿—è¡Œæ•°>=è®¾å®šå€¼æ—¶æ¸…ç†
-    'AutoCleanLogsMin' => 'æ¸…ç†åŽæ—¥å¿—è¡Œæ•°',// æ¸…ç†åŽä¿ç•™æ—¥å¿—è¡Œæ•°
-    'AutoCleanTmp' => 'è‡ªåŠ¨æ¸…ç†ä¸´æ—¶ï¼ˆtmpï¼‰ç›®å½•',
-    'AutoCleanTmpMax' => 'æ¸…ç†å‰æ–‡ä»¶æ•°',// æ–‡ä»¶æ•°>=è®¾å®šå€¼æ—¶æ¸…ç†
-    'ForTestOnly' => 'ä»…é€‚ç”¨äºŽæµ‹è¯•çŽ¯å¢ƒï¼ˆå¼€å‘è°ƒè¯•ï¼‰',
-    'iniCommented' => 'å·²æ³¨é‡Š php.ini é…ç½®',
-    'BackupHosts' => 'å¤‡ä»½ hosts æ–‡ä»¶',
-    'ShowWWWdirMenu' => 'æ˜¾ç¤º www æ–‡ä»¶å¤¹èœå•',
+    'VirtualHostSubMenu' => 'ÏÔÊ¾ÐéÄâÖ÷»ú²Ëµ¥',
+    'AliasSubmenu' => 'ÏÔÊ¾±ðÃû£¨Alias£©²Ëµ¥',
+    'ProjectSubMenu' => 'ÏÔÊ¾ÏîÄ¿²Ëµ¥',
+    'HomepageAtStartup' => 'Æô¶¯ Wampserver Ê±×Ô¶¯´ò¿ª localhost ',
+    'MenuItemOnline' => 'ÏÔÊ¾ÇÐ»»ÔÚÏß/ÀëÏß²Ëµ¥',
+    'ItemServicesNames' => '¹¤¾ß²Ëµ¥Ïî: ¸ü¸Ä·þÎñÃû³Æ',
+    'NotCheckVirtualHost' => '²»¼ì²éÐéÄâÖ÷»úÊÇ·ñÒÑ¶¨Òå',
+    'NotCheckDuplicate' => '²»¼ì²é ServerName ÊÇ·ñÖØ¸´',
+    'VhostAllLocalIp' => 'ÔÊÐíÔÚÐéÄâÖ÷»úÖÐÊ¹ÓÃ±¾µØIP£¨·Ç 127.* £©',
+    'SupportMySQL' => 'ÆôÓÃ MySQL',
+    'SupportMariaDB' => 'ÆôÓÃ MariaDB',
+    'DaredevilOptions' => '¸ü¸ÄÏÂÁÐÖµÓÐ·çÏÕ£¬²»ÊìÏ¤ÕßÎð¸Ä£¡',
+    'ShowphmyadMenu' => 'ÏÔÊ¾ PHPMyAdmin ²Ëµ¥',
+    'ShowadminerMenu' => 'ÏÔÊ¾ Adminer ²Ëµ¥',
+    'mariadbUseConsolePrompt' => 'ÐÞ¸ÄÄ¬ÈÏµÄ MariaDB ¿ØÖÆÌ¨ÌáÊ¾',
+    'mysqlUseConsolePrompt' => 'ÐÞ¸ÄÄ¬ÈÏµÄ MySQL ¿ØÖÆÌ¨ÌáÊ¾',
+    'NotVerifyPATH' => '²»¼ìÑé PATH',
+    'NotVerifyTLD' => '²»¼ìÑé TLD',
+    'NotVerifyHosts' => '²»¼ìÑé hosts ÎÄ¼þ',
+    'Cleaning' => '×Ô¶¯ÇåÀí',
+    'AutoCleanLogs' => '×Ô¶¯ÇåÀíÈÕÖ¾ÎÄ¼þ',
+    'AutoCleanLogsMax' => 'ÇåÀíÇ°ÈÕÖ¾ÐÐÊý',// ÈÕÖ¾ÐÐÊý>=Éè¶¨ÖµÊ±ÇåÀí
+    'AutoCleanLogsMin' => 'ÇåÀíºóÈÕÖ¾ÐÐÊý',// ÇåÀíºó±£ÁôÈÕÖ¾ÐÐÊý
+    'AutoCleanTmp' => '×Ô¶¯ÇåÀíÁÙÊ±£¨tmp£©Ä¿Â¼',
+    'AutoCleanTmpMax' => 'ÇåÀíÇ°ÎÄ¼þÊý',// ÎÄ¼þÊý>=Éè¶¨ÖµÊ±ÇåÀí
+    'ForTestOnly' => '½öÊÊÓÃÓÚ²âÊÔ»·¾³£¨¿ª·¢µ÷ÊÔ£©',
+    'iniCommented' => 'ÒÑ×¢ÊÍ php.ini ÅäÖÃ',
+    'BackupHosts' => '±¸·Ý hosts ÎÄ¼þ',
+    'ShowWWWdirMenu' => 'ÏÔÊ¾ www ÎÄ¼þ¼Ð²Ëµ¥',
 );
 
-// å³é”®å­èœå•-å·¥å…·
-$w_wampTools = 'å·¥å…·';
-$w_restartDNS = 'é‡å¯ DNS';
-$w_testConf = 'æ£€æŸ¥ httpd.conf è¯­æ³•';
-$w_testServices = 'æ£€æŸ¥æœåŠ¡çŠ¶æ€';
-$w_changeServices = 'æ›´æ”¹æœåŠ¡åç§°';
+// ÓÒ¼ü×Ó²Ëµ¥-¹¤¾ß
+$w_wampTools = '¹¤¾ß';
+$w_restartDNS = 'ÖØÆô DNS';
+$w_testConf = '¼ì²é httpd.conf Óï·¨';
+$w_testServices = '¼ì²é·þÎñ×´Ì¬';
+$w_changeServices = '¸ü¸Ä·þÎñÃû³Æ';
 $w_enterServiceNameApache = "Enter an index number for the Apache service. It will be added to 'wampapache'";
 $w_enterServiceNameMysql = "Enter an index number for the Mysql service. It will be added to 'wampmysqld'";
 $w_enterServiceNameAll = "Enter a number for the suffix of service names (empty to return original services)";
-$w_compilerVersions = 'æ£€æŸ¥ VC è¿è¡Œåº“ä¾èµ–ã€å…¼å®¹æ€§å’Œ ini æ–‡ä»¶';
-$w_UseAlternatePort = 'ä½¿ç”¨ %s ä»¥å¤–çš„ç«¯å£';
-$w_AddListenPort = 'æ–°å¢ž Apache ç›‘å¬ç«¯å£';
-$w_vhostConfig = 'æ˜¾ç¤º Apache ä¸­æœ‰æ•ˆçš„è™šæ‹Ÿä¸»æœº';
-$w_apacheLoadedModules = 'æ˜¾ç¤º Apache å·²åŠ è½½çš„æ¨¡å—';
-$w_apacheLoadedIncludes = 'æ˜¾ç¤º Apache å·²åŠ è½½çš„é¢å¤–é…ç½®æ–‡ä»¶';
-$w_testAliasDir = 'æ£€æŸ¥åˆ«åï¼ˆAliasï¼‰ä¸Žç›®å½•çš„å…³è”';
-$w_verifyxDebugdll = 'æ£€æŸ¥æœªä½¿ç”¨çš„ xDebug æ‰©å±• dll';
-$w_empty = 'æ¸…ç©º';
-$w_misc = 'æ‚é¡¹';
-$w_emptyAll = 'æ¸…ç©ºæ‰€æœ‰';
+$w_compilerVersions = '¼ì²é VC ÔËÐÐ¿âÒÀÀµ¡¢¼æÈÝÐÔºÍ ini ÎÄ¼þ';
+$w_UseAlternatePort = 'Ê¹ÓÃ %s ÒÔÍâµÄ¶Ë¿Ú';
+$w_AddListenPort = 'ÐÂÔö Apache ¼àÌý¶Ë¿Ú';
+$w_vhostConfig = 'ÏÔÊ¾ Apache ÖÐÓÐÐ§µÄÐéÄâÖ÷»ú';
+$w_apacheLoadedModules = 'ÏÔÊ¾ Apache ÒÑ¼ÓÔØµÄÄ£¿é';
+$w_apacheLoadedIncludes = 'ÏÔÊ¾ Apache ÒÑ¼ÓÔØµÄ¶îÍâÅäÖÃÎÄ¼þ';
+$w_testAliasDir = '¼ì²é±ðÃû£¨Alias£©ÓëÄ¿Â¼µÄ¹ØÁª';
+$w_verifyxDebugdll = '¼ì²éÎ´Ê¹ÓÃµÄ xDebug À©Õ¹ dll';
+$w_empty = 'Çå¿Õ';
+$w_misc = 'ÔÓÏî';
+$w_emptyAll = 'Çå¿ÕËùÓÐ';
 
-$w_emptyLogs = 'æ¸…ç©ºæ—¥å¿—';
-$w_emptyPHPlog = 'æ¸…ç©º PHP é”™è¯¯æ—¥å¿—';
-$w_emptyApaErrLog = 'æ¸…ç©º Apache é”™è¯¯æ—¥å¿—';
-$w_emptyApaAccLog = 'æ¸…ç©º Apache é”™è¯¯æ—¥å¿—';
-$w_emptyMySQLog = 'æ¸…ç©º MySQL æ—¥å¿—';
-$w_emptyMariaLog = 'æ¸…ç©º MariaDB æ—¥å¿—';
-$w_emptyAllLog ='æ¸…ç©ºæ‰€æœ‰æ—¥å¿—æ–‡ä»¶';
+$w_emptyLogs = 'Çå¿ÕÈÕÖ¾';
+$w_emptyPHPlog = 'Çå¿Õ PHP ´íÎóÈÕÖ¾';
+$w_emptyApaErrLog = 'Çå¿Õ Apache ´íÎóÈÕÖ¾';
+$w_emptyApaAccLog = 'Çå¿Õ Apache ´íÎóÈÕÖ¾';
+$w_emptyMySQLog = 'Çå¿Õ MySQL ÈÕÖ¾';
+$w_emptyMariaLog = 'Çå¿Õ MariaDB ÈÕÖ¾';
+$w_emptyAllLog ='Çå¿ÕËùÓÐÈÕÖ¾ÎÄ¼þ';
 
-$w_dnsorder = 'æ£€æŸ¥ DNS æœç´¢é¡ºåº';
-$w_deleteVer = 'åˆ é™¤æœªä½¿ç”¨ç‰ˆæœ¬';
-$w_addingVer = 'æ·»åŠ  Apache, PHP, MySQL, MariaDB ç­‰ç‰ˆæœ¬.';
-$w_deleteListenPort = 'åˆ é™¤ Apache ç›‘å¬ç«¯å£';
-$w_delete = 'åˆ é™¤';
-$w_defaultDBMS = 'é»˜è®¤ DBMS:';
-$w_invertDefault = 'è°ƒæ¢é»˜è®¤ DBMS ';
-$w_changeCLI = 'æ›´æ”¹ PHP CLI ç‰ˆæœ¬';
-$w_reinstallServices = 'é‡æ–°å®‰è£…æ‰€æœ‰æœåŠ¡';
-$w_wampReport = 'Wampserver é…ç½®æŠ¥å‘Š';
-$w_dowampReport = 'åˆ›å»º '.$w_wampReport;
-$w_verifySymlink = 'éªŒè¯è½¯é“¾æŽ¥ï¼ˆsymbolic linksï¼‰';
-$w_goto = 'è½¬åˆ°ï¼š';
-$w_FileRepository = 'Wampserver æ–‡ä»¶å‚¨å­˜åº“ç½‘ç«™';
+$w_dnsorder = '¼ì²é DNS ËÑË÷Ë³Ðò';
+$w_deleteVer = 'É¾³ýÎ´Ê¹ÓÃ°æ±¾';
+$w_addingVer = 'Ìí¼Ó Apache, PHP, MySQL, MariaDB µÈ°æ±¾.';
+$w_deleteListenPort = 'É¾³ý Apache ¼àÌý¶Ë¿Ú';
+$w_delete = 'É¾³ý';
+$w_defaultDBMS = 'Ä¬ÈÏ DBMS:';
+$w_invertDefault = 'µ÷»»Ä¬ÈÏ DBMS ';
+$w_changeCLI = '¸ü¸Ä PHP CLI °æ±¾';
+$w_reinstallServices = 'ÖØÐÂ°²×°ËùÓÐ·þÎñ';
+$w_wampReport = 'Wampserver ÅäÖÃ±¨¸æ';
+$w_dowampReport = '´´½¨ '.$w_wampReport;
+$w_verifySymlink = 'ÑéÖ¤ÈíÁ´½Ó£¨symbolic links£©';
+$w_goto = '×ªµ½£º';
+$w_FileRepository = 'Wampserver ÎÄ¼þ´¢´æ¿âÍøÕ¾';
 
-// æ‚é¡¹
-$w_ext_spec = 'ä¸“ç”¨æ‰©å±•';
-$w_ext_zend = 'Zend æ‰©å±•';
-$w_phpparam_info = 'ä»…ä¾›å‚è€ƒ';
-$w_ext_nodll = 'æ—  dll æ–‡ä»¶';
-$w_ext_noline = "æ—  'extension='";
-$w_mod_fixed = "å›ºå®šæ¨¡å—";
-$w_no_module = 'æ— æ¨¡å—æ–‡ä»¶';
-$w_no_moduleload = "æ—  'LoadModule'";
+// ÔÓÏî
+$w_ext_spec = '×¨ÓÃÀ©Õ¹';
+$w_ext_zend = 'Zend À©Õ¹';
+$w_phpparam_info = '½ö¹©²Î¿¼';
+$w_ext_nodll = 'ÎÞ dll ÎÄ¼þ';
+$w_ext_noline = "ÎÞ 'extension='";
+$w_mod_fixed = "¹Ì¶¨Ä£¿é";
+$w_no_module = 'ÎÞÄ£¿éÎÄ¼þ';
+$w_no_moduleload = "ÎÞ 'LoadModule'";
 $w_mysql_none = "none";
 $w_mysql_user = "user mode";
 $w_mysql_default = "by default";
-$w_mysql_mode = "sql-mode è¯´æ˜Ž";
-$w_Size = "å¤§å°";
-$w_Time = "æ—¶é—´";
-$w_Integer = "æ•´æ•°æ•°å€¼";
-$w_phpMyAdminHelp = "PHPMyAdmin å¸®åŠ©";
+$w_mysql_mode = "sql-mode ËµÃ÷";
+$w_Size = "´óÐ¡";
+$w_Time = "Ê±¼ä";
+$w_Integer = "ÕûÊýÊýÖµ";
+$w_phpMyAdminHelp = "PHPMyAdmin °ïÖú";
 
-// Aestan Tray èœå• PromptText çš„ è¾“å…¥æç¤º
-// æ¢è¡Œç¬¦è¯·ä½¿ç”¨ \r\n
-$w_EnterInteger = "è¾“å…¥æ•´æ•°æ•°å€¼";
-$w_enterPort = 'è¾“å…¥è¦ä½¿ç”¨çš„ç«¯å£å·';
-$w_EnterSize = "è¾“å…¥å¤§å°ï¼š **M æˆ– **G ï¼ˆ**ä»£è¡¨æ•´æ•°ï¼‰ã€‚\r\nä¾‹å¦‚ï¼š64M ; 256M ; 1G";
-$w_EnterTime = "è¾“å…¥ç§’æ•°";
-$w_MysqlMariaUser = "è¯·è¾“å…¥ä¸€ä¸ªæœ‰æ•ˆçš„ç”¨æˆ·å. å¦‚æžœä½ ä¸çŸ¥é“ç”¨é€”, è¯·ä¿ç•™ä¸ºé»˜è®¤çš„ â€œrootâ€ã€‚";
+// Aestan Tray ²Ëµ¥ PromptText µÄ ÊäÈëÌáÊ¾
+// »»ÐÐ·ûÇëÊ¹ÓÃ \r\n
+$w_EnterInteger = "ÊäÈëÕûÊýÊýÖµ";
+$w_enterPort = 'ÊäÈëÒªÊ¹ÓÃµÄ¶Ë¿ÚºÅ';
+$w_EnterSize = "ÊäÈë´óÐ¡£º **M »ò **G £¨**´ú±íÕûÊý£©¡£\r\nÀýÈç£º64M ; 256M ; 1G";
+$w_EnterTime = "ÊäÈëÃëÊý";
+$w_MysqlMariaUser = "ÇëÊäÈëÒ»¸öÓÐÐ§µÄÓÃ»§Ãû. Èç¹ûÄã²»ÖªµÀÓÃÍ¾, Çë±£ÁôÎªÄ¬ÈÏµÄ ¡°root¡±¡£";
 
-// é•¿æ–‡æœ¬
-// å¿…é¡»è½¬ä¹‰åŒå¼•å·(\")
-$w_addingVerTxt ="æ‰€æœ‰â€œé™„åŠ ç»„ä»¶â€ï¼Œå³ Apache, PHP, MySQL æˆ– MariaDB æ‰€æœ‰ç‰ˆæœ¬çš„å®‰è£…ç¨‹åºï¼Œä»¥åŠæ›´æ–°ç¨‹åº (Wampserver, Aestan Tray Menu, xDebug ç­‰) å’Œ Webåº”ç”¨ç¨‹åº (PhpMyAdmin, Adminer) éƒ½å¯åœ¨ Sourceforge ä¸‹è½½.\r\n\r\n".
+// ³¤ÎÄ±¾
+// ±ØÐë×ªÒåË«ÒýºÅ(\")
+$w_addingVerTxt ="ËùÓÐ¡°¸½¼Ó×é¼þ¡±£¬¼´ Apache, PHP, MySQL »ò MariaDB ËùÓÐ°æ±¾µÄ°²×°³ÌÐò£¬ÒÔ¼°¸üÐÂ³ÌÐò (Wampserver, Aestan Tray Menu, xDebug µÈ) ºÍ WebÓ¦ÓÃ³ÌÐò (PhpMyAdmin, Adminer) ¶¼¿ÉÔÚ Sourceforge ÏÂÔØ.\r\n\r\n".
 	"'https://sourceforge.net/projects/wampserver/'\r\n\r\n".
-	"åªéœ€è¦ä¸‹è½½æ‰€éœ€çš„å®‰è£…ç¨‹åºæ–‡ä»¶ï¼Œå³é”®å•å‡»ä¸‹è½½çš„å®‰è£…ç¨‹åºæ–‡ä»¶ï¼Œç„¶åŽé€‰æ‹©â€œä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡Œâ€ï¼Œå®‰è£…å®Œä¹‹åŽï¼Œæ’ä»¶æˆ–åº”ç”¨å°±ä¼šæ·»åŠ åˆ°æ‚¨çš„Wampserverä¸­.\r\n\r\n".
-	"ç„¶åŽåªéœ€è¦ç”¨é¼ æ ‡æ“ä½œå‡ ä¸‹ï¼Œå³å¯æ›´æ”¹ Apache, PHP, MySQL æˆ– MariaDB çš„ç‰ˆæœ¬:\r\n".
-	"å·¦é”®èœå• -> PHP|Apache|MySQL|MariaDB -> ç‰ˆæœ¬ -> é€‰æ‹©ç‰ˆæœ¬\r\n\r\n".
-	"ç‰ˆæœ¬æ›´æ”¹åŽï¼Œæ—§ç‰ˆæœ¬çš„å‚æ•°é…ç½®/æ‰©å±•é…ç½®å’Œæ•°æ®éƒ½ä¸ä¼šè‡ªåŠ¨è½¬ç§»åˆ°æ–°ç‰ˆæœ¬ï¼Œéœ€è¦è‡ªè¡Œè¿ç§».\r\n\r\n".
-	"é™¤äº† Sourceforge ï¼Œæˆ‘ä»¬è¿˜æœ‰æ›´å¥½æ›´æ–¹ä¾¿çš„å‚¨å­˜åº“ç½‘ç«™:\r\n\r\n".
+	"Ö»ÐèÒªÏÂÔØËùÐèµÄ°²×°³ÌÐòÎÄ¼þ£¬ÓÒ¼üµ¥»÷ÏÂÔØµÄ°²×°³ÌÐòÎÄ¼þ£¬È»ºóÑ¡Ôñ¡°ÒÔ¹ÜÀíÔ±Éí·ÝÔËÐÐ¡±£¬°²×°ÍêÖ®ºó£¬²å¼þ»òÓ¦ÓÃ¾Í»áÌí¼Óµ½ÄúµÄWampserverÖÐ.\r\n\r\n".
+	"È»ºóÖ»ÐèÒªÓÃÊó±ê²Ù×÷¼¸ÏÂ£¬¼´¿É¸ü¸Ä Apache, PHP, MySQL »ò MariaDB µÄ°æ±¾:\r\n".
+	"×ó¼ü²Ëµ¥ -> PHP|Apache|MySQL|MariaDB -> °æ±¾ -> Ñ¡Ôñ°æ±¾\r\n\r\n".
+	"°æ±¾¸ü¸Äºó£¬¾É°æ±¾µÄ²ÎÊýÅäÖÃ/À©Õ¹ÅäÖÃºÍÊý¾Ý¶¼²»»á×Ô¶¯×ªÒÆµ½ÐÂ°æ±¾£¬ÐèÒª×ÔÐÐÇ¨ÒÆ.\r\n\r\n".
+	"³ýÁË Sourceforge £¬ÎÒÃÇ»¹ÓÐ¸üºÃ¸ü·½±ãµÄ´¢´æ¿âÍøÕ¾:\r\n\r\n".
 	"1. https://wampserver.aviatechno.net\r\n\r\n".
 	"2. https://wampserver.site\r\n\r\n".
-	"å‚¨å­˜åº“ç½‘ç«™çš„é“¾æŽ¥è¿˜å¯ä»¥åœ¨ å³é”®èœå• -> å¸®åŠ© é‡Œæ‰“å¼€\r\n";
+	"´¢´æ¿âÍøÕ¾µÄÁ´½Ó»¹¿ÉÒÔÔÚ ÓÒ¼ü²Ëµ¥ -> °ïÖú Àï´ò¿ª\r\n";
 $w_MySQLsqlmodeInfo = "MySQL/MariaDB sql-mode\r\n".
-	"SQL æœåŠ¡å™¨ä¼šæ ¹æ® sql-mode é…ç½®æ¥ä»¥ä¸åŒçš„æ¨¡å¼è¿è¡Œ.\r\n".
-	"è®¾ç½®ä¸€ä¸ªæˆ–å¤šä¸ªæ¨¡å¼ä¼šé™åˆ¶ä¸€äº›ç”¨æ³•ï¼Œå¹¶ä¸”éœ€è¦ä½ å¯¹SQLè¯­æ³•å’Œæ•°æ®è¿›è¡Œä¸¥æ ¼çš„éªŒè¯å’Œæ£€æŸ¥ï¼Œå¦åˆ™å¯èƒ½å¯¼è‡´SQLè¯­å¥æ— æ³•æ‰§è¡Œ.\r\n".
-	"ä¸åŒæ¨¡å¼ä¸‹ï¼Œå¯¹åº” my.ini æ–‡ä»¶çš„é…ç½®å¦‚ä¸‹.\r\n\r\n".
-	"- sql-mode: é»˜è®¤æ¨¡å¼\r\n".
-	"sql-mode é…ç½®é¡¹ä¸å­˜åœ¨æˆ–å·²è¢«æ³¨é‡Š (;sql-mode=\"...\")\r\n".
-	"å°†ä½¿ç”¨ MySQL/MariaDB çš„é»˜è®¤é…ç½®\r\n\r\n".
-	"- sql-mode: è‡ªå®šä¹‰æ¨¡å¼\r\n".
-	"ç”¨ä½ é€‰æ‹©çš„æ¨¡å¼æ¥è®¾ç½® sql-mode é…ç½®ï¼Œä¾‹å¦‚ï¼š\r\n".
+	"SQL ·þÎñÆ÷»á¸ù¾Ý sql-mode ÅäÖÃÀ´ÒÔ²»Í¬µÄÄ£Ê½ÔËÐÐ.\r\n".
+	"ÉèÖÃÒ»¸ö»ò¶à¸öÄ£Ê½»áÏÞÖÆÒ»Ð©ÓÃ·¨£¬²¢ÇÒÐèÒªÄã¶ÔSQLÓï·¨ºÍÊý¾Ý½øÐÐÑÏ¸ñµÄÑéÖ¤ºÍ¼ì²é£¬·ñÔò¿ÉÄÜµ¼ÖÂSQLÓï¾äÎÞ·¨Ö´ÐÐ.\r\n".
+	"²»Í¬Ä£Ê½ÏÂ£¬¶ÔÓ¦ my.ini ÎÄ¼þµÄÅäÖÃÈçÏÂ.\r\n\r\n".
+	"- sql-mode: Ä¬ÈÏÄ£Ê½\r\n".
+	"sql-mode ÅäÖÃÏî²»´æÔÚ»òÒÑ±»×¢ÊÍ (;sql-mode=\"...\")\r\n".
+	"½«Ê¹ÓÃ MySQL/MariaDB µÄÄ¬ÈÏÅäÖÃ\r\n\r\n".
+	"- sql-mode: ×Ô¶¨ÒåÄ£Ê½\r\n".
+	"ÓÃÄãÑ¡ÔñµÄÄ£Ê½À´ÉèÖÃ sql-mode ÅäÖÃ£¬ÀýÈç£º\r\n".
 	"sql-mode=\"NO_ZERO_DATE,NO_ZERO_IN_DATE,NO_AUTO_CREATE_USER\"\r\n\r\n".
-	"- sql-mode: ç©ºæ¨¡å¼\r\n".
-	"sql-mode é…ç½®ä¸ºç©ºï¼Œä½†å¿…é¡»å­˜åœ¨:\r\n".
+	"- sql-mode: ¿ÕÄ£Ê½\r\n".
+	"sql-mode ÅäÖÃÎª¿Õ£¬µ«±ØÐë´æÔÚ:\r\n".
 	"sql-mode=\"\"\r\n".
-	"æ—  SQL æ¨¡å¼.";
+	"ÎÞ SQL Ä£Ê½.";
 $w_PhpMyAdMinHelpTxt = "-- PhpMyAdmin\r\n".
-	"å¯åŠ¨PhpMyAdminæ—¶ï¼Œå°†è¦æ±‚ä½ è¾“å…¥ç”¨æˆ·åå’Œå¯†ç .\r\n".
-	"å®‰è£… Wampserver 3 åŽ, æ•°æ®åº“ç®¡ç†ç³»ç»Ÿé»˜è®¤ç”¨æˆ·åæ˜¯ root ï¼Œå¯†ç ä¸ºç©ºï¼Œå³å¯†ç æ¡†ç•™ç©ºä¸ç”¨å¡«å†™.\r\n\r\n".
-	"ä½ å¯ä»¥åœ¨ PhpMyAdmin é‡Œé¢ç®¡ç† MySQL æˆ– MariaDB ï¼Œåªéœ€è¦åœ¨ç™»å½•ç•Œé¢é€‰æ‹©å³å¯.\r\n".
-	"å¦‚æžœåªå¯ç”¨äº†ä¸€ä¸ªæ•°æ®åº“ç®¡ç†ç³»ç»Ÿï¼Œåˆ™æ²¡æœ‰é€‰æ‹©ã€‚å¦‚æžœæœ‰é€‰æ‹©ï¼Œåˆ™ç¬¬ä¸€ä¸ªä¸ºé»˜è®¤æ•°æ®åº“ç®¡ç†ç³»ç»Ÿ.\r\n".
-	"è®°ä½ï¼Œå¦‚æžœæ‚¨æœ‰ä¸åŒçš„ç”¨æˆ·å¸æˆ·ï¼Œåˆ™å¿…é¡»ä¸ºæ‰€é€‰çš„æ•°æ®åº“ç®¡ç†ç³»ç»Ÿä½¿ç”¨æ­£ç¡®çš„ç”¨æˆ·å¸æˆ·.\r\n".
-	"å¦å¤–: ä¸¤ä¸ªæ•°æ®åº“ç®¡ç†ç³»ç»Ÿä¹‹é—´çš„ç”¨æˆ·å’Œæ•°æ®ä¸äº’é€š.\r\n";
+	"Æô¶¯PhpMyAdminÊ±£¬½«ÒªÇóÄãÊäÈëÓÃ»§ÃûºÍÃÜÂë.\r\n".
+	"°²×° Wampserver 3 ºó, Êý¾Ý¿â¹ÜÀíÏµÍ³Ä¬ÈÏÓÃ»§ÃûÊÇ root £¬ÃÜÂëÎª¿Õ£¬¼´ÃÜÂë¿òÁô¿Õ²»ÓÃÌîÐ´.\r\n\r\n".
+	"Äã¿ÉÒÔÔÚ PhpMyAdmin ÀïÃæ¹ÜÀí MySQL »ò MariaDB £¬Ö»ÐèÒªÔÚµÇÂ¼½çÃæÑ¡Ôñ¼´¿É.\r\n".
+	"Èç¹ûÖ»ÆôÓÃÁËÒ»¸öÊý¾Ý¿â¹ÜÀíÏµÍ³£¬ÔòÃ»ÓÐÑ¡Ôñ¡£Èç¹ûÓÐÑ¡Ôñ£¬ÔòµÚÒ»¸öÎªÄ¬ÈÏÊý¾Ý¿â¹ÜÀíÏµÍ³.\r\n".
+	"¼Ç×¡£¬Èç¹ûÄúÓÐ²»Í¬µÄÓÃ»§ÕÊ»§£¬Ôò±ØÐëÎªËùÑ¡µÄÊý¾Ý¿â¹ÜÀíÏµÍ³Ê¹ÓÃÕýÈ·µÄÓÃ»§ÕÊ»§.\r\n".
+	"ÁíÍâ: Á½¸öÊý¾Ý¿â¹ÜÀíÏµÍ³Ö®¼äµÄÓÃ»§ºÍÊý¾Ý²»»¥Í¨.\r\n";
 
 ?>
