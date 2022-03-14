@@ -27,6 +27,8 @@
 //                    ApacheWampParams - apachePhpCurlDll
 //       Suppress : $w_enterServiceNameApache - $w_enterServiceNameMysql - $w_enterServiceNameAll
 // 3.2.7 $w_showExcludedPorts
+// 3.2.8 $w_phpNotExists - LinksOnProjectsHomeByIp - CheckVirtualHost - $w_PHPversionsUse - $w_All_Versions
+//       $w_settings 	ScrollListsHomePage
 
 // Projects sub-menu
 $w_projectsSubMenu = 'Your projects';
@@ -55,6 +57,7 @@ $w_settings = array(
 	'HomepageAtStartup' => 'Wampserver Homepage at startup',
 	'MenuItemOnline' => 'Menu item: Online / Offline',
 	'ItemServicesNames' => 'Tools menu item: Change services names',
+	'CheckVirtualHost' => 'Check VirtualHost definitions',
 	'NotCheckVirtualHost' => 'Don\'t check VirtualHost definitions',
 	'NotCheckDuplicate' => 'Don\'t check duplicate ServerName',
 	'VhostAllLocalIp' => 'Allow VirtualHost local IP\'s others than 127.*',
@@ -83,7 +86,9 @@ $w_settings = array(
 	'apacheRestoreFiles' => 'Allow Apache files restoration',
 	'apacheGracefulRestart' => 'Allow Apache Graceful Restart',
 	'LinksOnProjectsHomePage' => 'Allow links on projects homepage',
+	'LinksOnProjectsHomeByIp' => 'Link on projects by \'local link IP\'',
 	'apachePhpCurlDll' => 'Allow Apache to use libcrypto-*.dll and libssl-*.dll from PHP',
+	'ScrollListsHomePage' => 'Allow scrolling of lists on home page',
 );
 
 // Right-click Tools
@@ -135,6 +140,7 @@ $w_restore = 'Restore';
 $w_checkUpdates = 'Check for updates';
 $w_apacheTools = 'Apache Tools';
 $w_PHPloadedExt = 'Show PHP loaded Extensions';
+$w_PHPversionsUse = 'Show the use of PHP versions';
 
 //miscellaneous
 $w_ext_spec = 'Special extensions';
@@ -156,6 +162,8 @@ $w_Size = "Size";
 $w_Time = "Time";
 $w_Integer = "Integer Value";
 $w_phpMyAdminHelp = "Help PhpMyAdmin";
+$w_phpNotExists = 'PHP version doesn\'t exist';
+$w_All_Versions = 'All versions';
 
 // PromptText for Aestan Tray Menu type: prompt variables
 // May have \r\n for multilines

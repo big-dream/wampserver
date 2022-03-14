@@ -6,7 +6,7 @@ if(WAMPTRACE_PROCESS) {
 	$iw = 1; while(!empty($_SERVER['argv'][$iw])) {$errorTxt .= " ".$_SERVER['argv'][$iw];$iw++;}
 	error_log($errorTxt."\n",3,WAMPTRACE_FILE);
 }
-$wamp_versions_here = array();
+$wamp_versions_here = $Alias_Contents = array();
 $configurationFile = '../wampmanager.conf';
 // Loading Wampserver configuration
 $wampConf = @parse_ini_file($configurationFile,false,INI_SCANNER_RAW);
@@ -21,6 +21,7 @@ $modulesDir = 'modules/';
 $logDir = 'logs/';
 $wampBinConfFiles = 'wampserver.conf';
 $phpConfFileForApache = 'phpForApache.ini';
+
 // List of log files
 $logFilesList = glob($c_installDir.'/'.$logDir.'*.log');
 
@@ -40,6 +41,10 @@ if(!empty($wampConf['installVersion'])) {
 			$c_wampVersionUpdate .= 'Updated to '.$c_wampVersion.' on '.$wampConf['update'.$c_wampVersion];
 	}
 }
+//To be able to launch projects by IP instead of localhost
+//http://169.254.x.y/myproject/ instead of http://localhost/myproject/
+$c_local_host = gethostname();
+$c_local_ip = (($c_local_host !== false) ? gethostbyname($c_local_host) : 'localhost');
 
 // See Message For information items in configuration submenus
 $seeInfoMessage = true;
@@ -87,6 +92,7 @@ $c_apacheServiceInstallParams = $wampConf['apacheServiceInstallParams'];
 $c_apacheServiceRemoveParams = $wampConf['apacheServiceRemoveParams'];
 $c_apacheVersionDir = $c_installDir.'/bin/apache';
 $c_apacheBinDir = $c_apacheVersionDir.'/apache'.$wampConf['apacheVersion'].'/'.$wampConf['apacheExeDir'];
+$c_apacheModulesDir = $c_apacheVersionDir.'/apache'.$wampConf['apacheVersion'].'/modules';
 $c_apacheConfDir = $c_apacheVersionDir.'/apache'.$wampConf['apacheVersion'].'/'.$wampConf['apacheConfDir'];
 $c_apacheConfFile = $c_apacheConfDir.'/'.$wampConf['apacheConfFile'];
 $c_apacheVhostConfFile = $c_apacheVersionDir.'/apache'.$wampConf['apacheVersion'].'/'.$wampConf['apacheConfDir'].'/extra/httpd-vhosts.conf';
@@ -137,6 +143,10 @@ $c_mariadbConfFile = $c_mariadbVersionDir.'/mariadb'.$wampConf['mariadbVersion']
 $c_mariadbConsole = $c_mariadbVersionDir.'/mariadb'.$c_mariadbVersion.'/'.$wampConf['mariadbExeDir'].'/mysql.exe';
 $c_mariadbExeAnti = str_replace('/','\\',$c_mariadbExe);
 $c_mariadbConfFileAnti = str_replace('/','\\',$c_mariadbConfFile);
+
+//Check symlink or copy PHP dll into Apache bin folder
+if(empty($wampConf['CreateSymlink']) || ($wampConf['CreateSymlink'] != 'symlink' && $wampConf['CreateSymlink'] != 'copy'))
+	$wampConf['CreateSymlink'] = 'symlink';
 
 //Check hosts file writable
 $c_hostsFile = str_replace("\\","/",getenv('WINDIR').'/system32/drivers/etc/hosts');
@@ -363,11 +373,6 @@ $phpParamsNotOnOff = array(
 //PHP parameters that doesn't support Apache Graceful Restart but only Apache Service Restart
 $phpParamsNotGraceful = array(
 	'xdebug.', //All xdebug parameters
-);
-
-//Parameters to be changed into php.ini CLI the same way as for php.ini
-$phpCLIparams = array(
-	'date.timezone',
 );
 
 // Extensions can not be loaded by extension =
@@ -634,16 +639,18 @@ $mariadbParamsNotOnOff = array(
 $wamp_Param = array(
 	'VirtualHostSubMenu',
 	'AliasSubmenu',
-	'NotCheckVirtualHost',
-	'NotCheckDuplicate',
-	'VhostAllLocalIp',
-	'SupportMySQL',
-	'SupportMariaDB',
-	'HomepageAtStartup',
 	'ShowphmyadMenu',
 	'ShowadminerMenu',
 	'ShowWWWdirMenu',
+	'SupportMySQL',
+	'SupportMariaDB',
+	'HomepageAtStartup',
 	'BackupHosts',
+	'ScrollListsHomePage',
+	'##CheckVirtualHost',
+	'NotCheckVirtualHost',
+	'NotCheckDuplicate',
+	'###VhostAllLocalIp',
 	'##ApacheWampParams', //do not modify - submenu ApacheWampParams is used in Apache configuration
 	'apacheRestoreFiles',
 	'apacheCompareVersion',
@@ -659,9 +666,11 @@ $wamp_Param = array(
 	'NotVerifyPATH',
 	'NotVerifyTLD',
 	'NotVerifyHosts',
-	'###LinksOnProjectsHomePage',
+	'LinksOnProjectsHomePage',
+	'###LinksOnProjectsHomeByIp',
 );
 //Wampserver parameters with values not On or Off cannot be switched on or off
+//or can be switched on or of but with dependance from another parameter
 //Can be changed if 'change' = true && 'title' && 'values'
 //Parameter name must be also into $wamp_Param array
 //dependance is the name of Wampserver parameter that must be 'on' to see the parameter
@@ -697,6 +706,18 @@ $wampParamsNotOnOff = array(
 		'max' => '10000',
 		'default' => '1000',
 		),
+	'LinksOnProjectsHomeByIp' => array(
+		'change' => true,
+		'dependance' => 'LinksOnProjectsHomePage',
+		'title' => 'OnOff',
+		),
+);
+
+//Parameter servitude muts be off if first parameter is off
+$WampParamServitude = array(
+	'LinksOnProjectsHomePage' => array(
+	'servitude' => 'LinksOnProjectsHomeByIp',
+	)
 );
 
 //Wampserver parameters be switched by php.exe and not php-win.exe

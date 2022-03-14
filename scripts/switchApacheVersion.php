@@ -20,6 +20,16 @@ if(!empty($_SERVER['argv'][2]) && !empty($_SERVER['argv'][3]) && trim($_SERVER['
 }
 
 if(!$compareOnly) {
+	//In case of *copy* PHP dll files and phpForApache.ini instead of create symbolic link
+	//save php.ini of Apache bin folder into phpForApache.ini of active PHP version
+	if($wampConf['CreateSymlink'] == 'copy') {
+		$target = $c_phpVersionDir."/php".$c_phpVersion."/".$phpConfFileForApache;
+		$link = $c_apacheVersionDir."/apache".$wampConf['apacheVersion']."/".$wampConf['apacheExeDir']."/php.ini";
+		//error_log("copy ".$link." to ".$target);
+		if(copy($link, $target) === false) {
+			error_log("Error while copy '".$link."' to '".$target."' using php copy() function");
+		}
+	}
 	// loading the configuration file of the current php
 	require $c_phpVersionDir.'/php'.$wampConf['phpVersion'].'/'.$wampBinConfFiles;
 
@@ -72,7 +82,7 @@ if($apacheNew != $apacheOld) {
 	$httpdFileContents = @file_get_contents($apacheConfFile);
 	// Recovering the extensions loading configuration
 	preg_match_all('~^LoadModule\s+([0-9a-z_]+\s+modules/.+)\r?$~im',$httpdFileContents,$matchesON);
-	preg_match_all('~^#LoadModule\s+([0-9a-z_]+\s+modules/.+)\r?$~im',$httpdFileContents,$matchesOFF);
+	preg_match_all('~^\#LoadModule\s+([0-9a-z_]+\s+modules/.+)\r?$~im',$httpdFileContents,$matchesOFF);
 	// Key = module_name - Value = Module loaded = 1, not loaded = 0
 	$mod = array_fill_keys($matchesON[1], '1') + array_fill_keys($matchesOFF[1], '0');
 	// Key = module_name - Value = file name in modules/ folder
@@ -80,7 +90,7 @@ if($apacheNew != $apacheOld) {
 	fwrite($fp, "\$modules_apache_old = ".var_export($mod, true).";\n\n");
 	// Recovering the includes loading configuration
 	preg_match_all('~^Include\s+(conf/.+)\r?$~im',$httpdFileContents,$matchesON);
-	preg_match_all('~^#Include\s+(conf/.+)\r?$~im',$httpdFileContents,$matchesOFF);
+	preg_match_all('~^\#Include\s+(conf/.+)\r?$~im',$httpdFileContents,$matchesOFF);
 	// Key = include_name - Value = Include loaded = 1, not loaded = 0
 	$includes = array_fill_keys($matchesON[1], '1') + array_fill_keys($matchesOFF[1], '0');
 	ksort($includes);
@@ -107,7 +117,7 @@ if($apacheNew != $apacheOld) {
 	$httpdFileContents = @file_get_contents($apacheConfFile);
 	// Recovering the extensions loading configuration
 	preg_match_all('~^LoadModule ([0-9a-z_]+ modules/.+)\r?$~im',$httpdFileContents,$matchesON);
-	preg_match_all('~^#LoadModule ([0-9a-z_]+ modules/.+)\r?$~im',$httpdFileContents,$matchesOFF);
+	preg_match_all('~^\#LoadModule ([0-9a-z_]+ modules/.+)\r?$~im',$httpdFileContents,$matchesOFF);
 	// Key = module_name - Value = Module loaded = 1, not loaded = 0
 	$mod = array_fill_keys($matchesON[1], '1') + array_fill_keys($matchesOFF[1], '0');
 	// Key = module_name - Value = file name in modules/ folder
@@ -115,7 +125,7 @@ if($apacheNew != $apacheOld) {
 	fwrite($fp, "\$modules_apache_new = ".var_export($mod, true).";\n\n");
 	// Recovering the includes loading configuration
 	preg_match_all('~^Include (conf/.+)\r?$~im',$httpdFileContents,$matchesON);
-	preg_match_all('~^#Include (conf/.+)\r?$~im',$httpdFileContents,$matchesOFF);
+	preg_match_all('~^\#Include (conf/.+)\r?$~im',$httpdFileContents,$matchesOFF);
 	// Key = include_name - Value = Include loaded = 1, not loaded = 0
 	$includes = array_fill_keys($matchesON[1], '1') + array_fill_keys($matchesOFF[1], '0');
 	ksort($includes);

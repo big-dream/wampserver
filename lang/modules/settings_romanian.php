@@ -27,6 +27,7 @@
 //       $w_settings 	apacheCompareVersion - apacheRestoreFiles - apacheGracefulRestart - LinksOnProjectsHomePage
 //                    ApacheWampParams - apachePhpCurlDll
 //       Suppress : $w_enterServiceNameApache - $w_enterServiceNameMysql - $w_enterServiceNameAll
+// 3.2.7 $w_showExcludedPorts
 
 // Projects sub-menu
 $w_projectsSubMenu = 'Proiecte personale';
@@ -99,6 +100,7 @@ $w_vhostConfig = 'Aratã VirtualHost verificat de Apache';
 $w_apacheLoadedModules = 'Aratã Modulele încãrcate de Apache';
 $w_apacheLoadedIncludes = 'Aratã Includes încãrcate de Apache';
 $w_apacheDefineVariables = 'Aratã variabilele Apache (Define)';
+$w_showExcludedPorts = 'Aratã porturile excluse de cãtre sistem';
 $w_testAliasDir = 'Verificã relaþiile Alias <-> Directory';
 $w_verifyxDebugdll = 'Verificã dll-uri xDebug neutilizate';
 $w_empty = 'Goleºte';

@@ -27,6 +27,8 @@
 //                    ApacheWampParams - apachePhpCurlDll
 //       Suppression de : $w_enterServiceNameApache - $w_enterServiceNameMysql - $w_enterServiceNameAll
 // 3.2.7 $w_showExcludedPorts
+// 3.2.8 $w_phpNotExists - LinksOnProjectsHomeByIp - CheckVirtualHost - $w_PHPversionsUse - $w_All_Versions
+//       $w_settings 	ScrollListsHomePage
 
 // Projects sub-menu
 $w_projectsSubMenu = 'Vos projets';
@@ -55,6 +57,7 @@ $w_settings = array(
 	'HomepageAtStartup' => 'Page d\'accueil Wampserver au démarrage',
 	'MenuItemOnline' => 'Item menu : En Ligne/Hors Ligne',
 	'ItemServicesNames' => 'Item menu Outils : Changer noms des services',
+	'CheckVirtualHost' => 'Vérification définitions VirtualHost',
 	'NotCheckVirtualHost' => 'Ne pas vérifier les définitions des VirtualHost',
 	'NotCheckDuplicate' => 'Ne pas vérifier ServerName dupliqués',
 	'VhostAllLocalIp' => 'Autoriser IP locales VirtualHost autres que 127.*',
@@ -83,7 +86,9 @@ $w_settings = array(
 	'apacheRestoreFiles' => 'Autoriser retauration fichiers Apache',
 	'apacheGracefulRestart' => 'Autoriser Apache Graceful Restart',
 	'LinksOnProjectsHomePage' => 'Autoriser liens sur les projets page d\'accueil',
+	'LinksOnProjectsHomeByIp' => 'Liens sur les projets par IP \'link local\'',
 	'apachePhpCurlDll' => 'Autoriser Apache à utiliser libcrypto-*.dll et libssl-*.dll de PHP',
+	'ScrollListsHomePage' => 'Autoriser le défilement des listes page d\'accueil',
 );
 
 // Right-click Tools
@@ -121,7 +126,7 @@ $w_deleteListenPort = 'Supprimer un Listen port Apache';
 $w_delete = 'Supprimer';
 $w_defaultDBMS = 'SGBD par défaut :';
 $w_invertDefault = 'Inverser SGBD par defaut ';
-$w_changeCLI = 'Changer  version PHP CLI';
+$w_changeCLI = 'Changer version PHP CLI';
 $w_reinstallServices = 'Réinstaller tous les services';
 $w_wampReport = 'Rapport de configuration Wampserver';
 $w_dowampReport = 'Créer '.$w_wampReport;
@@ -135,6 +140,7 @@ $w_restore = 'Restaure';
 $w_checkUpdates = 'Vérifier les mises à jour';
 $w_apacheTools = 'Outils Apache';
 $w_PHPloadedExt = 'Afficher extensions PHP chargées';
+$w_PHPversionsUse = 'Afficher l\'utilisation des versions PHP';
 
 //Divers
 $w_ext_spec = 'Extensions spéciales';
@@ -156,6 +162,8 @@ $w_Size = "Taille";
 $w_Time = "Temps";
 $w_Integer = "Nombre entier";
 $w_phpMyAdminHelp = "Aide PhpMyAdmin";
+$w_phpNotExists = 'La version de PHP n\'existe pas';
+$w_All_Versions = 'Toutes versions';
 
 // PromptText pour Aestan Tray Menu variables de type: prompt
 // Peuvent contenir \r\n pour plusieurs lignes

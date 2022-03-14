@@ -61,7 +61,7 @@ $w_restartServices = 'Reporneºte Toate Serviciile';
 $w_FormatDate = "dd.MM.Y hh:mm";
 $w_startedOn = 'Pornit la: ';
 $w_restartWamp = 'Repornire de la zero';
-$w_warning = 'ATTENÞIE';
+$w_warning = 'ATENÞIE';
 
 $w_apacheErrorLog = 'Jurnal Erori Apache';
 $w_apacheAccessLog = 'Jurnal Acces Apache';

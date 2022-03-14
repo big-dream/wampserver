@@ -4,6 +4,8 @@
 // 3.2.5 - documentation-of ajouté pour les langues le nécessitant
 // pour le Français est identique à documentation
 // 3.2.6 - txtNoHosts
+// 3.2.8 - phpNotExists - txtProjectsLink - phpExtensions - phpVersionsUse
+
 $langues = array(
 	'langue' => 'Français',
 	'locale' => 'french',
@@ -31,6 +33,7 @@ $langues = array(
 	'txtServerNameIp' => 'L\'IP %s du Servername %s n\'est pas valide dans le fichier %s',
 	'txtVhostNotClean' => 'Le fichier %s n\'a pas été nettoyé. Il reste des exemples de VirtualHost comme : dummy-host.example.com',
 	'txtNoProjet' => 'Aucun projet.<br /> Pour en ajouter un nouveau, créez simplement un répertoire dans \'www\'.',
+	'txtProjectsLink' =>'Cependant, vous pouvez utiliser Clic-Droit, Paramètres Wamp, Attention: risqué..., Autoriser Liens sur les projets...',
 	'txtProjects' => 'Ce sont vos dossiers dans %s<br />Pour les utiliser comme lien http, il faut les déclarer en tant que VirtualHost',
 	'txtAlias' => 'Vos Alias',
 	'txtNoAlias' => 'Aucun alias.<br /> Pour en ajouter un nouveau, utilisez le menu de WAMPSERVER.',
@@ -50,7 +53,10 @@ $langues = array(
 	'mysqlportUsed' => 'Port défini pour MySQL : ',
 	'mariaportUsed' => 'Port défini pour MariaDB : ',
 	'defaultDBMS' => 'SGBD par défaut',
+	'phpNotExists' => 'La version de PHP n\'existe pas',
 	'HelpMySQLMariaDB' => 'Comment utiliser MySQL et/ou MariaDB ?<br>Qu\'est-ce qu\'un SGBD par défaut ?<br>Comment changer de SGDB par défaut ?<br>Aller voir l\'aide afférente : Clic-Droit icône Wampmanager -> Aide -> MariaDB - MySQL',
 	'nolocalhost' => 'C\'est une mauvaise idée d\'ajouter localhost dans les url de lancement des projets. Il est préférable de définir des VirtualHost dans le fichier<br />wamp/bin/apache/apache%s/conf/extra/httpd-vhosts.conf<br />et de ne pas ajouter localhost dans les url.',
+	'phpExtensions' => 'Extensions PHP chargées',
+	'phpVersionsUse' => 'Utilisation versions PHP',
 	);
 ?>

@@ -2,6 +2,7 @@
 // 3.2.5 - documentation-of added for languages requiring it
 // for English is identical to documentation
 // 3.2.6 - txtNoHosts
+// 3.2.8 - phpNotExists - txtProjectsLink -	phpExtensions - phpVersionsUse
 
 $langues = array(
 	'langue' => 'English',
@@ -25,6 +26,7 @@ $langues = array(
 	'txtProjet' => 'Your Projects',
 	'txtNoProjet' => 'No projects yet.<br />To create a new one, just create a directory in \'www\'.',
 	'txtProjects' => 'These are your folders in %s<br />To use them as an http link, you must declare them as VirtualHost',
+	'txtProjectsLink' =>'However, you can use Right-Click, Wamp Settings, Warning: risky..., Allow links on projects...',
 	'txtAlias' => 'Your Aliases',
 	'txtNoAlias' => 'No Alias yet.<br />To create a new one, use the WAMPSERVER menu.',
 	'txtVhost' => 'Your VirtualHost',
@@ -49,7 +51,10 @@ $langues = array(
 	'mysqlportUsed' => 'Port defined for MySQL: ',
 	'mariaportUsed' => 'Port defined for MariaDB: ',
 	'defaultDBMS' => 'default DBMS',
+	'phpNotExists' => 'PHP version doesn\'t exist',
 	'HelpMySQLMariaDB' => 'How to use MySQL and/or MariaDB?<br>What is a default DBMS?<br>How to change the default DBMS?<br>Go to the related help: Right-click Wampmanager icon -> Help -> MariaDB - MySQL',
 	'nolocalhost' => 'It\'s a bad idea to add localhost in the url of launching projects. It is best to define VirtualHost in<br />wamp/bin/apache/apache%s/conf/extra/httpd-vhosts.conf<br />file and not add localhost in the url.',
+	'phpExtensions' => 'Loaded PHP extensions',
+	'phpVersionsUse' => 'Use of PHP versions',
 	);
 ?>
