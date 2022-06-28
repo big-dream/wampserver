@@ -7,19 +7,19 @@
 //3.1.1   $w_cmdWindows - $w_mysqlCommand - $w_mariadbCommand - $w_apacheCommand - $w_services_msc
 //3.2.0		$w_helpForums - $w_helpUse
 //3.2.1   $w_apacheSettings - $w_apacheDefaults
-//3.2.2	$w_helpFile modified
+//3.2.2   $w_helpFile modified
 //3.2.6   $w_startedOn - $w_restartWamp - $w_phpCommand
 //3.2.7   $w_changelog - $w_warning
 //        --- Suppress: $w_putOnline - $w_putOffline
+//3.2.9   $w_startOfServices - $w_servicesStarted - $w_bepatient - $w_ready - $w_state_services
+//      --- Suppress: $w_serverOffline - $w_serverOnline
 
 $w_translated_by = 'Tradus în limba românã de Ciprian Murariu';
 
 $w_allServicesRunning = 'Toate serviciile ruleazã normal';
 $w_oneServiceRunning = 'Doar %n din %t servicii ruleazã';
 $w_allServicesStopped = 'Nu ruleazã niciunul dintre cele %t servicii';
-
-$w_serverOffline = 'Server local';
-$w_serverOnline = 'Server Online';
+$w_state_services = 'Click-Dreapta -> Instrumente -> Verificã starea serviciilor';
 
 $w_about = 'Despre...';
 $w_helpFile = 'Fiºiere ºi Documentaþii';
@@ -95,4 +95,8 @@ $w_noDBMS = 'Fãrã suport pentru baze de date';
 
 $w_language = 'Schimbã Limba';
 
+$w_startOfServices = 'Pornire servicii';
+$w_servicesStarted = 'Servicii pornite';
+$w_bepatient = 'Aveþi rãbdare !';
+$w_ready = 'Gata !';
 ?>

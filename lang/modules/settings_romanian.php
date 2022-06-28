@@ -28,6 +28,10 @@
 //                    ApacheWampParams - apachePhpCurlDll
 //       Suppress : $w_enterServiceNameApache - $w_enterServiceNameMysql - $w_enterServiceNameAll
 // 3.2.7 $w_showExcludedPorts
+// 3.2.8 $w_phpNotExists - LinksOnProjectsHomeByIp - CheckVirtualHost - $w_PHPversionsUse - $w_All_Versions
+//       $w_settings 	ScrollListsHomePage
+// 3.2.9 $w_phpparam_obs - $w_ApacheCompiledIn - $w_ApacheDoesNotIf - $w_mod_not_disable
+//       $w_NoDefaultDBMS
 
 // Projects sub-menu
 $w_projectsSubMenu = 'Proiecte personale';
@@ -56,6 +60,7 @@ $w_settings = array(
 	'HomepageAtStartup' => 'Deschide pagina Index la pornire',
 	'MenuItemOnline' => 'Aratã în Meniu: Online / Offline',
 	'ItemServicesNames' => 'Aratã în Instrumente: Schimbã numele serviciilor',
+	'CheckVirtualHost' => 'Verificã definiþiile VirtualHost',
 	'NotCheckVirtualHost' => 'Nu verifica definiþiile VirtualHost',
 	'NotCheckDuplicate' => 'Nu verifica dublarea Numelui Serverului',
 	'VhostAllLocalIp' => 'Permite utilizarea IP-urilor locale, altele decât 127.*',
@@ -84,7 +89,9 @@ $w_settings = array(
 	'apacheRestoreFiles' => 'Permite recuperarea fiºierelor Apache',
 	'apacheGracefulRestart' => 'Permite Repornirea Forþatã Apache',
 	'LinksOnProjectsHomePage' => 'Permite link-uri în pagina de pornire a proiectelor',
+	'LinksOnProjectsHomeByIp' => 'Link-uri în proiecte prin \'IP-ul local al link-ului\'',
 	'apachePhpCurlDll' => 'Permite Apache sã utilizeze libcrypto-*.dll ºi libssl-*.dll din PHP',
+	'ScrollListsHomePage' => 'Permite derularea listelor în pagina de pornire',
 );
 
 // Right-click Tools
@@ -121,6 +128,7 @@ $w_addingVer = 'Adaugã versiuni de Apache, PHP, MySQL, MariaDB, etc.';
 $w_deleteListenPort = 'ªterge un port de Intrare Apache';
 $w_delete = 'ªterge';
 $w_defaultDBMS = 'DBMS implicit:';
+$w_NoDefaultDBMS = 'DBMS implicit: niciunul';
 $w_invertDefault = 'Inverseazã DBMS implicit ';
 $w_changeCLI = 'Schimbã versiunea PHP CLI';
 $w_reinstallServices = 'Reinstaleazã toate serviciile';
@@ -136,6 +144,7 @@ $w_restore = 'Recupereazã';
 $w_checkUpdates = 'Verificã actualizãri';
 $w_apacheTools = 'Instrumente Apache';
 $w_PHPloadedExt = 'Aratã Extensiile PHP încãrcate';
+$w_PHPversionsUse = 'Aratã utilizarea versiunilor PHP';
 
 //miscellaneous
 $w_ext_spec = 'Extensii speciale';
@@ -144,6 +153,7 @@ $w_phpparam_info = 'Informaþii suplimentare';
 $w_ext_nodll = 'Fiºier dll inexistent';
 $w_ext_noline = "Nu existã 'extensie='";
 $w_mod_fixed = "Module ireversibile";
+$w_mod_not_disable = "Nu trebuiesc dezactivate";
 $w_no_module = 'Fiºier modul inexistent';
 $w_no_moduleload = "Nu existã 'LoadModule'";
 $w_mysql_none = "niciunul";
@@ -157,9 +167,14 @@ $w_Size = "Mãrimea";
 $w_Time = "Timpul";
 $w_Integer = "Numãr Întreg";
 $w_phpMyAdminHelp = "Ajutor PhpMyAdmin";
+$w_phpNotExists = 'Versiune PHP indisponibilã';
+$w_All_Versions = 'Toate versiunile';
+$w_phpparam_obs = 'Setãri Depreciate | ªterse | Noi';
+$w_ApacheCompiledIn = 'Module încorporate';
+$w_ApacheDoesNotIf = 'Nu impun <IfModule ModName>';
 
 // PromptText for Aestan Tray Menu type: prompt variables
-// Quotation marks " in texts must be escaped: \" - May have \r\n for multilines
+// May have \r\n for multilines
 $w_EnterInteger = "Introdu un numãr întreg";
 $w_enterPort = 'Introdu numãrul noului port';
 $w_EnterSize = "Introdu Mãrimea: xxxx urmat de M pentru Mega sau G pentru Giga.\r\nNumãrul trebuie însoþit de simbolul M sau G.\r\nExemplu : 64M ; 256M ; 1G";
@@ -168,7 +183,7 @@ $w_MysqlMariaUser = "Introdu un nume de utilizator valabil. Dacã nu-l cunoºti, p
 
 // Long texts
 // Quotation marks " in texts must be escaped: \" - May have \r\n for multilines
-$w_addingVerTxt ="Toate \"addon-urile\", ex. toate installer-ele pentru versiunile Apache, PHP, MySQL sau MariaDB cât ºi cele pentru actualizãri (Wampserver, Aestan Tray Menu, xDebug, etc.), precum ºi aplicaþiile web (PhpMyAdmin, Adminer) se gãsesc la adresa\r\n\r\n'https://sourceforge.net/projects/wampserver/'\r\n\r\nDescãrcaþi fiºierele pe care le doriþi ºi lansaþi-le apãsând click-dreapta pe numele lor, iar apoi \"Ruleazã ca administrator\" pentru a adãuga addon-ul sau aplicaþia respectivã la versiunea existentã de Wampserver.\r\n\r\nApoi, schimbarea versiunii de Apache, PHP, MySQL sau MariaDB se face în doar trei paºi:\r\nClick-stânga pe icon -> PHP|Apache|MySQL|MariaDB -> Schimbã versiunea -> Versiune\r\n\r\nSchimbarea versiunii nu va realiza automat ºi schimbarea parametrilor modificaþi anterior ºi nici nu va transfera bazele de date de la vechea versiune la cea nouã.\r\n\r\nO arhivã mult mai bine organizatã ºi permanent la zi decât cea de la Sourceforge existã la adresa:\r\n\r\n'https://wampserver.aviatechno.net'.\r\n\r\nLink-urile la arhive se regãsesc cu Click-dreapta pe icon -> Ajutor\r\n";
+$w_addingVerTxt ="Toate \"addon-urile\", ex. toate installer-ele pentru versiunile Apache, PHP, MySQL sau MariaDB cât ºi cele pentru actualizãri (Wampserver, Aestan Tray Menu, xDebug, etc.), precum ºi aplicaþiile web (PhpMyAdmin, Adminer) se gãsesc la adresa\r\n\r\n'https://sourceforge.net/projects/wampserver/'\r\n\r\nDescãrcaþi fiºierele pe care le doriþi ºi lansaþi-le apãsând click-dreapta pe numele fiºierelor descãrcate, iar apoi \"Ruleazã ca administrator\" pentru a adãuga addon-ul sau aplicaþia respectivã la versiunea existentã de Wampserver.\r\n\r\nApoi, schimbarea versiunii de Apache, PHP, MySQL sau MariaDB se face în doar trei paºi:\r\nClick-Stânga pe icon -> PHP|Apache|MySQL|MariaDB -> Schimbã versiunea -> Versiune\r\n\r\nSchimbarea versiunii nu va realiza automat ºi schimbarea parametrilor modificaþi anterior ºi nici nu va transfera bazele de date de la vechea versiune la cea nouã.\r\n\r\nO arhivã mult mai bine organizatã ºi permanent la zi decât cea de la Sourceforge existã la adresa:\r\n\r\n'https://wampserver.aviatechno.net'.\r\n\r\nLink-urile la arhive se regãsesc cu Click-dreapta pe icon -> Ajutor\r\n";
 $w_MySQLsqlmodeInfo = "MySQL/MariaDB sql-mode\r\nServerul SQL poate rula în diferite moduri SQL, în funcþie de valoare directivei sql-mode.\r\nSetând una sau mai multe directive va restricþiona anumite posibilitãþi ºi va cere o rigoare crescutã în sintaxa SQL ºi validarea datelor.\r\nModul de operare a directivei sql-mode din fiºierul my.ini este urmãtorul.\r\n\r\n- sql-mode: implicit\r\nDirectiva sql-mode nu existã sau este anulatã/comentatã (;sql-mode=\"...\")\r\nSe aplicã modurile implicite pentru versiunea de MySQL/MariaDB\r\n\r\n- sql-mode: user mode\r\nDirectiva sql-mode este populatã cu moduri definite de utilizator, ca de exemplu:\r\nsql-mode=\"NO_ZERO_DATE,NO_ZERO_IN_DATE,NO_AUTO_CREATE_USER\"\r\n\r\n- sql-mode: none\r\nDirectiva sql-mode directive este goalã dar trebuie sã existe:\r\nsql-mode=\"\"\r\nNu se aplicã niciun mod SQL.";
 $w_PhpMyAdMinHelpTxt = "-- PhpMyAdmin\r\nLa pornirea phpMyAdmin, se va solicita un nume de utilizator ºi o parolã.\r\nDupã instalarea Wampserver 3, numele de utilizator implicit este \"root\" (fãrã ghilimele) ºi fãrã parolã (câmpul Password trebuie lãsat necompletat).\r\n\r\nPhpMyAdmin este configurat sã permitã accesul la MySQL sau MariaDB în funcþie de care dintre ele este activ.\r\nDacã ambele DBMS sunt activate, va fi afiºatã o casetã de derulare (dropdown) în pagina de autentificare, numitã \"Server Choice\", serverul implicit fiind primul în listã. Se selecteazã DBMS dorit pentru autentificare.\r\nNU UITAÞI, dacã existã conturi de utilizatori diferite, trebuie introdus cel adecvat DBMS selectatã.\r\nÎN PLUS: Dacã existã acelaºi cont ex. `root` în ambele DBMS, trebuie folositã parola potrivitã contului ºi DBMS.\r\n";
 $w_PhpMyAdminBigFileTxt = "\r\n-- Importarea fiºierelor supradimensionate\r\nPentru a permite importarea fiºierelor mari, mãrimea maximã a memoriei ºi/sau limitele de timp nu trebuie setate în fiºierul php.ini ci în fiºierul wamp(64)\\alias\\phpmyadmin.conf.\r\n";

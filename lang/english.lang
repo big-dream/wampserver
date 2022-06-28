@@ -9,13 +9,13 @@
 //3.2.6   $w_startedOn - $w_restartWamp - $w_phpCommand
 //3.2.7   $w_changelog - $w_warning
 //        --- Suppress: $w_putOnline - $w_putOffline
+//3.2.9   $w_startOfServices - $w_servicesStarted - $w_bepatient - $w_ready - $w_state_services
+//      --- Suppress: $w_serverOffline - $w_serverOnline
 
 $w_allServicesRunning = 'All services running';
 $w_oneServiceRunning = '%n of %t services running';
 $w_allServicesStopped = 'None of %t services running';
-
-$w_serverOffline = 'local server';
-$w_serverOnline = 'server Online';
+$w_state_services = 'Right-Click -> Tools -> Check state of services';
 
 $w_about = 'About...';
 $w_helpFile = 'Files & Documentation';
@@ -90,5 +90,10 @@ $w_mariadbCommand = $w_cmdWindows.' MariaDB/bin';
 $w_noDBMS = 'No Database System';
 
 $w_language = 'Language';
+
+$w_startOfServices = 'Start services';
+$w_servicesStarted = 'Services started';
+$w_bepatient = 'Be patient !';
+$w_ready = 'Ready !';
 
 ?>

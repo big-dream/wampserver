@@ -1,11 +1,28 @@
 Changelog
+--- Wampserver 3.2.9
+- Improvement of PHP FCGI support
+- Improved wampmanager.ini file management
+  Removed a lot of lines by the new Flags: appendsection of the Multi action of Aestan Tray Menu
+- Improved management of wampapache(64), wampmysqld(64) and wampmariadb(64) services by systematic use of Flags: waituntilterminated
+- Adds a startup initialization screen.
+- Display at startup all Actifs and Inactifs services.
+- Fix minor bug
+To use or unactive MariaDB or MySQL, read the file mariadb_mysql.txt
+This update is cumulative Updates 3.0.1 to 3.2.8. It may be reinstalled in case of modified files by error
+
+--- Wampserver 3.2.8
+- Fix minor bug
+- Support fcgi_module Apache.
+- Possibility to have different versions of PHP for each VirtualHost
+- Possibility to add or suppress FCGI support for each VirtulaHost and Alias
+- Possibility to change PHP version for each VirtualHost and Alias
+- IP 'local link' support for projects on the homepage
+
 --- Wampserver 3.2.7
 - Fix display defects
 - Fix minor bugs
 - Update language files: Romanian and Chinese
 - Possibility to display the ports locked by the system
-To use or unactive MariaDB or MySQL, read the file mariadb_mysql.txt
-This update is cumulative Updates 3.0.1 to 3.2.7. It may be reinstalled in case of modified files by error
 
 --- Wampserver 3.2.6
 - Support for PHP 8.1

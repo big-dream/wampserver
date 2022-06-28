@@ -29,6 +29,8 @@
 // 3.2.7 $w_showExcludedPorts
 // 3.2.8 $w_phpNotExists - LinksOnProjectsHomeByIp - CheckVirtualHost - $w_PHPversionsUse - $w_All_Versions
 //       $w_settings 	ScrollListsHomePage
+// 3.2.9 $w_phpparam_obs - $w_ApacheCompiledIn - $w_ApacheDoesNotIf - $w_mod_not_disable
+//       $w_NoDefaultDBMS
 
 // Projects sub-menu
 $w_projectsSubMenu = 'Your projects';
@@ -125,6 +127,7 @@ $w_addingVer = 'Add Apache, PHP, MySQL, MariaDB, etc. versions.';
 $w_deleteListenPort = 'Delete a Listen port Apache';
 $w_delete = 'Delete';
 $w_defaultDBMS = 'Default DBMS:';
+$w_NoDefaultDBMS = 'Default DBMS : none';
 $w_invertDefault = 'Invert default DBMS ';
 $w_changeCLI = 'Change PHP CLI version';
 $w_reinstallServices = 'Reinstall all services';
@@ -149,6 +152,7 @@ $w_phpparam_info = 'For information only';
 $w_ext_nodll = 'No dll file';
 $w_ext_noline = "No 'extension='";
 $w_mod_fixed = "Irreversible module";
+$w_mod_not_disable = "These modules should not be disabled";
 $w_no_module = 'No module file';
 $w_no_moduleload = "No 'LoadModule'";
 $w_mysql_none = "none";
@@ -164,6 +168,9 @@ $w_Integer = "Integer Value";
 $w_phpMyAdminHelp = "Help PhpMyAdmin";
 $w_phpNotExists = 'PHP version doesn\'t exist';
 $w_All_Versions = 'All versions';
+$w_phpparam_obs = 'Settings Depreciated | Deleted | New';
+$w_ApacheCompiledIn = 'Built-in modules';
+$w_ApacheDoesNotIf = 'Do not require <IfModule ModName>.';
 
 // PromptText for Aestan Tray Menu type: prompt variables
 // May have \r\n for multilines

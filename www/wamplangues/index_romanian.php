@@ -7,6 +7,7 @@
 // 3.2.5 - documentation-of added for languages requiring it
 // for English is identical to documentation
 // 3.2.6 - txtNoHosts
+// 3.2.8 - phpNotExists - txtProjectsLink -	phpExtensions - phpVersionsUse
 
 $langues = array(
 	'langue' => 'Română',
@@ -30,6 +31,7 @@ $langues = array(
 	'txtProjet' => 'Proiectele Tale',
 	'txtNoProjet' => 'Nu există încă niciun Proiect.<br />Pentru a crea unul, nu trebuie decât să creaţi un director (folder) în \'www\'.',
 	'txtProjects' => 'Acestea vă sunt directoarele din %s<br />Pentru a le putea folosi ca un link http, acestea trebuiesc declarate ca VirtualHost',
+	'txtProjectsLink' =>'Oricum, poţi folosi Click-Dreapta, Setări Wamp, Atenţie: Riscant! Numai pentru experţi, Permite link-uri în pagina de pornire a proiectelor',
 	'txtAlias' => 'Aliasuri',
 	'txtNoAlias' => 'Nu există niciun Alias.<br />Pentru a crea unul, foloseşte meniul WAMPSERVER.',
 	'txtVhost' => 'VirtualHost',
@@ -54,7 +56,10 @@ $langues = array(
 	'mysqlportUsed' => 'Portul definit pentru MySQL: ',
 	'mariaportUsed' => 'Portul definit pentru MariaDB: ',
 	'defaultDBMS' => 'DBMS implicit',
+	'phpNotExists' => 'Versiune PHP indisponibilă',
 	'HelpMySQLMariaDB' => 'Cum să folosiţi MySQL şi/sau MariaDB?<br />Ce înseamnă DBMS implicit?<br />Cum să schimbaţi DBMS implicit?<br />Citiţi pagina de Ajutor: Click-dreapta pe icon-ul Wampmanager -> Ajutor -> MariaDB - MySQL',
 	'nolocalhost' => 'Nu este o idee bună sa adăugaţi localhost în adresa (url-ul) proiectelor. Este recomandată definirea unui VirtualHost corespunzător în fişierul<br />wamp/bin/apache/apache%s/conf/extra/httpd-vhosts.conf<br />şi evitarea folosirii localhost în adrese (url).',
+	'phpExtensions' => 'Extensii PHP încărcate',
+	'phpVersionsUse' => 'Utilizarea versiunilor PHP',
 	);
 ?>
