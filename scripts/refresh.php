@@ -1,4 +1,7 @@
 <?php
+// 3.3.0 - Suppression changement version PHP CLI
+//          Amélioration menu couleur
+//          Remplacer ${var} par {$var}
 
 if(!defined('WAMPTRACE_PROCESS')) require 'config.trace.php';
 if(WAMPTRACE_PROCESS) {
@@ -19,19 +22,6 @@ if($doReport) {
 
 require 'config.inc.php';
 require 'wampserver.lib.php';
-
-//Retrieve Windows charset
-$Windows_Charset = '';
-$Windows_Charset_PHP = 'Windows-'.trim(strstr(setlocale(LC_CTYPE,''),'.'),'.');
-if(strlen($Windows_Charset_PHP) == 12) $Windows_Charset = $Windows_Charset_PHP;
-else {
-	$command = 'CMD /D /C powershell [System.Text.Encoding]::Default | FINDSTR /I /C:"WebName"';
-	$output = `$command`;
-	if(preg_match('/^WebName[\t ]+:[\t ]([a-zA-Z0-9\-]+)\r?$/i',$output,$matches) > 0) {
-		$Windows_Charset_PowerShell = $matches[1];
-	}
-	if(strlen($Windows_Charset_PowerShell) == 12) $Windows_Charset = $Windows_Charset_PowerShell;
-}
 
 // Get Aestan Tray Menu version and some variables
 $contents = file_get_contents($wampserverIniFile);
@@ -56,35 +46,62 @@ $lang = $wampConf['language'];
 
 // Load language file if exists
 require $langDir.$wampConf['defaultLanguage'].'.lang';
-if(is_file($langDir.$lang.'.lang')){
-	require $langDir.$lang.'.lang';
-}
-/*if(is_file($langDir.$lang.'_utf8.lang')){
-	require $langDir.$lang.'_utf8.lang';
-}*/
-// Load modules default language files
-if($handle = opendir($langDir.$modulesDir)) {
-	while (false !== ($file = readdir($handle)))	{
-		if($file != "." && $file != ".." && preg_match('|_'.$wampConf['defaultLanguage'].'|',$file)) {
-			include $langDir.$modulesDir.$file;
-			//Save array $w_settings default language
-			$w_settings_save = $w_settings;
+$charset_used = $file_charset;
+$utf8_file = '';
+$use_utf8 = false;
+if(file_exists($langDir.$lang.'.lang')){
+	//$Text_Encoding['CodePage'] = '65001';
+	if($Text_Encoding['CodePage'] == '65001') {
+		//Beta utf-8 region option is checked
+		$utf8_file = '_utf-8';
+		$use_utf8 = true;
+		if(!file_exists($langDir.$lang.$utf8_file.'.lang')) {
+			require $langDir.$lang.'.lang';
+			$temp = file_get_contents($langDir.$lang.'.lang');
+			$convertOK = true;
+			$temp_utf8 = mb_convert_encoding($temp, "utf-8", $charset_used);
+			if($temp_utf8 !== false) {
+				$temp_utf8 = str_replace('$file_charset = \''.$charset_used.'\';','$file_charset = \'utf-8\';',$temp_utf8);
+				if(write_file($langDir.$lang.$utf8_file.'.lang',$temp_utf8) === false) {
+					$convertOK = false;
+				}
+			}
+			else {
+				$convertOK = false;
+			}
+			if($convertOK === false) {
+				$utf8_file = '';
+				$use_utf8 = false;
+			}
 		}
 	}
-	closedir($handle);
+	require $langDir.$lang.$utf8_file.'.lang';
+	$charset_used = $file_charset;
 }
 
+// Load modules default language files - settings_english.php
+require $langDir.$modulesDir.'settings_'.$wampConf['defaultLanguage'].'.php';
+//Save array $w_settings default language
+$w_settings_save = $w_settings;
+
 // Load modules current language files if exists
-if($handle = opendir($langDir.$modulesDir)) {
-	while (false !== ($file = readdir($handle)))	{
-		if($file != "." && $file != ".." && preg_match('|_'.$lang.'|',$file)) {
-			include $langDir.$modulesDir.$file;
-			//Merge save array with current language
-			$w_settings = array_replace($w_settings_save,$w_settings);
+if(file_exists($langDir.$modulesDir.'settings_'.$lang.'.php')) {
+	if($use_utf8) {
+		if(!file_exists($langDir.$modulesDir.'settings_'.$lang.$utf8_file.'.php')) {
+			$temp = file_get_contents($langDir.$modulesDir.'settings_'.$lang.'.php');
+			$temp_utf8 = mb_convert_encoding($temp, "utf-8", $charset_used);
+			if($temp_utf8 !== false) {
+				if(write_file($langDir.$modulesDir.'settings_'.$lang.$utf8_file.'.php',$temp_utf8) === false) {
+					$utf8_file = '';
+				}
+			}
 		}
 	}
-	closedir($handle);
+	require $langDir.$modulesDir.'settings_'.$lang.$utf8_file.'.php';
+	//Merge save array with current language
+	$w_settings = array_replace($w_settings_save,$w_settings);
 }
+unset($temp,$temp_utf8);
 
 //Update string to use alternate port.
 $w_AlternatePort = sprintf($w_UseAlternatePort, $c_UsedPort);
@@ -137,9 +154,11 @@ else {
 $WampStartOnOri = $wampConf['wampStartDate'];
 // Wampserver last launched date and hour (formated)
 $WampStartOn = IntlDateFormatter::formatObject(new DateTime($WampStartOnOri),$w_FormatDate);
-if(!empty($Windows_Charset)) {
-	$WampStartOn = @iconv("UTF-8",$Windows_Charset."//TRANSLIT",$WampStartOn);
+if(!$use_utf8) {
+	$temp = mb_convert_encoding($WampStartOn, $charset_used, "utf-8");
+	if($temp !== false) $WampStartOn = $temp;
 }
+
 // Option to launch Homepage at startup
 $RunAtStart = ($wampConf['HomepageAtStartup'] == 'on' ? '' : ';');
 // Option to see www dir in menu
@@ -178,10 +197,10 @@ elseif(file_exists($c_installDir.'/instructions_for_use.pdf')) {
 }
 //Check if Apache Graceful Restart is supported
 $Apache_Graceful_Restart = <<< EOF
-Action: run; Filename: "${c_apacheExe}"; Parameters: "-n ${c_apacheService} -k restart"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
+Action: run; Filename: "{$c_apacheExe}"; Parameters: "-n {$c_apacheService} -k restart"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
 EOF;
 $Apache_Service_Restart = <<< EOF
-Action: Service; Service: ${c_apacheService}; ServiceAction: restart; Flags: ignoreerrors waituntilterminated
+Action: Service; Service: {$c_apacheService}; ServiceAction: restart; Flags: ignoreerrors waituntilterminated
 EOF;
 $Apache_Restart = $Apache_Service_Restart;
 $Apache_Graceful = ';';
@@ -197,8 +216,8 @@ $GotoMySQLRestart = $GotoMariaDBRestart = '';
 if($wampConf['SupportMySQL'] == 'on') {
 	$GotoMySQLRestart = <<< EOF
 [mysql_refresh_start]
-Action: run; FileName: "${c_phpCli}";Parameters: "refresh.php";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-Action: run; FileName: "CMD"; Parameters: "/D /C net start ${c_mysqlService}"; ShowCmd: hidden; Flags: waituntilterminated
+Action: run; FileName: "{$c_phpCli}";Parameters: "refresh.php";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
+Action: run; FileName: "CMD"; Parameters: "/D /C net start {$c_mysqlService}"; ShowCmd: hidden; Flags: waituntilterminated
 Action: resetservices
 Action: readconfig
 
@@ -207,8 +226,8 @@ EOF;
 if($wampConf['SupportMariaDB'] == 'on') {
 	$GotoMariaDBRestart = <<< EOF
 [mariadb_refresh_start]
-Action: run; FileName: "${c_phpCli}";Parameters: "refresh.php";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-Action: run; FileName: "CMD"; Parameters: "/D /C net start ${c_mariadbService}"; ShowCmd: hidden; Flags: waituntilterminated
+Action: run; FileName: "{$c_phpCli}";Parameters: "refresh.php";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
+Action: run; FileName: "CMD"; Parameters: "/D /C net start {$c_mariadbService}"; ShowCmd: hidden; Flags: waituntilterminated
 Action: resetservices
 Action: readconfig
 
@@ -225,19 +244,21 @@ $w_translated_by = (isset($w_translated_by )) ? $w_translated_by : '';
 //Add value to Wampserver Report
 if($doReport) {
 $WinVer = php_uname('s').' '.php_uname('r').' '.php_uname('v');
+$TextEncoding = print_r($Text_Encoding,true);
 $wampReport['gen1'] .= <<< EOF
-- ${WinVer}
-- Windows Charset: ${Windows_Charset}
-- Wampserver version ${c_wampVersion} - ${c_wampMode}
-- Wampserver install version ${c_wampVersionInstall}
+- {$WinVer}
+- Text_Encoding = {$TextEncoding}
+- Windows Charset: {$Windows_Charset}
+- Wampserver version {$c_wampVersion} - {$c_wampMode}
+- Wampserver install version {$c_wampVersionInstall}
 - Update $c_wampVersionUpdate
-- Install directory: ${c_installDir}
-- Default browser: ${c_navigator} ${c_edge}
-- Default text editor: ${c_editor}
-- Default log viewer: ${c_logviewer}
-- Apache ${c_apacheVersion} - Port ${c_UsedPort}
-- Additional Apache listening ports: ${ListenPorts}
-- PHP ${c_phpVersion}
+- Install directory: {$c_installDir}
+- Default browser: {$c_navigator} {$c_edge}
+- Default text editor: {$c_editor}
+- Default log viewer: {$c_logviewer}
+- Apache {$c_apacheVersion} - Port {$c_UsedPort}
+- Additional Apache listening ports: {$ListenPorts}
+- PHP {$c_phpVersion}
 
 EOF;
 }
@@ -334,7 +355,7 @@ else {
 if($doReport) {
 	$wampReport['gen2'] .= <<< EOF
 
-- PHP ${c_phpCliVersion} for CLI (Internal Wampserver PHP scripts)
+- PHP {$c_phpCliVersion} for Internal Wampserver PHP scripts
 EOF;
 	$wampConfSections = @parse_ini_file($configurationFile,true,INI_SCANNER_RAW);
 	$wampReport['gen2'] .= "\n------ Wampserver configuration ------\n";
@@ -685,7 +706,8 @@ foreach($AesTextMenus as $key => $value) {
 	if(is_array($value[7])) {
 		$tempText = '';
 		foreach($value[7] as $valueTxt) {
-			$tempText .= ${$temp = substr($valueTxt,1)};
+			$temp = substr($valueTxt,1);
+			$tempText .= $$temp;
 		}
 	}
 	else {
@@ -710,8 +732,8 @@ reset($Glyph);
 foreach($TextSubmenuName as $value) {
 	$GlyphM = current($Glyph);
 	$TextSubmenus .= <<< EOF
-[${value}]
-Type: item; Caption: "${TextSubmenuCaption[$i]}"; Action: none${GlyphM}
+[{$value}]
+Type: item; Caption: "{$TextSubmenuCaption[$i]}"; Action: none{$GlyphM}
 
 EOF;
 $i++;
@@ -778,16 +800,16 @@ if($phmyadOK && $wampConf['ShowphmyadMenu'] == 'on') {
 		$value = $Alias_Contents['PMyAd'][$key];
 		$glyph = ($Alias_Contents[$value]['compat']) ? 39 : 23;
 		$ItemMenuPMA .= <<< EOF
-${SupportDBMS}Type: item; Caption: "${w_phpmyadmin}	{$Alias_Contents[$value]['version']}{$Alias_Contents[$value]['fcgiaff']}"; Action: run; FileName: "${c_navigator}"; Parameters: "${c_edge}http://localhost${UrlPort}/{$value}/"; Glyph: ${glyph}
+{$SupportDBMS}Type: item; Caption: "{$w_phpmyadmin}	{$Alias_Contents[$value]['version']}{$Alias_Contents[$value]['fcgiaff']}"; Action: run; FileName: "{$c_navigator}"; Parameters: "{$c_edge}http://localhost{$UrlPort}/{$value}/"; Glyph: {$glyph}
 
 EOF;
 	}
 $ItemMenuPMA .= <<< EOF
-${SupportDBMS}Type: submenu; Caption: "${w_phpMyAdminHelp}"; Submenu: phpmyadmin-help; Glyph: 35
+{$SupportDBMS}Type: submenu; Caption: "{$w_phpMyAdminHelp}"; Submenu: phpmyadmin-help; Glyph: 35
 
 EOF;
 	$subPhpMyAdmin = <<< EOF
-${SupportDBMS}Type: submenu; Caption: "PhpMyAdmin"; Submenu: MultiplephpMyAdmin; Glyph: 39
+{$SupportDBMS}Type: submenu; Caption: "PhpMyAdmin"; Submenu: MultiplephpMyAdmin; Glyph: 39
 
 EOF;
 	// Do PhpMyAdmin replacements
@@ -811,12 +833,9 @@ Type: Separator;
 
 // ****************************************
 // Create menu with the available languages
-if($handle = opendir($langDir))
-{
-	while (false !== ($file = readdir($handle)))
-	{
-		if($file != "." && $file != ".." && preg_match('|\.lang|',$file))
-		{
+if($handle = opendir($langDir)) {
+	while (false !== ($file = readdir($handle))) {
+		if($file != "." && $file != ".." && strpos($file, '_utf-8') === false && preg_match('|\.lang|',$file))	{
 			if($file == $lang.'.lang')
 				$langList[$file] = 1;
 			else
@@ -830,8 +849,7 @@ $langText = ";WAMPLANGUAGESTART
 Type: separator; Caption: \"".$w_language."\";
 ";
 ksort($langList);
-foreach ($langList as $langname=>$langstatus)
-{
+foreach ($langList as $langname => $langstatus) {
   $cleanLangName = str_replace('.lang','',$langname);
   if($langList[$langname] == 1)
     $langText .= 'Type: item; Caption: "'.$cleanLangName.'"; Glyph: 13; Action: multi; Actions: lang_'.$cleanLangName.'
@@ -842,12 +860,11 @@ foreach ($langList as $langname=>$langstatus)
 
 }
 
-foreach ($langList as $langname=>$langstatus)
-{
+foreach ($langList as $langname=>$langstatus) {
   $cleanLangName = str_replace('.lang','',$langname);
   $langText .= <<< EOF
-[lang_${cleanLangName}]
-Action: run; FileName: "${c_phpCli}";Parameters: "changeLanguage.php ${cleanLangName}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
+[lang_{$cleanLangName}]
+Action: run; FileName: "{$c_phpCli}";Parameters: "changeLanguage.php {$cleanLangName}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
 Action: multi; Actions: refresh_readconfig; Flags:appendsection
 
 EOF;
@@ -869,7 +886,7 @@ $myreplace = $myPattern."
 $myreplacemenu = $php_iniFCGI = '';
 foreach ($phpVersionList as $onePhpVersion) {
 	$php_iniFCGI .= <<< EOF
-Type: item; Caption: "php.ini PHP ${onePhpVersion} [FCGI - CLI]"; Glyph: 33; Action: run; FileName: "${c_editor}"; parameters: "${c_phpVersionDir}/php${onePhpVersion}/php.ini"
+Type: item; Caption: "php.ini PHP {$onePhpVersion} [FCGI - CLI]"; Glyph: 33; Action: run; FileName: "{$c_editor}"; parameters: "{$c_phpVersionDir}/php{$onePhpVersion}/php.ini"
 
 EOF;
 
@@ -889,7 +906,7 @@ EOF;
   if(empty($apacheVersionTemp)) {
     $incompatiblePhp = -1;
     $phpGlyph = '; Glyph: 19';
-		$phpErrorMsg = "apacheVersion = empty in wampmanager.conf file";
+		$phpErrorMsg = "apacheVersion = empty in wampserver.conf file";
   }
   elseif(empty($phpConf['apache'][$apacheVersionTemp]['LoadModuleFile'])) {
     $incompatiblePhp = -2;
@@ -909,8 +926,8 @@ EOF;
 ';
   if($incompatiblePhp == 0) {
   $myreplacemenu .= <<< EOF
-[switchPhp${onePhpVersion}]
-Action: run; FileName: "${c_phpCli}";Parameters: "switchPhpVersion.php ${onePhpVersion}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
+[switchPhp{$onePhpVersion}]
+Action: run; FileName: "{$c_phpCli}";Parameters: "switchPhpVersion.php {$onePhpVersion}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
 Action: multi; Actions: apache_stop_start_refresh; Flags:appendsection
 
 EOF;
@@ -927,7 +944,7 @@ Type: submenu; Caption: " "; Submenu: AddingVersions; Glyph: 1
 
 [phpiniFCGICLI]
 Type: separator; Caption: "php.ini [FCGI - CLI]"
-${php_iniFCGI}
+{$php_iniFCGI}
 
 EOF;
 
@@ -951,6 +968,7 @@ if(in_array($c_phpVersion,$phpFcgiVersionList)){
 	$PHP_List_Versions[] = $c_phpVersion;
 	natsort($PHP_List_Versions);
 }
+
 foreach($PHP_List_Versions as $php_version_value) {
 	$PHP_submenu_txt = '';
 	if(!$PHP_Apache_Module && $php_version_value == $c_phpVersion) {
@@ -979,6 +997,8 @@ foreach($PHP_List_Versions as $php_version_value) {
 			continue;
 		}
 	}
+	$zend_extensions_ver[$PHP_version] = $zend_extensions;
+
 	$myphpini = file_get_contents_dos($PHP_ini_File);
 	$myphpini = clean_file_contents($myphpini,array(2,1),false,false,true,$PHP_ini_File);
 	$NBextPHPlines = 0;
@@ -994,10 +1014,10 @@ foreach($PHP_List_Versions as $php_version_value) {
 	if(count($matchesON[0]) > 0 ) {
 		$i = 0 ;
 		foreach($matchesON[0] as $value) {
-			foreach($zend_extensions as $key => $zend_value) {
+			foreach($zend_extensions_ver[$PHP_version] as $key => $zend_value) {
 				if(stripos($value,$key) !== false) {
-					$zend_extensions[$key]['loaded'] = '1';
-					$zend_extensions[$key]['content'] = $matchesON[1][$i];
+					$zend_extensions_ver[$PHP_version][$key]['loaded'] = '1';
+					$zend_extensions_ver[$PHP_version][$key]['content'] = $matchesON[1][$i];
 					$i++;
 				}
 			}
@@ -1007,20 +1027,20 @@ foreach($PHP_List_Versions as $php_version_value) {
 	if(count($matchesOFF[0]) > 0 ) {
 		$i = 0 ;
 		foreach($matchesOFF[0] as $value) {
-			foreach($zend_extensions as $key => $zend_value) {
+			foreach($zend_extensions_ver[$PHP_version] as $key => $zend_value) {
 				if(stripos($value,$key) !== false) {
-					$zend_extensions[$key]['loaded'] = '0';
-					$zend_extensions[$key]['content'] = $matchesOFF[1][$i];
+					$zend_extensions_ver[$PHP_version][$key]['loaded'] = '0';
+					$zend_extensions_ver[$PHP_version][$key]['content'] = $matchesOFF[1][$i];
 					$i++;
 				}
 			}
 		}
 	}
 
-	if(preg_match('/^.*php_xdebug\-([0-9\.]+[alpha|beta|rc1-9]*)\-.*\s?$/im',$zend_extensions['php_xdebug']['content'],$matches) > 0 )
-		$zend_extensions['php_xdebug']['version'] = $matches[1];
-	foreach($zend_extensions as $key => $value) {
-		$ext[$key] = $zend_extensions[$key]['loaded'];
+	if(preg_match('/^.*php_xdebug\-([0-9\.]+[alpha|beta|rc1-9]*)\-.*\s?$/im',$zend_extensions_ver[$PHP_version]['php_xdebug']['content'],$matches) > 0 )
+		$zend_extensions_ver[$PHP_version]['php_xdebug']['version'] = $matches[1];
+	foreach($zend_extensions_ver[$PHP_version] as $key => $value) {
+		$ext[$key] = $zend_extensions_ver[$PHP_version][$key]['loaded'];
 	}
 	ksort($ext);
 	$Extensions_in_php_ini = array_combine(array_keys($ext),array_keys($ext));
@@ -1037,7 +1057,7 @@ foreach($PHP_List_Versions as $php_version_value) {
 	//extension= line exists in phpForApache.ini but no dll file
 	$noDllFile = array_diff_key($Extensions_in_php_ini,$dll_in_php_ext_dir);
 	foreach($noExtLine as $value) {
-		if(array_key_exists($value,$zend_extensions)) {
+		if(array_key_exists($value,$zend_extensions_ver[$PHP_version])) {
 			$ext[$value] = -4; //dll must be loaded by zend_extension
 		}
 		elseif(in_array($value,$phpNotLoadExt)) {
@@ -1048,7 +1068,7 @@ foreach($PHP_List_Versions as $php_version_value) {
 		}
 	}
 	foreach($noDllFile as $value) {
-		if(array_key_exists($value,$zend_extensions)) {
+		if(array_key_exists($value,$zend_extensions_ver[$PHP_version])) {
 			$ext[$value] = -4; //dll must be loaded by zend_extension
 		}
 		elseif(in_array($value,$phpNotLoadExt)) {
@@ -1061,14 +1081,14 @@ foreach($PHP_List_Versions as $php_version_value) {
 
 	// Check if it is a zend_extension
 	foreach($ext as $key => $value) {
-		if(array_key_exists($key,$zend_extensions)) {
+		if(array_key_exists($key,$zend_extensions_ver[$PHP_version])) {
 			$ext[$key] = -4; //dll must be loaded by zend_extension
 			// Check if there is content
-			if(empty($zend_extensions[$key]['content'])) {
+			if(empty($zend_extensions_ver[$PHP_version][$key]['content'])) {
 				$ext[$key] = -5; //Does not exists
 			}
 			// Check if dll file exists
-			elseif(!file_exists($zend_extensions[$key]['content'].".dll")) {
+			elseif(!file_exists($zend_extensions_ver[$PHP_version][$key]['content'].".dll")) {
 				$ext[$key] = -6; //Dll not exists
 			}
 		}
@@ -1077,8 +1097,8 @@ foreach($PHP_List_Versions as $php_version_value) {
 	//we construct the corresponding menu
 	$extText = <<< EOF
 ;WAMPPHP_EXTSTART
-[php_ext_${PHP_version}]
-Type: separator; Caption: "${w_phpExtensions} ${PHP_version_space}"
+[php_ext_{$PHP_version}]
+Type: separator; Caption: "{$w_phpExtensions} {$PHP_version_space}"
 
 EOF;
 
@@ -1127,9 +1147,9 @@ EOF;
 				$notloadExtZend = true;
 			}
 			$GlyphZend = '';
-			if($zend_extensions[$extname]['loaded'] == '1')	$GlyphZend = "Glyph: 13;";
+			if($zend_extensions_ver[$PHP_version][$extname]['loaded'] == '1')	$GlyphZend = "Glyph: 13;";
 			$extname_nophp = str_replace('php_','',$extname);
-	   	$extTextInfo .= 'Type: item; Caption: "'.$extname_nophp.' '.$zend_extensions[$extname]['version'].'"; '.$GlyphZend.'Action: multi; Actions: php_ext_'.$PHP_version.$extname.'
+	   	$extTextInfo .= 'Type: item; Caption: "'.$extname_nophp.' '.$zend_extensions_ver[$PHP_version][$extname]['version'].'"; '.$GlyphZend.'Action: multi; Actions: php_ext_'.$PHP_version.$extname.'
 ';
 		}
 	  elseif($ext[$extname] == -5) {
@@ -1158,19 +1178,19 @@ EOF;
 		if($ext[$extname] == 1 || $ext[$extname] == 0) {
 			$SwitchAction = ($ext[$extname] == 1 ? 'off' : 'on');
 		$extText .= <<< EOF
-[php_ext_${PHP_version}${extname}]
-Action: run; FileName: "${c_phpCli}";Parameters: "switchPhpExt.php ${extname} ${SwitchAction} ${PHP_version}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-Action: multi; Actions: ${PHP_Restart}; Flags:appendsection
+[php_ext_{$PHP_version}{$extname}]
+Action: run; FileName: "{$c_phpCli}";Parameters: "switchPhpExt.php {$extname} {$SwitchAction} {$PHP_version}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
+Action: multi; Actions: {$PHP_Restart}; Flags:appendsection
 
 EOF;
 		}
 		elseif($ext[$extname] == -4) {
-			$SwitchAction = ($zend_extensions[$extname]['loaded'] == 1 ? 'zendoff' : 'zendon');
-			$extcontent = $zend_extensions[$extname]['content'];
+			$SwitchAction = ($zend_extensions_ver[$PHP_version][$extname]['loaded'] == 1 ? 'zendoff' : 'zendon');
+			$extcontent = $zend_extensions_ver[$PHP_version][$extname]['content'];
 		$extText .= <<< EOF
-[php_ext_${PHP_version}${extname}]
-Action: run; FileName: "${c_phpCli}";Parameters: "switchPhpExt.php ${extcontent} ${SwitchAction} ${PHP_version}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-Action: multi; Actions: ${PHP_Restart}; Flags:appendsection
+[php_ext_{$PHP_version}{$extname}]
+Action: run; FileName: "{$c_phpCli}";Parameters: "switchPhpExt.php {$extcontent} {$SwitchAction} {$PHP_version}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
+Action: multi; Actions: {$PHP_Restart}; Flags:appendsection
 
 EOF;
 		}
@@ -1181,7 +1201,7 @@ EOF;
 			elseif($ext[$extname] == -3) $msgNum = 5;
 			elseif($ext[$extname] == -6) {
 				$msgNum = 16;
-				$extname_msg = $zend_extensions[$extname]['content'];
+				$extname_msg = $zend_extensions_ver[$PHP_version][$extname]['content'];
 			}
 	    $extText .= '[php_ext_'.$PHP_version.$extname.']
 Action: run; FileName: "'.$c_phpExe.'";Parameters: "msg.php '.$msgNum.' '.base64_encode($extname_msg).'";WorkingDir: "'.$c_installDir.'/scripts"; Flags: waituntilterminated
@@ -1194,8 +1214,8 @@ Action: run; FileName: "'.$c_phpExe.'";Parameters: "msg.php '.$msgNum.' '.base64
 		$AesBigMenu[] = array($w_phpExtensions.' '.$PHP_version_space,'$NBextPHPlines',1);
 		$PHP_submenu_txt .= <<< EOF
 
-Type: submenu; Caption: "${w_phpExtensions} ${PHP_version_space}"; SubMenu: php_ext_${PHP_version}; Glyph: 4
-Type: item; Caption: "${w_PHPloadedExt} ${php_version_value}"; Action: run; FileName: "${c_phpExe}"; Parameters: "msg.php phploadedextensions ${PHP_version}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated; Glyph: 24
+Type: submenu; Caption: "{$w_phpExtensions} {$PHP_version_space}"; SubMenu: php_ext_{$PHP_version}; Glyph: 4
+Type: item; Caption: "{$w_PHPloadedExt} {$php_version_value}"; Action: run; FileName: "{$c_phpExe}"; Parameters: "msg.php phploadedextensions {$PHP_version}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated; Glyph: 24
 
 EOF;
 	}
@@ -1259,7 +1279,7 @@ foreach($phpParams as $next_param_name => $next_param_text) {
   	if(empty($myphpini[$next_param_text]))
   		$params_for_wampini[$next_param_name] = '0';
 
-  	if((stripos($next_param_name, 'xdebug') !== false) && $zend_extensions['php_xdebug']['loaded'] == '0') {
+  	if((stripos($next_param_name, 'xdebug') !== false) && $zend_extensions_ver[$PHP_version]['php_xdebug']['loaded'] == '0') {
 			$params_for_wampini[$next_param_name] = -4; //Extension not loaded - Parameter not to display
 		}
   	elseif(array_key_exists($next_param_name, $phpParamsNotOnOff)) {
@@ -1343,8 +1363,8 @@ unset($phpReportConf);
 
 $phpConfText = <<< EOF
 ;WAMPPHP_PARAMSSTART
-[php_params_${PHP_version}]
-Type: separator; Caption: "${w_phpSettings} ${PHP_version_space}"
+[php_params_{$PHP_version}]
+Type: separator; Caption: "{$w_phpSettings} {$PHP_version_space}"
 
 EOF;
 $phpConfTextInfo = $phpConfTextComment = $phpConfTextDepSupNew = "";
@@ -1355,11 +1375,11 @@ $NBparamPHP = $NBparamPHPinfo = $NBparamPHPobs = $NBparamPHPcomment = $NBparamPH
 foreach ($params_for_wampini as $paramname => $paramstatus) {
 	$seeInfoGlyphException[$paramname] = false;
 	$xdebugParam = (strpos($paramname, 'xdebug') !== false) ? true : false;
-	if($xdebugParam && $zend_extensions['php_xdebug']['loaded'] == '1') {
+	if($xdebugParam && $zend_extensions_ver[$PHP_version]['php_xdebug']['loaded'] == '1') {
 		$NBparamPHPxdebug++;
 		if(!$xDebugSep) {
 			$xDebugSep = true;
-			$phpConfText .= 'Type: Separator; Caption: "Extension Zend xdebug '.$zend_extensions['php_xdebug']['version'].'"
+			$phpConfText .= 'Type: Separator; Caption: "Extension Zend xdebug '.$zend_extensions_ver[$PHP_version]['php_xdebug']['version'].'"
 ';
 		}
 	}
@@ -1487,8 +1507,8 @@ Type: separator; Caption: "'.$phpParamsNotOnOff[$action]['title'].'"
 			  if($group != $z[0]) {
 			    $group = $z[0];
 			    $MenuSup[$i] .= <<< EOF
-[${PHP_version}tz${z[0]}]
-Type: Separator; Caption: "${z[0]}"
+[{$PHP_version}tz{$z[0]}]
+Type: Separator; Caption: "{$z[0]}"
 
 EOF;
 			  }
@@ -1496,9 +1516,9 @@ EOF;
 				$MenuSup[$i] .= 'Type: item; Caption: "'.$tz.'"; Action: multi; Actions: '.$PHP_version.'time_'.$tz.$Glyph.'
 ';
 				$SubMenuSup[$i] .= <<< EOF
-[${PHP_version}time_${tz}]
-Action: run; FileName: "${c_phpCli}";Parameters: "changePhpParam.php ${quoted} ${action} ${tz} none ${PHP_version}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-Action: multi; Actions: ${PHP_Restart}; Flags:appendsection
+[{$PHP_version}time_{$tz}]
+Action: run; FileName: "{$c_phpCli}";Parameters: "changePhpParam.php {$quoted} {$action} {$tz} none {$PHP_version}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
+Action: multi; Actions: {$PHP_Restart}; Flags:appendsection
 
 EOF;
 			}
@@ -1534,9 +1554,9 @@ Type: separator; Caption: "'.$phpParamsNotOnOff[$action]['title'].'"
 					$c_phpRun = $c_phpCli;
 				}
 				$SubMenuSup[$i] .= <<< EOF
-[${PHP_version}${action}${value}]
-Action: run; FileName: "${c_phpRun}";Parameters: "changePhpParam.php ${quoted} ${action} ${param_value} ${param_third} ${PHP_version}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-${Apache_Restart_Php_Conf}
+[{$PHP_version}{$action}{$value}]
+Action: run; FileName: "{$c_phpRun}";Parameters: "changePhpParam.php {$quoted} {$action} {$param_value} {$param_third} {$PHP_version}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
+{$Apache_Restart_Php_Conf}
 
 EOF;
 			}
@@ -1550,8 +1570,8 @@ if(!empty($phpConfTextComment)) {
 	$phpConfTextCommentSub .= 'Type: submenu; Caption: "'.$w_settings['iniCommented'].'"; Submenu: '.$PHP_version.'phpinicommented; Glyph: 9
 ';
 	$phpConfTextCommentSubMenu .= <<< EOF
-[${PHP_version}phpinicommented]
-${phpConfTextComment}
+[{$PHP_version}phpinicommented]
+{$phpConfTextComment}
 
 EOF;
 }
@@ -1566,9 +1586,9 @@ foreach ($params_for_wampini as $paramname=>$paramstatus) {
 		//If parameter doesn't support 'Apache Graceful Restart' but 'Apache service restart'
 		$Apache_Restart_Php_Conf = in_array($paramname,$phpParamsApacheRestart) ? 'Action: multi; Actions: apache_stop_start_refresh; Flags:appendsection' : 'Action: multi; Actions: apache_restart_refresh; Flags:appendsection';
   	$phpConfText .= <<< EOF
-[${PHP_version}${phpParams[$paramname]}]
-Action: run; FileName: "${c_phpCli}";Parameters: "switchPhpParam.php ${phpParams[$paramname]} ${SwitchAction} ${PHP_version}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-${Apache_Restart_Php_Conf}
+[{$PHP_version}{$phpParams[$paramname]}]
+Action: run; FileName: "{$c_phpCli}";Parameters: "switchPhpParam.php {$phpParams[$paramname]} {$SwitchAction} {$PHP_version}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
+{$Apache_Restart_Php_Conf}
 
 EOF;
 	}
@@ -1595,7 +1615,7 @@ if($PHP_extSubmenu) {
 	$AesBigMenu[] = array($w_phpSettings.' '.$PHP_version_space,'$NBparamPHPlines',1);
 	$PHP_submenu_txt .= <<< EOF
 
-Type: submenu; Caption: "${w_phpSettings} ${PHP_version_space}"; SubMenu:php_params_${PHP_version}; Glyph: 4
+Type: submenu; Caption: "{$w_phpSettings} {$PHP_version_space}"; SubMenu:php_params_{$PHP_version}; Glyph: 4
 
 EOF;
 }
@@ -1667,19 +1687,19 @@ foreach ($apacheVersionList as $oneApacheVersion)
   if($incompatibleApache == 0)
   {
     $myreplacemenu .= <<< EOF
-[switchApache${oneApacheVersion}]
+[switchApache{$oneApacheVersion}]
 Action: closeservices; Flags: ignoreerrors
-Action: service; Service: ${c_apacheService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated
-Action: run; Filename: "CMD"; Parameters: "/D /C sc stop ${c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
-Action: run; Filename: "CMD"; Parameters: "/D /C sc delete ${c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
+Action: service; Service: {$c_apacheService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated
+Action: run; Filename: "CMD"; Parameters: "/D /C sc stop {$c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
+Action: run; Filename: "CMD"; Parameters: "/D /C sc delete {$c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
 Action: run; Filename: "taskkill"; Parameters: "/FI ""IMAGENAME eq httpd.exe"" /T /F"; ShowCmd: hidden; Flags: waituntilterminated
-Action: run; FileName: "${c_phpExe}";Parameters: "switchApacheVersion.php ${oneApacheVersion}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-Action: run; FileName: "${c_phpCli}";Parameters: "switchPhpVersion.php ${wampConf['phpVersion']}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-Action: run; FileName: "${c_apacheVersionDir}/apache${oneApacheVersion}/${apacheConf['apacheExeDir']}/${apacheConf['apacheExeFile']}"; Parameters: "${apacheConf['apacheServiceInstallParams']}"; ShowCmd: hidden; Flags: waituntilterminated
-Action: run; Filename: "CMD"; Parameters: "/D /C sc config ${c_apacheService} start= demand"; ShowCmd: hidden; Flags: waituntilterminated
-Action: run; FileName: "${c_phpExe}";Parameters: "switchWampPort.php ${c_UsedPort}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-Action: run; FileName: "CMD"; Parameters: "/D /C net start ${c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
-Action: run; FileName: "${c_phpCli}";Parameters: "refresh.php";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
+Action: run; FileName: "{$c_phpExe}";Parameters: "switchApacheVersion.php {$oneApacheVersion}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
+Action: run; FileName: "{$c_phpCli}";Parameters: "switchPhpVersion.php {$wampConf['phpVersion']}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
+Action: run; FileName: "{$c_apacheVersionDir}/apache{$oneApacheVersion}/{$apacheConf['apacheExeDir']}/{$apacheConf['apacheExeFile']}"; Parameters: "{$apacheConf['apacheServiceInstallParams']}"; ShowCmd: hidden; Flags: waituntilterminated
+Action: run; Filename: "CMD"; Parameters: "/D /C sc config {$c_apacheService} start= demand"; ShowCmd: hidden; Flags: waituntilterminated
+Action: run; FileName: "{$c_phpExe}";Parameters: "switchWampPort.php {$c_UsedPort}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
+Action: run; FileName: "CMD"; Parameters: "/D /C net start {$c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
+Action: run; FileName: "{$c_phpCli}";Parameters: "refresh.php";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
 Action: resetservices
 Action: readconfig
 
@@ -1818,8 +1838,8 @@ foreach ($mod as $modname=>$modstatus)
 	if($mod[$modname] == 1 || $mod[$modname] == 0) {
 		$SwitchAction = ($mod[$modname] == 1 ? 'on' : 'off');
     $httpdText .= <<< EOF
-[apache_mod_${modname}]
-Action: run; FileName: "${c_phpCli}";Parameters: "switchApacheMod.php ${modname} ${SwitchAction}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
+[apache_mod_{$modname}]
+Action: run; FileName: "{$c_phpCli}";Parameters: "switchApacheMod.php {$modname} {$SwitchAction}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
 Action: multi; Actions: apache_restart_refresh; Flags:appendsection
 
 EOF;
@@ -1857,8 +1877,8 @@ Type: submenu; Caption: "'.$w_compareApache.'"; Submenu: apache_compare; Glyph: 
 Type: item; Caption: "Apache '.$c_apacheVersion.' '.$w_versus.' '.$value.'"; Action: multi; Actions: apache_comp_'.$value.'; Glyph: 23
 ';
 		$httpdTextMenu .= <<< EOF
-[apache_comp_${value}]
-Action: run; FileName: "${c_phpExe}";Parameters: "switchApacheVersion.php ${c_apacheVersion} ${value} compare";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
+[apache_comp_{$value}]
+Action: run; FileName: "{$c_phpExe}";Parameters: "switchApacheVersion.php {$c_apacheVersion} {$value} compare";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
 Action: multi; Actions: apache_restart_refresh; Flags:appendsection
 
 EOF;
@@ -1897,11 +1917,11 @@ Type: item; Caption: "'.$w_restore.' '.$info['basename'].'"; Action: multi; Acti
 			if($info['basename'] == 'httpd-vhosts.conf') $c_extra = "extra\\";
 			$command = " /D /C COPY /Y ".str_replace('/','\\',$value)." ".str_replace('/','\\',$c_apacheConfDir).'\\'.$c_extra.$info['basename'];
 			$httpdTextMenu .= <<< EOF
-[apache_rest_${info['basename']}]
-Action: run; Filename:"${c_apacheExe}"; Parameters: "-n ${c_apacheService} -k stop"; ShowCmd: hidden; Flags: waituntilterminated
-Action: run; FileName: "CMD";Parameters: "${command}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
-Action: run; FileName: "${c_phpCli}";Parameters: "switchPhpVersion.php ${wampConf['phpVersion']}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-Action: run; Filename:"${c_apacheExe}"; Parameters: "-n ${c_apacheService} -k start"; ShowCmd: hidden; Flags: waituntilterminated
+[apache_rest_{$info['basename']}]
+Action: run; Filename:"{$c_apacheExe}"; Parameters: "-n {$c_apacheService} -k stop"; ShowCmd: hidden; Flags: waituntilterminated
+Action: run; FileName: "CMD";Parameters: "{$command}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
+Action: run; FileName: "{$c_phpCli}";Parameters: "switchPhpVersion.php {$wampConf['phpVersion']}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
+Action: run; Filename:"{$c_apacheExe}"; Parameters: "-n {$c_apacheService} -k start"; ShowCmd: hidden; Flags: waituntilterminated
 Action: multi; Actions: refresh_readconfig; Flags:appendsection
 
 EOF;
@@ -1990,20 +2010,20 @@ foreach ($aliasDirContents as $one_alias)
 
   $myreplacemenu .= <<< EOF
 
-[alias_${newalias_dir}]
-Type: separator; Caption: "${newalias_dir}"
-Type: item; Caption: "${w_editAlias}"; Glyph: 33; Action: multi; Actions: edit_${newalias_dir}
-Type: item; Caption: "${w_deleteAlias}"; Glyph: 26; Action: multi; Actions: delete_${newalias_dir}
+[alias_{$newalias_dir}]
+Type: separator; Caption: "{$newalias_dir}"
+Type: item; Caption: "{$w_editAlias}"; Glyph: 33; Action: multi; Actions: edit_{$newalias_dir}
+Type: item; Caption: "{$w_deleteAlias}"; Glyph: 26; Action: multi; Actions: delete_{$newalias_dir}
 
 EOF;
 
   $mydeletemenu .= <<< EOF
 
-[delete_${newalias_dir}]
-Action: run; FileName: "${c_phpExe}";Parameters: "deleteAlias.php ${newalias_dir_del}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
+[delete_{$newalias_dir}]
+Action: run; FileName: "{$c_phpExe}";Parameters: "deleteAlias.php {$newalias_dir_del}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
 Action: multi; Actions: apache_restart_refresh; Flags:appendsection
-[edit_${newalias_dir}]
-Action: run; FileName: "${c_editor}"; parameters:"${c_installDir}/alias/${newalias_dir_ori}.conf"
+[edit_{$newalias_dir}]
+Action: run; FileName: "{$c_editor}"; parameters:"{$c_installDir}/alias/{$newalias_dir_ori}.conf"
 
 EOF;
 
@@ -2022,7 +2042,7 @@ $TestPort3306 = '';
 if($noDBMS) {
 	$nbDBMS = 0;
 	$myDBMSreplace .= <<< EOF
-Type: separator; Caption: "${w_noDBMS}"
+Type: separator; Caption: "{$w_noDBMS}"
 Type: separator
 EOF;
 }
@@ -2047,7 +2067,7 @@ else { // At least one DBMS MySQL and/or MariaDB
 			$NoDefaultDBMS = false;
 		}
 		$myDBMSreplacearray[] = <<< EOF
-Type: submenu; Caption: "MySQL		${c_mysqlVersion}"; SubMenu: mysqlMenu; Glyph: ${glyph}
+Type: submenu; Caption: "MySQL		{$c_mysqlVersion}"; SubMenu: mysqlMenu; Glyph: {$glyph}
 
 EOF;
 	}
@@ -2061,7 +2081,7 @@ EOF;
 			$NoDefaultDBMS = false;
 		}
 	$myDBMSreplacearray[] = <<< EOF
-Type: submenu; Caption: "MariaDB		${c_mariadbVersion}"; SubMenu: mariadbMenu; Glyph: ${glyph}
+Type: submenu; Caption: "MariaDB		{$c_mariadbVersion}"; SubMenu: mariadbMenu; Glyph: {$glyph}
 
 EOF;
 	}
@@ -2078,11 +2098,11 @@ EOF;
 	if($nbDBMS > 0) {
 		$CaptionDBMS = $NoDefaultDBMS ? $w_NoDefaultDBMS : $w_defaultDBMS.' '.$DBMSdefault;
 		$DBMSHeader = <<< EOF
-Type: separator; Caption: "${CaptionDBMS}"
+Type: separator; Caption: "{$CaptionDBMS}"
 
 EOF;
 		$DBMSFooter = <<< EOF
-Type: item; Caption: "${w_help} -> MariaDB - MySQL"; Action: run; Filename: "${c_editor}"; Parameters: "%AeTrayMenuPath%\mariadb_mysql.txt"; ShowCmd: Normal; Glyph: 31
+Type: item; Caption: "{$w_help} -> MariaDB - MySQL"; Action: run; Filename: "{$c_editor}"; Parameters: "%AeTrayMenuPath%\mariadb_mysql.txt"; ShowCmd: Normal; Glyph: 31
 
 EOF;
 		array_unshift($myDBMSreplacearray,$DBMSHeader);
@@ -2122,7 +2142,7 @@ if($wampConf['LocalTest'] == 'on') {
 ";
 	$LOCALreplace .= <<< EOF
 Type: separator; Caption: "For local test only"
-Type: item; Caption: "For local test only"; Action: run; FileName: "${c_phpExe}"; Parameters: "test.php";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated; Glyph: 9
+Type: item; Caption: "For local test only"; Action: run; FileName: "{$c_phpExe}"; Parameters: "test.php";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated; Glyph: 9
 
 EOF;
 	$tpl = str_replace($LOCALPattern,$LOCALreplace,$tpl);
@@ -2138,12 +2158,12 @@ if($nbDBMS > 1) {
 		$myreplace = <<< EOF
 ;WAMPSWITCHMARIAMYSQLSTART
 [SwitchMariaToMysql]
-Action: service; Service: ${c_mariadbService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated
-Action: service; Service: ${c_mysqlService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated
-Action: run; FileName: "${c_phpExe}"; Parameters: "switchMariaPort.php 3307 nocheck";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-Action: run; FileName: "${c_phpExe}"; Parameters: "switchMysqlPort.php 3306 nocheck";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-Action: service; Service: ${c_mariadbService}; ServiceAction: startresume; Flags: ignoreerrors waituntilterminated
-Action: service; Service: ${c_mysqlService}; ServiceAction: startresume; Flags: ignoreerrors waituntilterminated
+Action: service; Service: {$c_mariadbService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated
+Action: service; Service: {$c_mysqlService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated
+Action: run; FileName: "{$c_phpExe}"; Parameters: "switchMariaPort.php 3307 nocheck";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
+Action: run; FileName: "{$c_phpExe}"; Parameters: "switchMysqlPort.php 3306 nocheck";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
+Action: service; Service: {$c_mariadbService}; ServiceAction: startresume; Flags: ignoreerrors waituntilterminated
+Action: service; Service: {$c_mysqlService}; ServiceAction: startresume; Flags: ignoreerrors waituntilterminated
 Action: multi; Actions: apache_restart_refresh; Flags:appendsection
 EOF;
 		$tpl = str_replace($myPattern,$myreplace,$tpl);
@@ -2153,12 +2173,12 @@ EOF;
 		$myreplace = <<< EOF
 ;WAMPSWITCHMYSQLMARIASTART
 [SwitchMysqlToMaria]
-Action: service; Service: ${c_mysqlService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated
-Action: service; Service: ${c_mariadbService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated
-Action: run; FileName: "${c_phpExe}"; Parameters: "switchMysqlPort.php 3308 nocheck";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-Action: run; FileName: "${c_phpExe}"; Parameters: "switchMariaPort.php 3306 nocheck";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-Action: service; Service: ${c_mariadbService}; ServiceAction: startresume; Flags: ignoreerrors waituntilterminated
-Action: service; Service: ${c_mysqlService}; ServiceAction: startresume; Flags: ignoreerrors waituntilterminated
+Action: service; Service: {$c_mysqlService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated
+Action: service; Service: {$c_mariadbService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated
+Action: run; FileName: "{$c_phpExe}"; Parameters: "switchMysqlPort.php 3308 nocheck";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
+Action: run; FileName: "{$c_phpExe}"; Parameters: "switchMariaPort.php 3306 nocheck";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
+Action: service; Service: {$c_mariadbService}; ServiceAction: startresume; Flags: ignoreerrors waituntilterminated
+Action: service; Service: {$c_mysqlService}; ServiceAction: startresume; Flags: ignoreerrors waituntilterminated
 Action: multi; Actions: apache_restart_refresh; Flags:appendsection
 EOF;
 		$tpl = str_replace($myPattern,$myreplace,$tpl);
@@ -2214,13 +2234,9 @@ Type: separator; Caption: \"".$w_aliasSubMenu."\"
 		//error_log("Alias_Contents=".print_r($Alias_Contents,true));
 		foreach($AliasContents as $AliasValue) {
 			$glyph = (strpos($AliasValue,'phpmyadmin') !== false || strpos($AliasValue,'adminer') !== false) ? '28' : '5';
-			$myreplacesubmenuAlias .= 'Type: item; Caption: "'.$AliasValue.'"; Action: run; FileName: "'.$c_navigator.'"; Parameters: "';
+			$myreplacesubmenuAlias .= 'Type: item; Caption: "'.$AliasValue.$Alias_Contents[$AliasValue]['fcgiaff'].'"; Action: run; FileName: "'.$c_navigator.'"; Parameters: "';
 			$myreplacesubmenuAlias .= $c_edge.'http://localhost'.$UrlPort.'/'.$AliasValue.'/"; Glyph: '.$glyph.'
 ';
-			if(!empty($Alias_Contents[$AliasValue]['fcgiaff'])) {
-				$myreplacesubmenuAlias .= 'Type: item; Caption: "'.$Alias_Contents[$AliasValue]['fcgiaff'].'"; Action: none
-';
-			}
 		}
 		$tpl = str_replace($myPattern,$myreplace.$myreplacesubmenuAlias,$tpl);
 	}
@@ -2331,6 +2347,20 @@ Action: run; FileName: "'.$c_phpExe.'";Parameters: "msg.php 15 '.base64_encode($
 					$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 23
 ';
 				}
+				//Check Directory Path ended with a slash /
+				$directoryPathError = '';
+				if($virtualHost['directorySlash'] === false) {
+					foreach($virtualHost['directoryPath'] as $value) {
+						if($virtualHost['directoryPathSlashEnded'][$value] === false) {
+							$directoryPathError = $value;
+							break;
+						}
+					}
+					$value = "Directory_Path_no_slash";
+					$server_name[$value] = -17;
+					$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 23
+';
+				}
 
 				//Check number of <VirtualHost equals or > to number of ServerName
 				if($nb_Server != $nb_Virtual && $wampConf['NotCheckDuplicate'] == 'off') {
@@ -2415,7 +2445,7 @@ Action: run; FileName: "'.$c_phpExe.'";Parameters: "msg.php 15 '.base64_encode($
 								$value_link = $vh_ip.' ('.$value.')';
 								$vh_action = 'Action: run; FileName: "'.$c_navigator.'"; Parameters: "'.$c_edge.'http://'.$vh_ip.$UrlPortVH.'/"; Glyph: '.$glyph;
 								if($virtualHost['ServerNameIpValid'][$value] === false) {
-									$vh_action = "Action: multi; Actions: server_${value}; Glyph: 20";
+									$vh_action = "Action: multi; Actions: server_{$value}; Glyph: 20";
 									$server_name[$value] = -11;
 								}
 							}
@@ -2485,6 +2515,8 @@ Action: run; FileName: "'.$c_phpExe.'";Parameters: "msg.php 9 '.base64_encode($n
 								$message = "In the httpd-vhosts.conf file:\r\n\r\nTLD '.dev' used with '".$name."' ServerName\r\n\r\nis monopolized by web browsers and should not be used locally.\r\nYou can use'.test' or'.prog' instead.\r\n";
 							elseif($server_name[$name] == -16)
 								$message = "In the httpd-vhosts.conf file:\r\n\r\n'".$name."' ServerName\r\n\r\nis not defined into '".$c_hostsFile."' file.\r\n";
+							elseif($server_name[$name] == -17)
+								$message = "In the httpd-vhosts.conf file:\r\n\r\nThe Directory path\r\n\r\n\t".$directoryPathError."\r\n\r\nis not ended with a slash '/'\r\n";
     					$myreplacesubmenuVhosts .= '[server_'.$name.']
 Action: run; FileName: "'.$c_phpExe.'";Parameters: "msg.php 11 '.base64_encode($message).'";WorkingDir: "'.$c_installDir.'/scripts"; Flags: waituntilterminated
 ';
@@ -2629,8 +2661,8 @@ Type: submenu; Caption: "'.$w_settings[$paramname].'"; Submenu: '.$paramname.'; 
 ';
 		$php_exe_type = (in_array($paramname,$wamp_ParamPhpExe)) ? $c_phpExe : $c_phpCli ;
   	$wampConfActions .= <<< EOF
-[${wampConfParams[$paramname]}]
-Action: run; FileName: "${php_exe_type}";Parameters: "switchWampParam.php ${wampConfParams[$paramname]} ${SwitchAction}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
+[{$wampConfParams[$paramname]}]
+Action: run; FileName: "{$php_exe_type}";Parameters: "switchWampParam.php {$wampConfParams[$paramname]} {$SwitchAction}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
 Action: multi; Actions: apache_restart_refresh; Flags:appendsection
 
 EOF;
@@ -2667,8 +2699,8 @@ Type: separator; Caption: "'.$wampParamsNotOnOff[$action]['title'].'"
 				$c_phpRun = $c_phpCli;
 			}
 			$SubMenuSup[$i] .= <<< EOF
-[${action}${value}]
-Action: run; FileName: "${c_phpRun}";Parameters: "changeWampParam.php ${quoted} ${action} ${param_value}${param_third}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
+[{$action}{$value}]
+Action: run; FileName: "{$c_phpRun}";Parameters: "changeWampParam.php {$quoted} {$action} {$param_value}{$param_third}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
 Action: multi; Actions: apache_restart_refresh; Flags:appendsection
 
 EOF;
@@ -2688,49 +2720,40 @@ unset($wampConfText,$wampConfSub,$wampConfActions);
 // END of Wampmanager settings submenu
 // **********************************
 
-//******************************************
-// Creating tool change php CLI version menu
-//All versions with USED or CLI or FCGI added to version number
-$Versions = ListAllVersions();
-$PHP_versions = $Versions['php'];
-//Delete item with CLI added to PHP version number
-$PHP_versions = array_filter($PHP_versions,function($value){return (strpos($value,'CLI') === false);});
-//Replace USED or FCGI by '' for all items
-array_walk($PHP_versions,function(&$value, $key){$value = str_replace(array('USED','FCGI'),'',$value);});
-$versionsPHP = array();
-foreach($PHP_versions as $value) {
-  if(version_compare($value,$phpCliMinVersion,'>='))
-		$versionsPHP[] = $value;
+// ***************************************
+// Creating tool change Wampserver browser
+if(file_exists('ListBrowsers.txt')) {
+	$file = 'ListBrowsers.txt';
+	$contents = @file_get_contents($file);
+	if($contents !== false) {
+		write_file('ListBrowsers.php',$contents);
+	}
 }
-
-if(count($versionsPHP) >= 1) {
-	$changeVerCLIMenu = <<< EOF
-;WAMPPHPCLIMENUSTART
-Type: separator; Caption: "PHP CLI = ${c_phpCliVersion} - WEB = ${c_phpVersion}"
-Type: submenu; Caption: "${w_changeCLI}"; Submenu: ChangePHPCLI; Glyph: 24
-
-EOF;
-	$changeVerCLISub = '';
-	$changeVerCLIMenuSub = ";WAMPPHPCLIVERSIONSSTART
-[ChangePHPCLI]
-";
-	foreach($versionsPHP as $PHP_Version) {
-		$changeVerCLIMenuSub .= 'Type: item; Caption: "'.$PHP_Version.'"; Action: multi; Actions: change_CLI_'.$PHP_Version.'
+if(file_exists('ListBrowsers.php')) {
+	$BrowserChangeMenu = $BrowserChangeSub = '
 ';
-
-		$changeVerCLISub .= <<< EOF
-[change_CLI_${PHP_Version}]
-Action: run; FileName: "${c_phpCli}";Parameters: "changeCLIVersion.php ${PHP_Version} ";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
+	include 'ListBrowsers.php';
+		if(isset($browser) && is_array($browser) && isset($browser['name']) && isset($browser['path'])) {
+		foreach($browser['name'] as $key => $value) {
+			if(empty($browser['path'][$key])) continue;
+			$browserName = $value;
+			$browserPath = $browser['path'][$key];
+			$glyph = $browserPath == $c_navigator ? '; Glyph: 13' : '';
+			$BrowserChangeMenu .= 'Type: Item; Caption: "'.$value.'"; Action: multi; Actions: browser_'.$browserName.$glyph.'
+';
+			$BrowserChangeSub .= <<< EOF
+[browser_{$browserName}]
+Action: run; FileName: "{$c_phpExe}";Parameters: "changeWampParam.php quotes navigator ""{$browserPath}""";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
 Action: multi; Actions: refresh_readconfig; Flags:appendsection
 
 EOF;
+		}
+		$tpl = str_replace('[WampserverBrowser]','[WampserverBrowser]'.$BrowserChangeMenu.$BrowserChangeSub,$tpl);
+		unset($BrowserChangeMenu,$BrowserChangeSub);
 	}
-	$tpl = str_replace(';WAMPPHPCLIMENUSTART',$changeVerCLIMenu,$tpl);
-	$tpl = str_replace(';WAMPPHPCLIVERSIONSSTART',$changeVerCLIMenuSub.$changeVerCLISub,$tpl);
-	unset($changeVerCLIMenuSub,$changeVerCLISub);
 }
-// END of tool change php CLI version menu
-//****************************************
+// END of tool change Wampserver browser
+// *************************************
 
 // **************************************
 // Creating tool delete old versions menu
@@ -2749,8 +2772,8 @@ foreach(array_keys($VersionsNotUsed) as $appli) {
   			$delOldVerMenu .= 'Type: item; Caption: "'.$w_delete.' '.$appli.' '.$appliVersion.'"; Glyph: 32; Action: multi; Actions: del_'.$appli.$appliVersion.'
 ';
 				$delOldVerSub .= <<< EOF
-[del_${appli}${appliVersion}]
-Action: run; FileName: "${c_phpCli}";Parameters: "deleteVersion.php ${appli} ${appliVersion}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
+[del_{$appli}{$appliVersion}]
+Action: run; FileName: "{$c_phpExe}";Parameters: "deleteVersion.php {$appli} {$appliVersion}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
 Action: multi; Actions: refresh_readconfig; Flags:appendsection
 
 EOF;
@@ -2775,8 +2798,8 @@ Type: separator; Caption: \"".$w_deleteListenPort."\"
  			$delListenPortMenu .= 'Type: item; Caption: "'.$w_delete.' Listen port Apache '.$ListenPort.'"; Glyph: 32; Action: multi; Actions: del_apache_port'.$ListenPort.'
 ';
 			$delListenPortSub .= <<< EOF
-[del_apache_port${ListenPort}]
-Action: run; FileName: "${c_phpExe}";Parameters: "ListenPortApache.php delete ${ListenPort}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
+[del_apache_port{$ListenPort}]
+Action: run; FileName: "{$c_phpExe}";Parameters: "ListenPortApache.php delete {$ListenPort}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
 Action: multi; Actions: apache_restart_refresh; Flags:appendsection
 
 EOF;
@@ -2794,8 +2817,20 @@ unset($delListenPort,$delListenPortMenu,$delListenPortSub);
 $BigKeys = "[BigMenu]\r\n";
 foreach($AesBigMenu as $key => $value) {
 	$BigKeys .= 'BigKey'.$key.'=';
-	$BigKeys .= ((strpos($value[0],'$') === 0) ? ${$temp = substr($value[0],1)} : $value[0]).',';
-	$BigKeys .= ((strpos($value[1],'$') === 0) ? ${$temp = substr($value[1],1)} : $value[1]).',';
+	if(strpos($value[0],'$') === 0) {
+		$temp = substr($value[0],1);
+		$BigKeys .= $$temp.',';
+	}
+	else {
+		$BigKeys .= $value[0].',';
+	}
+	if(strpos($value[1],'$') === 0) {
+		$temp = substr($value[1],1);
+		$BigKeys .= $$temp.',';
+	}
+	else {
+		$BigKeys .= $value[1].',';
+	}
 	$BigKeys .= $value[2]."\r\n";
 }
 $BigKeys .="\r\n";
@@ -2851,7 +2886,7 @@ if(file_exists($c_installDir."/wampConfReport.txt")) {
 	else {
 		$confFileExists = <<< EOF
 ;WAMPREPORTCONFFILE
-Type: item; Caption: "${w_wampReport}"; Glyph: 33; Action: run; FileName: "${c_editor}"; parameters: "${c_installDir}/wampConfReport.txt"
+Type: item; Caption: "{$w_wampReport}"; Glyph: 33; Action: run; FileName: "{$c_editor}"; parameters: "{$c_installDir}/wampConfReport.txt"
 EOF;
 	$tpl = str_replace(';WAMPREPORTCONFFILE',$confFileExists,$tpl);
 	}

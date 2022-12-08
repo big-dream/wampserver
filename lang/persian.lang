@@ -4,6 +4,9 @@
 // translated by M.R.H <p30win10@outlook.com>
 // ترجمه توسط : M.R.H <p30win10@outlook.com>
 
+//3.2.10  $file_charset
+
+$file_charset = 'utf-8';
 
 $w_allServicesRunning = 'همه سرویسها درحال اجرا است';
 $w_oneServiceRunning = '%n از %t سرویسها درحال اجرا است';

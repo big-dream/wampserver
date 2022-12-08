@@ -1,5 +1,6 @@
 <?php
-// 3.2.8 - Support for Apache fcgi module
+// 3.3.0 - Fix problem with alias FCGI mode with FcgidInitialEnv
+//          Replace ${var} by {$var}
 
 $server_dir = "../";
 session_start();
@@ -43,7 +44,7 @@ $langueswitcher = '<form method="get" style="display:inline-block;margin-left:10
 $selected = false;
 foreach ($languages as $i_langue) {
   $langueswitcher .= '<option value="'.$i_langue.'"';
-  if(!$selected && $langue == $i_langue) {
+  if($selected === false && $langue == $i_langue) {
   	$langueswitcher .= ' selected ';
   	$selected = true;
   }
@@ -186,7 +187,7 @@ if(isset($_POST['vhostdelete'])
 				$mask = "{
 				<VirtualHost                         # beginning of VirtualHost
 				[^<]*(?:<(?!/VirtualHost)[^<]*)*     # avoid premature end
-				\n\s*ServerName\s+${p_value}\s*\n    # Test server name
+				\n\s*ServerName\s+{$p_value}\s*\n    # Test server name
 				.*?                                  # we stop as soon as possible
 				</VirtualHost>\s*\n                  # end of VirtualHost
 				}isx";
@@ -257,7 +258,7 @@ if(isset($_POST['vhostmodify'])
 			$mask = "{
 				<VirtualHost                         # beginning of VirtualHost
 				[^<]*(?:<(?!/VirtualHost)[^<]*)*     # avoid premature end
-				\n\s*ServerName\s+${p_value}\s*\n    # Test server name
+				\n\s*ServerName\s+{$p_value}\s*\n    # Test server name
 				.*?                                  # we stop as soon as possible
 				</VirtualHost>\s*\n                  # end of VirtualHost
 				}isx";
@@ -280,7 +281,7 @@ if(isset($_POST['vhostmodify'])
 				if(in_array($VhostToMod['name'], $virtualHost['ServerNameHttps'])) {
 					$httpdsslFileContents = file_get_contents($c_apacheConfDir.'/extra/httpd-ssl.conf');
 					//Extract Define SERVERNAMEVHOSTSSL ServerName </VirtualHost>
-					$mask = "~^Define SERVERNAMEVHOSTSSL ${p_value}.*?</VirtualHost>\r?$~mis";
+					$mask = "~^Define SERVERNAMEVHOSTSSL {$p_value}.*?</VirtualHost>\r?$~mis";
 					if(preg_match($mask,$httpdsslFileContents,$matches) === 1) {
 						$VhostToMod['originalhttps'] = $matches[0];
 					}
@@ -323,7 +324,7 @@ if(isset($_POST['aliasmodify'])
 
 //***** Is form add or modify Vhost or Alias submitted ? ******
 if(isset($_POST['submit'])
-	&& !$errors
+	&& $errors === false
 	&& isset($_SESSION['passadd'])
 	&& isset($_POST['checkadd'])
 	&& strip_tags(trim($_POST['checkadd'])) == $_SESSION['passadd']
@@ -385,7 +386,7 @@ if(isset($_POST['submit'])
 				if(preg_match('~^\s*\</VirtualHost\>\r?$~mi',$VhostToMod['original'],$matches) === 1) {
 					$httpd_vhosts_fcgi = <<< EOFFCGIPHP
   <IfModule fcgid_module>
-    Define FCGIPHPVERSION "${vh_fcgi_php}"
+    Define FCGIPHPVERSION "{$vh_fcgi_php}"
     FcgidInitialEnv PHPRC \${PHPROOT}\${FCGIPHPVERSION}
     <Files ~ "\.php$">
       Options +Indexes +Includes +FollowSymLinks +MultiViews +ExecCGI
@@ -499,7 +500,8 @@ EOFFCGIPHP;
 				$firstPart = <<< EOF
 <IfModule fcgid_module>
   Define FCGIPHPVERSION "{$vh_fcgi_php}"
-  FcgidInitialEnv PHPRC \${PHPROOT}\${FCGIPHPVERSION}
+  FcgidCmdOptions \${PHPROOT}\${FCGIPHPVERSION}/php-cgi.exe \\
+  InitialEnv PHPRC=\${PHPROOT}\${FCGIPHPVERSION}/php.ini
 </IfModule>
 
 EOF;
@@ -530,7 +532,7 @@ EOF;
 				$mask = "{
 				\<IfModule\s+fcgid_module            # beginning
 				[^<]*(?:<(?!/IfModule)[^<]*)*        # avoid premature end
-				\n\s*Define.*${p_value}\s*\n         # Test Define
+				\n\s*Define.*{$p_value}\s*\n         # Test Define
 				.*?                                  # we stop as soon as possible
 				\</IfModule\>\s*\n                   # end
 				}isx";
@@ -560,8 +562,8 @@ EOF;
 			}
 		}
 		else {
-			$errors = true;
 			$message[] = '<p class="warning">'.$langues['NoModifyAlias'].'</p>';
+			$errors = true;
 		}
 	}//End Alias modify procedure
 	elseif(strip_tags(trim($_POST['addmodify'])) == 'add') { //Add VirtualHost
@@ -588,7 +590,7 @@ EOF;
 		if(substr($vh_folder,0,1) == "/" && substr($vh_folder,0,2) != "//")
 			$vh_folder = "/".$vh_folder;
 
-		if($virtualHost['FirstServerName'] !== "localhost" && !$errors) {
+		if($virtualHost['FirstServerName'] !== "localhost" && $errors === false) {
 			$message[] = '<p class="warning">'.sprintf($langues['NoFirst'],$c_apacheVhostConfFile).'</p>';
 			$errors = true;
 		}
@@ -638,7 +640,7 @@ EOF;
 		}
 		$c_UsedIp = '*';
 		$c_HostIp = '127.0.0.1';
-		if(!$errors && !empty($vh_ip)) {
+		if($errors === false && !empty($vh_ip)) {
 			if($vh_ip == '127.0.0.0' || $vh_ip == '127.0.0.1' ) {
 			$message[] = '<p class="warning">'.sprintf($langues['VirtualIpAlreadyUsed'],$vh_ip).'</p>';
 			$errors = true;
@@ -655,7 +657,7 @@ EOF;
 			else
 				$c_UsedIp = $c_HostIp = $vh_ip;
 		}
-		if(!$errors && !empty($vh_port)) {
+		if($errors === false && !empty($vh_port)) {
 			if($vh_port == '80' || $vh_port == $c_UsedPort) {
 				$message[] = '<p class="warning">'.sprintf($langues['VirtualPortExist'],$vh_port).'</p>';
 				$errors = true;
@@ -666,7 +668,7 @@ EOF;
 			}
 			else {
 				$key = array_search($vh_port, $c_ApacheDefine);
-				$c_PortToUse = '${'.$key.'}';
+				$c_PortToUse = '{$'.$key.'}';
 			}
 		}
 		if($errors === false) {
@@ -676,7 +678,7 @@ EOF;
 				$httpd_vhosts_fcgi = <<< EOFFCGIPHP
 
   <IfModule fcgid_module>
-    Define FCGIPHPVERSION "${vh_fcgi_php}"
+    Define FCGIPHPVERSION "{$vh_fcgi_php}"
     FcgidInitialEnv PHPRC \${PHPROOT}\${FCGIPHPVERSION}
     <Files ~ "\.php$">
       Options +Indexes +Includes +FollowSymLinks +MultiViews +ExecCGI
@@ -760,9 +762,9 @@ EOFHOSTS;
 $w_FcgiPhpVersionForm = $ModalDialogs = $ModalFCGILink = '';
 	//**** Modal Dialogs *****
 	//See mode FCGI
-	$message = str_replace('  ','&nbsp;&nbsp;',$langues['fcgi_mode_help']);
-	$message = str_replace('<code>',"<code class='normal'>",$message);
-	$message = nl2br($message);
+	$message_modal = str_replace('  ','&nbsp;&nbsp;',$langues['fcgi_mode_help']);
+	$message_modal = str_replace('<code>',"<code class='normal'>",$message_modal);
+	$message_modal = nl2br($message_modal);
 	//Dialog modal help FCGI
 	$divHelpFCGI = <<< EOF
 <div id="helpfcgi" class="modalOtoArial">
@@ -770,7 +772,7 @@ $w_FcgiPhpVersionForm = $ModalDialogs = $ModalFCGILink = '';
 		<div class='modalOtoBar'><input type='button' value='Copy' class='js-copyb' data-target='#tocopyb'>
 			<a href="#closeOto" title="Close" class="closeOto">X</a>
 		</div>
-		<div id="tocopyb">{$message}</div>
+		<div id="tocopyb">{$message_modal}</div>
 	</div>
 </div>
 EOF;
@@ -851,8 +853,8 @@ if($virtualHost['nb_Server'] > 0) {
 //***** End Show VirtualHost list *****
 
 //***** Is Include conf/extra/httpd-vhosts.conf not commented # *****
-if($virtualHost['include_vhosts'] === false && !$errors) {
-	if($automatique) {
+if($virtualHost['include_vhosts'] === false && $errors === false) {
+	if($automatique === true) {
 		$httpConfFileContents = file_get_contents($c_apacheConfFile);
 		$httpConfFileContents = preg_replace("~^[ \t]*#[ \t]*(Include[ \t]*conf/extra/httpd-vhosts.conf.*)$~m","$1",$httpConfFileContents,1);
 		$fp = fopen($c_apacheConfFile,'wb');
@@ -867,8 +869,8 @@ if($virtualHost['include_vhosts'] === false && !$errors) {
 	}
 }
 //***** Does conf/extra/httpd-vhosts.conf file exist ?
-if($virtualHost['vhosts_exist'] === false && !$errors) {
-	if($automatique) {
+if($virtualHost['vhosts_exist'] === false && $errors === false) {
+	if($automatique === true) {
 		$fp = fopen($c_apacheVhostConfFile,'wb');
 		fclose($fp);
 		$virtualHost = check_virtualhost();
@@ -880,8 +882,8 @@ if($virtualHost['vhosts_exist'] === false && !$errors) {
 	}
 }
 //***** Is conf/extra/httpd-vhosts.conf file clean ?
-if(in_array("dummy", $virtualHost['ServerNameValid'], true) !== false && !$errors) {
-	if($automatique) {
+if(in_array("dummy", $virtualHost['ServerNameValid'], true) !== false && $errors === false) {
+	if($automatique === true) {
 		$fp = fopen($c_apacheVhostConfFile,'wb');
 		fclose($fp);
 		$virtualHost = check_virtualhost();
@@ -893,8 +895,8 @@ if(in_array("dummy", $virtualHost['ServerNameValid'], true) !== false && !$error
 	}
 }
 //***** Does VirtualHost localhost exist ?
-if(empty($virtualHost['FirstServerName']) && !$errors) {
-	if($automatique) {
+if(empty($virtualHost['FirstServerName']) && $errors === false) {
+	if($automatique === true) {
 		$virtual_localhost = <<< EOFLOCAL
 
 #
@@ -936,7 +938,7 @@ $pageContents = <<< EOPAGE
 <!DOCTYPE html>
 <html lang="fr">
 	<head>
-		<title>${langues['addVirtual']}</title>
+		<title>{$langues['addVirtual']}</title>
 		<meta charset="UTF-8">
 	  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   	<meta name="viewport" content="width=device-width">
@@ -1050,22 +1052,22 @@ $pageContents = <<< EOPAGE
 		   </ul>
     </div>
 		<ul class="utility">
-		  <li>Version ${c_wampVersion} - ${c_wampMode}</li>
-      <li>${langueswitcher}</li>
+		  <li>Version {$c_wampVersion} - {$c_wampMode}</li>
+      <li>{$langueswitcher}</li>
 	  </ul>
 	</div>
 	<ul class='vhost' style='text-align:center;'><li><a href="add_vhost.php?lang={$langue}">{$langues['addVirtual']}</a> - <a href="index.php?lang={$langue}">{$langues['backHome']}</a></li></ul>
 
 EOPAGE;
 
-if($vhost_created || $alias_created)
+if($vhost_created === true || $alias_created === true)
 	$pageContents .= $message_ok;
 else {
-	if($errors) {
+	if($errors === true) {
 		foreach($message as $value)
 		 	$pageContents .= $value;
 	}
-	if($sub_menu_on) {
+	if($sub_menu_on === true) {
 	$pageContents .= <<< EOPAGEB
 		<p>Apache Virtual Hosts <code>{$c_apacheVhostConfFile}</code></p>
 EOPAGEB;
@@ -1087,8 +1089,8 @@ EOPAGEB;
 	else {
 	$_SESSION['passadd'] = mt_rand(100000001,mt_getrandmax());
 	//Check if VirtualHost to modify
-	$styleOpaNoClickMod = ($VhostToModify || $AliasToModify) ? " style='opacity:0.75;pointer-events:none;'" : '';
-	$styleNoDisplay = ($VhostToModify || $AliasToModify) ? " style='display:none;pointer-events:none;'" : '';
+	$styleOpaNoClickMod = ($VhostToModify === true || $AliasToModify === true) ? " style='opacity:0.75;pointer-events:none;'" : '';
+	$styleNoDisplay = ($VhostToModify === true || $AliasToModify === true) ? " style='display:none;pointer-events:none;'" : '';
 	$valueHostName = '';
 	$valueHostDir = '';
 	$valueModify = 'add';
@@ -1097,7 +1099,7 @@ EOPAGEB;
 	$Required = $langues['Required'];
 	$Directory = $langues['VirtualHostFolder'];
 	$CodeClass = " class='requis'";
-	if($VhostToModify) {
+	if($VhostToModify === true) {
 		$valueHostName = ' value="'.$VhostToMod['name'].'"';
 		$valueHostDir = ' value="'.$VhostToMod['directory'].'"';
 		$valueModify = 'modify';
@@ -1106,7 +1108,7 @@ EOPAGEB;
 		$Directory = 'Directory';
 		$CodeClass = " class='rien'";
 	}
-	elseif($AliasToModify) {
+	elseif($AliasToModify === true) {
 		$valueStart = $langues['StartAlias'];
 		$valueHostName = ' value="'.$AliasToMod['name'].'"';
 		$valueHostDir = ' value="'.$AliasToMod['directory'].'"';
@@ -1145,9 +1147,9 @@ EOPAGEB;
 	$pageContents .= <<< EOPAGEB
 		</div>
 		<div id='divright'>
-		  <div${aliasDisplay}>
+		  <div{$aliasDisplay}>
 			<p><b><u>Alias</u></b></p>
-			<ul class='nostyle' {$AliasListScroller}>${aliasContents}</ul>
+			<ul class='nostyle' {$AliasListScroller}>{$aliasContents}</ul>
 		  </div>
 		  <div id='vhostdelete' style='margin-top:2em;'>
 EOPAGEB;

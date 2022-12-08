@@ -1,6 +1,9 @@
 <?php
 
 // translated by Andrey Ryabukhin : dron@softfresh.ru
+//3.2.10  $file_charset
+
+$file_charset = 'Windows-1251';
 
 $w_allServicesRunning = 'Все сервисы запущены';
 $w_oneServiceRunning = 'Запущено %n из %t сервисов';

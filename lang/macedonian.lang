@@ -1,4 +1,7 @@
 <?php
+//3.3.0  $file_charset
+
+$file_charset = 'Windows-1251';
 
 $w_allServicesRunning = 'Сите сервиси работат';
 $w_oneServiceRunning = '%n од %t сервиси работат';

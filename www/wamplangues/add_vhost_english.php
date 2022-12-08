@@ -8,6 +8,7 @@
 //      - modifyAlias - StartAlias - ModifiedAlias - NoModifyAlias - HoweverAlias
 //  modified: VirtualHostPort (%s replaced by below ) - Start - VirtualCreated - However - HoweverWamp
 //  array $langues_help added.
+//3.3.0 - Modification of lines FcgidInitialEnv
 
 $langues = array(
 	'langue' => 'English',
@@ -115,7 +116,7 @@ This same page http://localhost/add_vhost.php also allows, via the Alias modific
 To add FCGI mode to an existing VirtualHost, simply add the following directives just before the </VirtualHost> end of that VirtualHost:
   <IfModule fcgid_module>
     Define FCGIPHPVERSION "7.4.27"
-    FcgidInitialEnv PHPRC ${PHPROOT}${FCGIPHPVERSION}
+    FcgidInitialEnv PHPRC "${PHPROOT}${FCGIPHPVERSION}/php.ini"
     <Files ~ "\.php$">
       Options +Indexes +Includes +FollowSymLinks +MultiViews +ExecCGI
       AddHandler fcgid-script .php
@@ -129,7 +130,8 @@ Conversely removing these lines causes the VirtualHost to revert to the PHP vers
 For Alias, it's a little less simple, you need to add the previous lines in two parts, the first part:
 <IfModule fcgid_module>
   Define FCGIPHPVERSION "7.4.27"
-  FcgidInitialEnv PHPRC ${PHPROOT}${FCGIPHPVERSION}
+  FcgidCmdOptions ${PHPROOT}${FCGIPHPVERSION}/php-cgi.exe \
+  InitialEnv PHPRC=${PHPROOT}${FCGIPHPVERSION}/php.ini
 </IfModule>
 just before the <Directory... directive.
 The second part:
@@ -145,7 +147,8 @@ inside the <Directory...></Directory> context so as to obtain, for example for a
 Alias /myalias "g:/www/mydir/"
 <IfModule fcgid_module>
   Define FCGIPHPVERSION "7.4.27"
-  FcgidInitialEnv PHPRC ${PHPROOT}${FCGIPHPVERSION}
+  FcgidCmdOptions ${PHPROOT}${FCGIPHPVERSION}/php-cgi.exe \
+  InitialEnv PHPRC=${PHPROOT}${FCGIPHPVERSION}/php.ini
 </IfModule>
 <Directory "g:/www/mydir/">
   Options Indexes FollowSymLinks

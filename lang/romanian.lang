@@ -13,6 +13,9 @@
 //        --- Suppress: $w_putOnline - $w_putOffline
 //3.2.9   $w_startOfServices - $w_servicesStarted - $w_bepatient - $w_ready - $w_state_services
 //      --- Suppress: $w_serverOffline - $w_serverOnline
+//3.3.0  $file_charset
+
+$file_charset = 'iso-8859-2'; //Same as Windows-1250 not used by mb_encoding...
 
 $w_translated_by = 'Tradus în limba românã de Ciprian Murariu';
 

@@ -24,34 +24,34 @@ $myPattern = ';WAMPMYSQLMENUSTART';
 $DBMSFooter = '';
 if($nbDBMS > 1 && $DBMSdefault !== 'mysql') {
 	$DBMSFooter = <<< EOF
-Type: separator; Caption: "${w_defaultDBMS} ${DefaultDBMS}"
-Type: item; Caption: "${w_help} -> MariaDB - MySQL"; Action: run; Filename: "%Windows%\Notepad.exe"; Parameters: "%AeTrayMenuPath%\mariadb_mysql.txt"; ShowCmd: Normal; Glyph: 31
+Type: separator; Caption: "{$w_defaultDBMS} {$DefaultDBMS}"
+Type: item; Caption: "{$w_help} -> MariaDB - MySQL"; Action: run; Filename: "%Windows%\Notepad.exe"; Parameters: "%AeTrayMenuPath%\mariadb_mysql.txt"; ShowCmd: Normal; Glyph: 31
 EOF;
 	$DBMSHeader = <<< EOF
-Type: separator; Caption: "MySQL ${c_mysqlVersion}"
+Type: separator; Caption: "MySQL {$c_mysqlVersion}"
 EOF;
 }
 else {
 	$DBMSHeader = <<< EOF
-Type: separator; Caption: "MySQL ${c_mysqlVersion}  (${w_defaultDBMS})"
+Type: separator; Caption: "MySQL {$c_mysqlVersion}  ({$w_defaultDBMS})"
 EOF;
 }
 $myreplace = <<< EOF
 ;WAMPMYSQLMENUSTART
-${DBMSHeader}
-Type: submenu; Caption: "${w_version}"; SubMenu: mysqlVersion; Glyph: 3
-Type: servicesubmenu; Caption: "${w_service} '${c_mysqlService}'"; Service: ${c_mysqlService}; SubMenu: mysqlService
-Type: submenu; Caption: "${w_mysqlSettings}"; SubMenu: mysql_params; Glyph: 25
-Type: item; Caption: "${w_mysqlConsole}"; Action: run; FileName: "${c_mysqlConsole}"; Parameters: "-u %MysqlUser% -p"; Glyph: 0
-Type: separator; Caption: "${w_helpFile}";
-Type: item; Caption: "my.ini"; Glyph: 33; Action: run; FileName: "${c_editor}"; parameters: "${c_mysqlConfFile}"
-Type: item; Caption: "${w_mysqlLog}	(${logFilesSize['mysql.log']})"; Glyph: 33; Action: run; FileName: "${c_logviewer}"; parameters: "${c_installDir}/${logDir}mysql.log"
-Type: item; Caption: "${w_mysqlDoc}"; Action: run; FileName: "${c_navigator}"; Parameters: "${c_edge}http://dev.mysql.com/doc/index.html"; Glyph: 35
-${MysqlTestPortUsed}Type: separator; Caption: "${w_portUsedMysql}${c_UsedMysqlPort}"
-${TestPort3306}${MysqlTestPortUsed}Type: item; Caption: "${w_testPortMysql}"; Action: run; FileName: "${c_phpExe}"; Parameters: "testPort.php 3306 ${c_mysqlService}";WorkingDir: "$c_installDir/scripts"; Flags: waituntilterminated; Glyph: 24
-${MysqlTestPortUsed}Type: item; Caption: "${w_AlternateMysqlPort}"; Action: multi; Actions: UseAlternateMysqlPort; Glyph: 24
-${MysqlTestPortUsed}Type: item; Caption: "${w_testPortMysqlUsed}${c_UsedMysqlPort}"; Action: run; FileName: "${c_phpExe}"; Parameters: "testPort.php ${c_UsedMysqlPort} ${c_mysqlService}";WorkingDir: "$c_installDir/scripts"; Flags: waituntilterminated; Glyph: 24
-${DBMSFooter}
+{$DBMSHeader}
+Type: submenu; Caption: "{$w_version}"; SubMenu: mysqlVersion; Glyph: 3
+Type: servicesubmenu; Caption: "{$w_service} '{$c_mysqlService}'"; Service: {$c_mysqlService}; SubMenu: mysqlService
+Type: submenu; Caption: "{$w_mysqlSettings}"; SubMenu: mysql_params; Glyph: 25
+Type: item; Caption: "{$w_mysqlConsole}"; Action: run; FileName: "{$c_mysqlConsole}"; Parameters: "-u %MysqlUser% -p"; Glyph: 0
+Type: separator; Caption: "{$w_helpFile}";
+Type: item; Caption: "my.ini"; Glyph: 33; Action: run; FileName: "{$c_editor}"; parameters: "{$c_mysqlConfFile}"
+Type: item; Caption: "{$w_mysqlLog}	({$logFilesSize['mysql.log']})"; Glyph: 33; Action: run; FileName: "{$c_logviewer}"; parameters: "{$c_installDir}/{$logDir}mysql.log"
+Type: item; Caption: "{$w_mysqlDoc}"; Action: run; FileName: "{$c_navigator}"; Parameters: "{$c_edge}http://dev.mysql.com/doc/index.html"; Glyph: 35
+{$MysqlTestPortUsed}Type: separator; Caption: "{$w_portUsedMysql}{$c_UsedMysqlPort}"
+{$TestPort3306}{$MysqlTestPortUsed}Type: item; Caption: "{$w_testPortMysql}"; Action: run; FileName: "{$c_phpExe}"; Parameters: "testPort.php 3306 {$c_mysqlService}";WorkingDir: "$c_installDir/scripts"; Flags: waituntilterminated; Glyph: 24
+{$MysqlTestPortUsed}Type: item; Caption: "{$w_AlternateMysqlPort}"; Action: multi; Actions: UseAlternateMysqlPort; Glyph: 24
+{$MysqlTestPortUsed}Type: item; Caption: "{$w_testPortMysqlUsed}{$c_UsedMysqlPort}"; Action: run; FileName: "{$c_phpExe}"; Parameters: "testPort.php {$c_UsedMysqlPort} {$c_mysqlService}";WorkingDir: "$c_installDir/scripts"; Flags: waituntilterminated; Glyph: 24
+{$DBMSFooter}
 EOF;
 $tpl = str_replace($myPattern,$myreplace,$tpl);
 
@@ -60,13 +60,13 @@ $myPattern = ';WAMPMYSQLSERVICESTART';
 $myreplace = <<< EOF
 ;WAMPMYSQLSERVICESTART
 [MySqlService]
-Type: separator; Caption: "${w_mysql}"
-Type: item; Caption: "${w_startResume}"; Action: service; Service: ${c_mysqlService}; ServiceAction: startresume; Flags: ignoreerrors waituntilterminated; Glyph: 9
-Type: item; Caption: "${w_stopService}"; Action: service; Service: ${c_mysqlService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated; Glyph: 11
-Type: item; Caption: "${w_restartService}"; Action: service; Service: ${c_mysqlService}; ServiceAction: restart; Flags: ignoreerrors waituntilterminated; Glyph: 12
+Type: separator; Caption: "{$w_mysql}"
+Type: item; Caption: "{$w_startResume}"; Action: service; Service: {$c_mysqlService}; ServiceAction: startresume; Flags: ignoreerrors waituntilterminated; Glyph: 9
+Type: item; Caption: "{$w_stopService}"; Action: service; Service: {$c_mysqlService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated; Glyph: 11
+Type: item; Caption: "{$w_restartService}"; Action: service; Service: {$c_mysqlService}; ServiceAction: restart; Flags: ignoreerrors waituntilterminated; Glyph: 12
 Type: separator
-Type: item; Caption: "${w_installService}"; Action: multi; Actions: MySQLServiceInstall; Glyph: 8
-Type: item; Caption: "${w_removeService}"; Action: multi; Actions: MySQLServiceRemove; Glyph: 26
+Type: item; Caption: "{$w_installService}"; Action: multi; Actions: MySQLServiceInstall; Glyph: 8
+Type: item; Caption: "{$w_removeService}"; Action: multi; Actions: MySQLServiceRemove; Glyph: 26
 EOF;
 $tpl = str_replace($myPattern,$myreplace,$tpl);
 
@@ -74,8 +74,8 @@ $myPattern = ';WAMPMYSQLSERVICEINSTALLSTART';
 $myreplace = <<< EOF
 ;WAMPMYSQLSERVICEINSTALLSTART
 [MySQLServiceInstall]
-{$mysqlMysqlService}Action: run; FileName: "${c_mysqlExe}"; Parameters: "${c_mysqlServiceInstallParams}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
-{$mysqlCmdScService}Action: run; FileName: "CMD"; Parameters: "/D /C sc create ${c_mysqlService} binpath=""${c_mysqlExeAnti} --defaults-file=${c_mysqlConfFileAnti} ${c_mysqlService}"""; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
+{$mysqlMysqlService}Action: run; FileName: "{$c_mysqlExe}"; Parameters: "{$c_mysqlServiceInstallParams}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
+{$mysqlCmdScService}Action: run; FileName: "CMD"; Parameters: "/D /C sc create {$c_mysqlService} binpath=""{$c_mysqlExeAnti} --defaults-file={$c_mysqlConfFileAnti} {$c_mysqlService}"""; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
 Action: resetservices
 Action: readconfig
 EOF;
@@ -85,9 +85,9 @@ $myPattern = ';WAMPMYSQLSERVICEREMOVESTART';
 $myreplace = <<< EOF
 ;WAMPMYSQLSERVICEREMOVESTART
 [MySQLServiceRemove]
-Action: service; Service: ${c_mysqlService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated
-{$mysqlMysqlService}Action: run; FileName: "${c_mysqlExe}"; Parameters: "${c_mysqlServiceRemoveParams}"; ShowCmd: hidden; Flags: waituntilterminated
-{$mysqlCmdScService}Action: run; FileName: "CMD"; Parameters: "/D /C sc delete ${c_mysqlService}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
+Action: service; Service: {$c_mysqlService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated
+{$mysqlMysqlService}Action: run; FileName: "{$c_mysqlExe}"; Parameters: "{$c_mysqlServiceRemoveParams}"; ShowCmd: hidden; Flags: waituntilterminated
+{$mysqlCmdScService}Action: run; FileName: "CMD"; Parameters: "/D /C sc delete {$c_mysqlService}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
 Action: resetservices
 Action: readconfig
 EOF;
@@ -98,10 +98,10 @@ $myPattern = ';WAMPALTERNATEMYSQLPORTSTART';
 $myreplace = <<< EOF
 ;WAMPALTERNATEMYSQLPORTSTART
 [UseAlternateMysqlPort]
-Action: service; Service: ${c_mysqlService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated
-Action: run; FileName: "${c_phpExe}"; Parameters: "switchMysqlPort.php %MysqlPort%";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-${Apache_Restart}
-Action: service; Service: ${c_mysqlService}; ServiceAction: startresume; Flags: ignoreerrors waituntilterminated
+Action: service; Service: {$c_mysqlService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated
+Action: run; FileName: "{$c_phpExe}"; Parameters: "switchMysqlPort.php %MysqlPort%";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
+{$Apache_Restart}
+Action: service; Service: {$c_mysqlService}; ServiceAction: startresume; Flags: ignoreerrors waituntilterminated
 Action: multi; Actions: refresh_readconfig; Flags:appendsection
 EOF;
 $tpl = str_replace($myPattern,$myreplace,$tpl);
@@ -112,7 +112,7 @@ if($MysqlMariaPromptBool) {
 	$myreplace = <<< EOF
 ;WAMPMYSQLUSECONSOLEPROMPTSTART
 [mysqlUseConsolePrompt]
-Action: run; FileName: "${c_phpExe}";Parameters: "switchWampParam.php mysqlUseConsolePrompt ${mysqlConsolePromptChange}"; WorkingDir: "$c_installDir/scripts"; Flags: waituntilterminated
+Action: run; FileName: "{$c_phpExe}";Parameters: "switchWampParam.php mysqlUseConsolePrompt {$mysqlConsolePromptChange}"; WorkingDir: "$c_installDir/scripts"; Flags: waituntilterminated
 Action: multi; Actions: apache_restart_refresh; Flags:appendsection
 EOF;
 	$tpl = str_replace($myPattern,$myreplace,$tpl);
@@ -122,11 +122,11 @@ EOF;
 $myPattern = ';WAMPMYSQLSUPPORTTOOLS';
 $myreplace = <<< EOF
 ;WAMPMYSQLSUPPORTTOOLS
-Type: separator; Caption: "${w_portUsedMysql}${c_UsedMysqlPort}"
-${TestPort3306}Type: item; Caption: "${w_testPortMysql}"; Action: run; FileName: "${c_phpExe}"; Parameters: "testPort.php 3306 ${c_mysqlService}";WorkingDir: "$c_installDir/scripts"; Flags: waituntilterminated; Glyph: 24
-${MysqlTestPortUsed}Type: item; Caption: "${w_testPortMysqlUsed}${c_UsedMysqlPort}"; Action: run; FileName: "${c_phpExe}"; Parameters: "testPort.php ${c_UsedMysqlPort} ${c_mysqlService}";WorkingDir: "$c_installDir/scripts"; Flags: waituntilterminated; Glyph: 24
-Type: item; Caption: "${w_AlternateMysqlPort}"; Action: multi; Actions: UseAlternateMysqlPort; Glyph: 24
-${MysqlMariaPrompt}Type: item; Caption: "${w_settings['mysqlUseConsolePrompt']}: ${mysqlConsolePromptUsed}"; Glyph: 24; Action: multi; Actions: mysqlUseConsolePrompt
+Type: separator; Caption: "{$w_portUsedMysql}{$c_UsedMysqlPort}"
+{$TestPort3306}Type: item; Caption: "{$w_testPortMysql}"; Action: run; FileName: "{$c_phpExe}"; Parameters: "testPort.php 3306 {$c_mysqlService}";WorkingDir: "$c_installDir/scripts"; Flags: waituntilterminated; Glyph: 24
+{$MysqlTestPortUsed}Type: item; Caption: "{$w_testPortMysqlUsed}{$c_UsedMysqlPort}"; Action: run; FileName: "{$c_phpExe}"; Parameters: "testPort.php {$c_UsedMysqlPort} {$c_mysqlService}";WorkingDir: "$c_installDir/scripts"; Flags: waituntilterminated; Glyph: 24
+Type: item; Caption: "{$w_AlternateMysqlPort}"; Action: multi; Actions: UseAlternateMysqlPort; Glyph: 24
+{$MysqlMariaPrompt}Type: item; Caption: "{$w_settings['mysqlUseConsolePrompt']}: {$mysqlConsolePromptUsed}"; Glyph: 24; Action: multi; Actions: mysqlUseConsolePrompt
 EOF;
 $tpl = str_replace($myPattern,$myreplace,$tpl);
 
@@ -178,27 +178,27 @@ foreach ($mysqlVersionList as $oneMysqlVersion) {
     $myreplace .= 'Type: item; Caption: "'.$oneMysqlVersion.'"; Action: multi; Actions:switchMysql'.$oneMysqlVersion.'
 ';
   	$myreplacemenu .= <<< EOF
-[switchMysql${oneMysqlVersion}]
+[switchMysql{$oneMysqlVersion}]
 Action: closeservices; Flags: ignoreerrors
-Action: service; Service: ${c_mysqlService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated
-Action: run; FileName: "CMD"; Parameters: "/D /C net stop ${c_mysqlService}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
-{$mysqlMysqlService}Action: run; FileName: "${c_mysqlExe}"; Parameters: "${c_mysqlServiceRemoveParams}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
-{$mysqlCmdScService}Action: run; FileName: "CMD"; Parameters: "/D /C sc delete ${c_mysqlService}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
-Action: run; FileName: "${c_phpCli}";Parameters: "switchMysqlVersion.php ${oneMysqlVersion}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-Action: run; FileName: "${c_phpExe}";Parameters: "switchMysqlPort.php ${c_UsedMysqlPort}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
+Action: service; Service: {$c_mysqlService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated
+Action: run; FileName: "CMD"; Parameters: "/D /C net stop {$c_mysqlService}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
+{$mysqlMysqlService}Action: run; FileName: "{$c_mysqlExe}"; Parameters: "{$c_mysqlServiceRemoveParams}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
+{$mysqlCmdScService}Action: run; FileName: "CMD"; Parameters: "/D /C sc delete {$c_mysqlService}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
+Action: run; FileName: "{$c_phpCli}";Parameters: "switchMysqlVersion.php {$oneMysqlVersion}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
+Action: run; FileName: "{$c_phpExe}";Parameters: "switchMysqlPort.php {$c_UsedMysqlPort}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
 
 EOF;
 		if(isset($mysqlConf['mysqlServiceCmd']) && $mysqlConf['mysqlServiceCmd'] == 'windows') {
 			$binpath = str_replace('/','\\',$c_mysqlVersionDir.'/mysql'.$oneMysqlVersion.'/'.$mysqlConf['mysqlExeDir'].'/'.$mysqlConf['mysqlExeFile']);
 			$default = str_replace('/','\\',$c_mysqlVersionDir.'/mysql'.$oneMysqlVersion.'/'.$mysqlConf['mysqlConfDir'].'/'.$mysqlConf['mysqlConfFile']);
 			$myreplacemenu .= <<< EOF
-Action: run; FileName: "CMD"; parameters: "/D /C sc create ${c_mysqlService} binpath=""${binpath} --defaults-file=${default} ${c_mysqlService}"""; ShowCmd: hidden; Flags: waituntilterminated
+Action: run; FileName: "CMD"; parameters: "/D /C sc create {$c_mysqlService} binpath=""{$binpath} --defaults-file={$default} {$c_mysqlService}"""; ShowCmd: hidden; Flags: waituntilterminated
 
 EOF;
 		}
 		else {
 			$myreplacemenu .= <<< EOF
-Action: run; FileName: "${c_mysqlVersionDir}/mysql${oneMysqlVersion}/${mysqlConf['mysqlExeDir']}/${mysqlConf['mysqlExeFile']}"; Parameters: "${mysqlConf['mysqlServiceInstallParams']}"; ShowCmd: hidden; Flags: waituntilterminated
+Action: run; FileName: "{$c_mysqlVersionDir}/mysql{$oneMysqlVersion}/{$mysqlConf['mysqlExeDir']}/{$mysqlConf['mysqlExeFile']}"; Parameters: "{$mysqlConf['mysqlServiceInstallParams']}"; ShowCmd: hidden; Flags: waituntilterminated
 
 EOF;
 		}
@@ -229,10 +229,10 @@ $tpl = str_replace($myPattern,$myreplace.$myreplacemenu,$tpl);
 // them efficiently, it is better that in the my.ini file
 // all directives use _ as in default_storage_engine=
 $myIniFileContents = @file_get_contents($c_mysqlConfFile) or die ("my.ini file not found");
-//Replace all - by _ in my.ini directives
-if(preg_match_all('~^;?[a-z]+-[a-z]+(?:-[a-z]*)*.*\r?$~mi',$myIniFileContents,$matches) > 0) {
+//Replace all - by _ in my.ini directives only at the left of = sign
+if(preg_match_all('~^(;?[a-z]+-[a-z]+(?:-[a-z]*)*)=?.*\r?$~mi',$myIniFileContents,$matches) > 0) {
 	$counts = 0;
-	foreach($matches[0] as $value) {
+	foreach($matches[1] as $value) {
 		$myIniFileContents = str_replace($value,str_replace('-','_',$value),$myIniFileContents,$count);
 		$counts += $count;
 	}
@@ -429,10 +429,9 @@ foreach ($params_for_mysqlini as $paramname=>$paramstatus) {
 ';
 				$mysqlConfTextInfo .= 'Type: submenu; Caption: "'.$w_mysql_mode.'"; Submenu: mysql_mode; Glyph: 22
 ';
-				foreach($valeurs as $val) {
-					$mysqlConfTextInfo .= 'Type: item; Caption: "'.$val.'"; Action:  none
+				$values = implode(' #13 ',$valeurs);
+				$mysqlConfTextInfo .= 'Type: item; Caption: "'.$values.'"; Action: none
 ';
-				}
 				$m_valeur = 'default';
 				$mysqlConfTextMode = 'Type: submenu; Caption: "'.$paramname.'"; Submenu: '.$paramname.$typebase.'; Glyph: 9
 ';
@@ -516,23 +515,20 @@ Type: separator; Caption: "sql_mode"
 					if($actionToDo[$j] == 'default') {
 						$MenuSup[$i] .= <<< EOF
 
-Type: separator; Caption: "MySQL ${c_mysqlVersion}"
-Type: separator; Caption: "sql_mode ${actionName[$j]} = "
+Type: separator; Caption: "MySQL {$c_mysqlVersion}"
+Type: separator; Caption: "sql_mode {$actionName[$j]} = "
 
 EOF;
-						foreach($default_valeurs as $val) {
-						$MenuSup[$i] .= 'Type: item; Caption: "'.$val.'"; Action:  none
-';
-						}
-						$MenuSup[$i] .= 'Type: separator
+						$values = implode(' #13 ',$default_valeurs);
+						$MenuSup[$i] .= 'Type: item; Caption: "'.$values.'"; Action: none
 ';
 					}
 				$MenuSup[$i] .= 'Type: item; Caption: "sql_mode -> '.$actionName[$j].'"; Action: multi; Actions: '.$action.$actionToDo[$j].$typebase.'
 ';
 					$SubMenuSup[$i] .= <<< EOF
-[${action}${actionToDo[$j]}${typebase}]
-Action: service; Service: ${c_mysqlService}; ServiceAction: stop; Flags: waituntilterminated
-Action: run; FileName: "${c_phpExe}";Parameters: "changeMysqlParam.php noquotes ${action} ${param_value[$j]}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
+[{$action}{$actionToDo[$j]}{$typebase}]
+Action: service; Service: {$c_mysqlService}; ServiceAction: stop; Flags: waituntilterminated
+Action: run; FileName: "{$c_phpExe}";Parameters: "changeMysqlParam.php noquotes {$action} {$param_value[$j]}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
 Action: multi; Actions: mysql_refresh_start; Flags:appendsection
 
 EOF;
@@ -564,9 +560,9 @@ Type: separator; Caption: "'.$mysqlParamsNotOnOff[$action]['title'].'"
 					$c_phpRun = $c_phpCli;
 				}
 				$SubMenuSup[$i] .= <<< EOF
-[${action}${value}]
-Action: service; Service: ${c_mysqlService}; ServiceAction: stop; Flags: waituntilterminated
-Action: run; FileName: "${c_phpRun}";Parameters: "changeMysqlParam.php ${quoted} ${action} ${param_value}${param_third}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
+[{$action}{$value}]
+Action: service; Service: {$c_mysqlService}; ServiceAction: stop; Flags: waituntilterminated
+Action: run; FileName: "{$c_phpRun}";Parameters: "changeMysqlParam.php {$quoted} {$action} {$param_value}{$param_third}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
 Action: multi; Actions: mysql_refresh_start; Flags:appendsection
 
 EOF;
@@ -584,9 +580,9 @@ foreach ($params_for_mysqlini as $paramname=>$paramstatus) {
 		else
 			$SwitchAction = ($params_for_mysqlini[$paramname] == 'on' ? 'off' : 'on');
   	$mysqlConfText .= <<< EOF
-[${mysqlParams[$paramname]}]
-Action: service; Service: ${c_mysqlService}; ServiceAction: stop; Flags: waituntilterminated
-Action: run; FileName: "${c_phpCli}";Parameters: "switchMysqlParam.php ${mysqlParams[$paramname]} ${SwitchAction}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
+[{$mysqlParams[$paramname]}]
+Action: service; Service: {$c_mysqlService}; ServiceAction: stop; Flags: waituntilterminated
+Action: run; FileName: "{$c_phpCli}";Parameters: "switchMysqlParam.php {$mysqlParams[$paramname]} {$SwitchAction}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
 Action: multi; Actions: mysql_refresh_start; Flags:appendsection
 
 EOF;

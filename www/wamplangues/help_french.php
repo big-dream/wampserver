@@ -1,5 +1,6 @@
 <?php
 //3.2.8 Nouveau fichier
+//3.3.0 modification des lignes FcgidInitialEnv
 
 $langues['fcgi_mode_link'] = 'Aide mode FCGI';
 $langues['fcgi_not_loaded'] = 'PHP ne peut pas être utilisé en mode FCGI parce que le module Apache fcgid_module n\'est pas chargé';
@@ -58,7 +59,7 @@ Pour ajouter le mode FCGI à un VirtualHost déjà existant, il suffit d'ajouter
 <code>
   &lt;IfModule fcgid_module>
     Define FCGIPHPVERSION "7.4.27"
-    FcgidInitialEnv PHPRC ${PHPROOT}${FCGIPHPVERSION}
+    FcgidInitialEnv PHPRC "${PHPROOT}${FCGIPHPVERSION}/php.ini"
     &lt;Files ~ "\.php$">
       Options +Indexes +Includes +FollowSymLinks +MultiViews +ExecCGI
       AddHandler fcgid-script .php
@@ -73,7 +74,8 @@ Pour les Alias, c'est un petit peu moins simple, il faut ajouter les lignes pré
 <code>
 &lt;IfModule fcgid_module>
   Define FCGIPHPVERSION "7.4.27"
-  FcgidInitialEnv PHPRC ${PHPROOT}${FCGIPHPVERSION}
+  FcgidCmdOptions ${PHPROOT}${FCGIPHPVERSION}/php-cgi.exe \
+  InitialEnv PHPRC=${PHPROOT}${FCGIPHPVERSION}/php.ini
 &lt;/IfModule>
 </code>
 juste avant la directive <code>&lt;Directory...</code>
@@ -92,7 +94,8 @@ La seconde partie :
 Alias /myalias "g:/www/mydir/"
 &lt;IfModule fcgid_module>
   Define FCGIPHPVERSION "7.4.27"
-  FcgidInitialEnv PHPRC ${PHPROOT}${FCGIPHPVERSION}
+  FcgidCmdOptions ${PHPROOT}${FCGIPHPVERSION}/php-cgi.exe \
+  InitialEnv PHPRC=${PHPROOT}${FCGIPHPVERSION}/php.ini
 &lt;/IfModule>
 &lt;Directory "g:/www/mydir/">
   Options Indexes FollowSymLinks

@@ -1,5 +1,5 @@
 <?php
-// 3.2.9 - Alias view modified (PhpMyAdmin not compat)
+// 3.3.0 - Replace ${var} by {$var}
 
 // Page created by Shepard [Fabian Pijcke] <Shepard8@laposte.net>
 // Arno Esterhuizen <arno.esterhuizen@gmail.com>
@@ -145,7 +145,7 @@ if(isset($wampConf['SupportMySQL']) && $wampConf['SupportMySQL'] =='on') {
 	$defaultDBMSMySQL = ($wampConf['mysqlPortUsed'] == '3306') ? "&nbsp;-&nbsp;".$langues['defaultDBMS'] : "";
 	$MySQLdb = <<< EOF
 <dt>{$langues['versm']}</dt>
-	<dd>${mysqlVersion}&nbsp;-&nbsp;{$langues['mysqlportUsed']}{$Mysqlport}{$defaultDBMSMySQL}&nbsp;-&nbsp; <a href='http://{$langues['docm']}'>{$langues['documentation-of']} MySQL</a></dd>
+	<dd>{$mysqlVersion}&nbsp;-&nbsp;{$langues['mysqlportUsed']}{$Mysqlport}{$defaultDBMSMySQL}&nbsp;-&nbsp; <a href='http://{$langues['docm']}'>{$langues['documentation-of']} MySQL</a></dd>
 EOF;
 }
 
@@ -156,7 +156,7 @@ if(isset($wampConf['SupportMariaDB']) && $wampConf['SupportMariaDB'] =='on') {
 	$defaultDBMSMaria = ($wampConf['mariaPortUsed'] == '3306') ? "&nbsp;-&nbsp;".$langues['defaultDBMS'] : "";
 	$MariaDB = <<< EOF
 <dt>{$langues['versmaria']}</dt>
-  <dd>${c_mariadbVersion}&nbsp;-&nbsp;{$langues['mariaportUsed']}{$wampConf['mariaPortUsed']}{$defaultDBMSMaria}&nbsp;-&nbsp; <a href='http://{$langues['docmaria']}'>{$langues['documentation-of']} MariaDB</a></dd>
+  <dd>{$c_mariadbVersion}&nbsp;-&nbsp;{$langues['mariaportUsed']}{$wampConf['mariaPortUsed']}{$defaultDBMSMaria}&nbsp;-&nbsp; <a href='http://{$langues['docmaria']}'>{$langues['documentation-of']} MariaDB</a></dd>
 EOF;
 }
 
@@ -451,6 +451,18 @@ if($VirtualHostMenu == "on") {
 						}
 					}
 				}
+				//Check Directory Path ended with a slash '/'
+				if($virtualHost['directorySlash'] === false) {
+					foreach($virtualHost['directoryPath'] as $value) {
+						if($virtualHost['directoryPathSlashEnded'][$value] === false) {
+							$documentPathError = $value;
+							$vhostError = true;
+							$vhostErrorCorrected = false;
+							$error_message[] = sprintf($langues['txtPathNoSlash'],"<span style='color:black;'>".$value."</span>", "&lt;Directory ...", $virtualHost['vhosts_file']);
+							break;
+						}
+					}
+				}
 				//Check number of <VirtualHost equals or > to number of ServerName
 				if($nb_Server != $nb_Virtual && $wampConf['NotCheckDuplicate'] == 'off') {
 					$port_number = false;
@@ -607,8 +619,8 @@ $pageContents = <<< EOPAGE
 		   </ul>
      </div>
 		<ul class="utility">
-		  <li>Version ${c_wampVersion} - ${c_wampMode}</li>
-      <li>${langueswitcher}${styleswitcher}</li>
+		  <li>Version {$c_wampVersion} - {$c_wampMode}</li>
+      <li>{$langueswitcher}{$styleswitcher}</li>
 	  </ul>
 	</div>
 
@@ -617,20 +629,20 @@ $pageContents = <<< EOPAGE
         <h2>{$langues['titreConf']}</h2>
 	        <dl class="content">
 		        <dt>{$langues['versa']}</dt>
-		            <dd>${apacheVersion}&nbsp;&nbsp;-&nbsp;<a href='http://{$langues[$doca_version]}'>{$langues['documentation-of']} Apache</a></dd>
+		            <dd>{$apacheVersion}&nbsp;&nbsp;-&nbsp;<a href='http://{$langues[$doca_version]}'>{$langues['documentation-of']} Apache</a></dd>
 		        <dt>{$langues['server']}</dt>
-		            <dd>${server_software}&nbsp;-&nbsp;{$langues['portUsed']}{$ListenPorts}</dd>
+		            <dd>{$server_software}&nbsp;-&nbsp;{$langues['portUsed']}{$ListenPorts}</dd>
 		        <dt>{$langues['versp']}</dt>
-		            <dd><small style='color:blue;'>[Apache module]&nbsp;</small>&nbsp;${phpVersion}&nbsp;-&nbsp;<a href='http://{$langues['docp']}'>{$langues['documentation-of']} PHP</a>&nbsp;-&nbsp;{$popupPHPExtLink}</dd>
-		        ${PhpAllVersionsNotFcgi}
+		            <dd><small style='color:blue;'>[Apache module]&nbsp;</small>&nbsp;{$phpVersion}&nbsp;-&nbsp;<a href='http://{$langues['docp']}'>{$langues['documentation-of']} PHP</a>&nbsp;-&nbsp;{$popupPHPExtLink}</dd>
+		        {$PhpAllVersionsNotFcgi}
 		        <dt>&nbsp;</dt>
-		        		<dd><small style='color:green;'>[FCGI]</small>&nbsp;${PhpAllVersions}</dd>
-						${DBMSTypes}
+		        		<dd><small style='color:green;'>[FCGI]</small>&nbsp;{$PhpAllVersions}</dd>
+						{$DBMSTypes}
 	        </dl>
       </div>
   </div>
    <div class="divider1">&nbsp;</div>
-   <div class="alltools ${allToolsClass}">
+   <div class="alltools {$allToolsClass}">
 	    <div class="inneralltools">
 	        <div class="column">
 	            <h2>{$langues['titrePage']}</h2>
@@ -644,13 +656,13 @@ $pageContents = <<< EOPAGE
 	        		<div class="column">
 	            <h2>{$langues['txtProjet']}&nbsp;<span style='font-size:60%;'>({$nbProjects})</span></h2>
 	            <ul class="projects"{$ProjectsListScroller}>
-	                ${projectContents}
+	                {$projectContents}
 	            </ul>
 	        </div>
 	        	<div class="column">
 	            <h2>{$langues['txtAlias']}&nbsp;<span style='font-size:60%;'>({$nbAlias})</span></h2>
 	            <ul class="aliases"{$AliasListScroller}>
-	                ${aliasContents}
+	                {$aliasContents}
 	            </ul>
 	        </div>
 EOPAGE;
@@ -659,7 +671,7 @@ $pageContents .= <<< EOPAGEA
 	        <div class="column">
 	            <h2>{$langues['txtVhost']}&nbsp;<span style='font-size:60%;'>({$nbVirtualHost})</span></h2>
 	            <ul class="vhost"{$VhostsListScroller}>
-	                ${vhostsContents}
+	                {$vhostsContents}
 	            </ul>
 	        </div>
 EOPAGEA;
@@ -667,7 +679,7 @@ EOPAGEA;
 if(!empty($error_content)) {
 $pageContents .= <<< EOPAGEB
 	<div id="error" style="clear:both;"></div>
-	${error_content}
+	{$error_content}
 EOPAGEB;
 }
 $pageContents .= <<< EOPAGEC

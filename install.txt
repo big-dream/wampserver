@@ -28,12 +28,12 @@ The two files VSU4\vcredist_x86.exe and VSU4\vcredist_x64.exe to be download are
 The two files VSU4\vcredist_x86.exe and VSU4\vcredist_x64.exe to be download are on the same page: https://www.microsoft.com/en-us/download/details.aspx?id=40784
 -- VC14 Packages (Visual C++ 2015 Update 3) - Replaced by VC15
 -- VC15 Redistribuable (Visual C++ 2017) - Replaced by VS16
--- VS16 Redistribuable (Visual C++ 2015-2019)
-Visual C++ Redistributable Packages for Visual Studio 2015-2019 x86
-https://aka.ms/vs/16/release/VC_redist.x86.exe
-Visual C++ Redistributable Packages for Visual Studio 2015-2019 x64
-https://aka.ms/vs/16/release/VC_redist.x64.exe
-VC2015-2019 (VC16) is backward compatible to VC2015 (VC14) and VC2017 (VC15). That means, a VC14 or VC15 module can be used inside a VC16 binary. Because this compatibility the version number of the Redistributable is 14.2x.xx and after you install the Redistributable VC2015-2019, the Redistributable packages VC2015 (VC14) and VC2017 (VC15) are eventually deleted but you can still use VC14 and VC15.
+-- VS16 Redistribuable (Visual C++ 2015-2019) - Replaced by VC2015-2022
+Visual C++ Redistributable Packages for Visual Studio 2015-2022 x86
+https://aka.ms/vs/17/release/vc_redist.x86.exe
+Visual C++ Redistributable Packages for Visual Studio 2015-2022 x64
+https://aka.ms/vs/17/release/VC_redist.x64.exe
+VC2015-2022 (VC17) is backward compatible to VC2015 (VC14), VC2017 (VC15) and VC2019 (VC16). That means, a VC14, VC15 or VC16 module can be used inside a VC17 binary. Because this compatibility the version number of the Redistributable is 14.3x.xx and after you install the Redistributable VC2015-2022, the Redistributable packages VC2015 (VC14), VC2017 (VC15) and VC2019 (VC16) are eventually deleted but you can still use VC14, VC15 and VC16.
 
 If you have a 64-bit Windows, you must install both 32 and 64bit versions of each VisualC++ package, even if you do not use Wampserver 64 bit.
 Warning: Sometimes Microsoft may update the VC ++ package by breaking the download links and without redirect to the new. If the case happens to you, remember that item number 20 below will be updated and the page http://wampserver.aviatechno.net/ section Visual C++ Redistribuable Packages is up to date.

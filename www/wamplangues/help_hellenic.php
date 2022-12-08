@@ -1,5 +1,6 @@
 <?php
 //3.2.8 - New file
+//3.3.0 - Modification of lines FcgidInitialEnv
 
 $langues['fcgi_mode_link'] = 'Βοήθεια κατάστασης FCGI';
 $langues['fcgi_not_loaded'] = 'Η PHP δεν μπορεί να χρησιμοποιηθεί σε κατάσταση FCGI διότι το module fcgid_module του Apache δεν έχει φορτωθεί';
@@ -58,7 +59,7 @@ $langues['fcgi_mode_help'] = <<< 'FCGIEOT'
 <code>
   &lt;IfModule fcgid_module>
     Define FCGIPHPVERSION "7.4.27"
-    FcgidInitialEnv PHPRC ${PHPROOT}${FCGIPHPVERSION}
+    FcgidInitialEnv PHPRC "${PHPROOT}${FCGIPHPVERSION}/php.ini"
     &lt;Files ~ "\.php$">
       Options +Indexes +Includes +FollowSymLinks +MultiViews +ExecCGI
       AddHandler fcgid-script .php
@@ -73,7 +74,8 @@ $langues['fcgi_mode_help'] = <<< 'FCGIEOT'
 <code>
 &lt;IfModule fcgid_module>
   Define FCGIPHPVERSION "7.4.27"
-  FcgidInitialEnv PHPRC ${PHPROOT}${FCGIPHPVERSION}
+  FcgidCmdOptions ${PHPROOT}${FCGIPHPVERSION}/php-cgi.exe \
+  InitialEnv PHPRC=${PHPROOT}${FCGIPHPVERSION}/php.ini
 &lt;/IfModule>
 </code>
 ακριβώς πριν την οδηγία &lt;Directory...
@@ -92,7 +94,8 @@ $langues['fcgi_mode_help'] = <<< 'FCGIEOT'
 Alias /myalias "g:/www/mydir/"
 &lt;IfModule fcgid_module>
   Define FCGIPHPVERSION "7.4.27"
-  FcgidInitialEnv PHPRC ${PHPROOT}${FCGIPHPVERSION}
+  FcgidCmdOptions ${PHPROOT}${FCGIPHPVERSION}/php-cgi.exe \
+  InitialEnv PHPRC=${PHPROOT}${FCGIPHPVERSION}/php.ini
 &lt;/IfModule>
 &lt;Directory "g:/www/mydir/">
   Options Indexes FollowSymLinks

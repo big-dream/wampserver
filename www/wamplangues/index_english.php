@@ -3,6 +3,7 @@
 // for English is identical to documentation
 // 3.2.6 - txtNoHosts
 // 3.2.8 - phpNotExists - txtProjectsLink -	phpExtensions - phpVersionsUse
+// 3.3.0 - txtPathNoSlash
 
 $langues = array(
 	'langue' => 'English',
@@ -40,6 +41,7 @@ $langues = array(
 	'txtNoIncVhost' => 'Uncomment or add <i>Include conf/extra/httpd-vhosts.conf</i> in file wamp/bin/apache/apache%s/conf/httpd.conf',
 	'txtNoVhostFile' => 'The file: %s does not exists',
 	'txtNoPath' => 'The path %s for %s does not exist (File %s)',
+	'txtPathNoSlash' => 'The path %s for %s is not ended with a slash /',
 	'txtNotWritable' => 'The file: %s is not writable',
 	'txtNbNotEqual' => 'The number of %s does not match the number of %s in %s file',
 	'txtAddVhost' => 'Add a Virtual Host',

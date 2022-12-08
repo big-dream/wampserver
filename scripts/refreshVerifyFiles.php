@@ -114,8 +114,8 @@ $search = 'Define APACHE24 Apache2.4
 # APACHE24, VERSION_APACHE, INSTALL_DIR, APACHE_DIR, SRVROOT
 # should never be changed.
 Define APACHE24 Apache2.4
-Define VERSION_APACHE ${c_apacheVersion}
-Define INSTALL_DIR ${c_installDir}
+Define VERSION_APACHE {$c_apacheVersion}
+Define INSTALL_DIR {$c_installDir}
 Define APACHE_DIR \${INSTALL_DIR}/bin/apache/apache\${VERSION_APACHE}
 Define SRVROOT \${INSTALL_DIR}/bin/apache/apache\${VERSION_APACHE}
 
@@ -288,29 +288,29 @@ $file =array();
 $file[0]['file'] = $c_installDir.'/quit_wampserver.bat';
 $file[0]['content'] = <<< EOF
 echo off
-net stop ${c_apacheService}
-net stop ${c_mysqlService}
-net stop ${c_mariadbService}
-wampmanager.exe -quit -id=${c_wampserverID}
+net stop {$c_apacheService}
+net stop {$c_mysqlService}
+net stop {$c_mariadbService}
+wampmanager.exe -quit -id={$c_wampserverID}
 
 EOF;
 $file[1]['file'] = $c_installDir.'/restart_wampserver.bat';
 $file[1]['content'] = <<< EOF
 @echo off
-wampmanager.exe -quit -id=${c_wampserverID}
+wampmanager.exe -quit -id={$c_wampserverID}
 start /B wampmanager.exe
 exit
 
 EOF;
 $file[2]['file'] = $c_installDir.'/uninstall_services.bat';
 $file[2]['content'] =  <<< EOF
-net stop ${c_apacheService}
-sc delete ${c_apacheService}
-net stop ${c_mysqlService}
-sc delete ${c_mysqlService}
-net stop ${c_mariadbService}
-sc delete ${c_mariadbService}
-wampmanager.exe -quit -id=${c_wampserverID}
+net stop {$c_apacheService}
+sc delete {$c_apacheService}
+net stop {$c_mysqlService}
+sc delete {$c_mysqlService}
+net stop {$c_mariadbService}
+sc delete {$c_mariadbService}
+wampmanager.exe -quit -id={$c_wampserverID}
 
 EOF;
 

@@ -31,6 +31,8 @@
 //       $w_settings 	ScrollListsHomePage
 // 3.2.9 $w_phpparam_obs - $w_ApacheCompiledIn - $w_ApacheDoesNotIf - $w_mod_not_disable
 //       $w_NoDefaultDBMS
+// 3.3.0 $w_settings Browser BrowserChange
+// Suppress apachePhpCurlDll
 
 // Projects sub-menu
 $w_projectsSubMenu = 'Your projects';
@@ -89,8 +91,9 @@ $w_settings = array(
 	'apacheGracefulRestart' => 'Allow Apache Graceful Restart',
 	'LinksOnProjectsHomePage' => 'Allow links on projects homepage',
 	'LinksOnProjectsHomeByIp' => 'Link on projects by \'local link IP\'',
-	'apachePhpCurlDll' => 'Allow Apache to use libcrypto-*.dll and libssl-*.dll from PHP',
 	'ScrollListsHomePage' => 'Allow scrolling of lists on home page',
+	'WampserverBrowser' => 'Wampserver browser',
+	'BrowserChange' => 'Set Wampserver browser',
 );
 
 // Right-click Tools

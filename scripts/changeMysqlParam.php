@@ -47,27 +47,27 @@ EOF1ERROR;
 if($quoted)
 	$newvalue = '"'.$newvalue.'"';
 
-//if sql-mode
+//if sql_mode
 $count = 0;
-if($parameter == 'sql-mode') {
+if($parameter == 'sql_mode') {
 	if($newvalue == 'none') {
-		$myIniFileContents = preg_replace('/^sql-mode.*$/m',';${0}',$myIniFileContents,-1, $count);
-		if(strpos($myIniFileContents,";sql-mode=\"\"") !== false) {
-			$myIniFileContents = str_replace(";sql-mode=\"\"","sql-mode=\"\"",$myIniFileContents,$count);
+		$myIniFileContents = preg_replace('/^sql_mode.*$/m',';${0}',$myIniFileContents,-1, $count);
+		if(strpos($myIniFileContents,";sql_mode=\"\"") !== false) {
+			$myIniFileContents = str_replace(";sql_mode=\"\"","sql_mode=\"\"",$myIniFileContents,$count);
 		}
 		else {
-			//add sql-mode="" under section [wampmysqld]
+			//add sql_mode="" under section [wampmysqld]
 			$section = '['.$c_mysqlService.']';
-			$addTxt = 'sql-mode=""';
+			$addTxt = 'sql_mode=""';
 			$myIniFileContents = str_replace($section,$section."\r\n".$addTxt,$myIniFileContents,$count);
 		}
 	}
 	elseif($newvalue == 'default') {
-		$myIniFileContents = preg_replace('/^sql-mode.*$/m',';${0}',$myIniFileContents,-1, $count);
+		$myIniFileContents = preg_replace('/^sql_mode.*$/m',';${0}',$myIniFileContents,-1, $count);
 	}
 	elseif($newvalue == 'user') {
-		$myIniFileContents = preg_replace('/^sql-mode.*$/m',';${0}',$myIniFileContents);
-		$myIniFileContents = preg_replace('/^;(sql-mode[ \t]*=[ \t]*"[^"].*)$/m','${1}',$myIniFileContents,-1, $count);
+		$myIniFileContents = preg_replace('/^sql_mode.*$/m',';${0}',$myIniFileContents);
+		$myIniFileContents = preg_replace('/^;(sql_mode[ \t]*=[ \t]*"[^"].*)$/m','${1}',$myIniFileContents,-1, $count);
 	}
 }
 else {

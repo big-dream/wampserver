@@ -2,6 +2,7 @@
 // Romanian language file for Help page
 // Translated by Ciprian Murariu <ciprianmp[at]yahoo[dot]com>
 //3.2.8 - New file
+//3.3.0 - Modification of lines FcgidInitialEnv
 
 $langues['fcgi_mode_link'] = 'ajutor pentru modul FCGI';
 $langues['fcgi_not_loaded'] = 'PHP nu poate fi utilizat în modul FCGI întrucât modulul Apache fcgid_module nu este încărcat';
@@ -59,7 +60,7 @@ Pentru a adăuga modul FCGI la un VirtualHost existent, trebuiesc doar adăugate
 <code>
   &lt;IfModule fcgid_module>
     Define FCGIPHPVERSION "7.4.27"
-    FcgidInitialEnv PHPRC ${PHPROOT}${FCGIPHPVERSION}
+    FcgidInitialEnv PHPRC "${PHPROOT}${FCGIPHPVERSION}/php.ini"
     &lt;Files ~ "\.php$">
       Options +Indexes +Includes +FollowSymLinks +MultiViews +ExecCGI
       AddHandler fcgid-script .php
@@ -74,7 +75,8 @@ Pentru Alias e puţin mai complicat, liniile de mai sus trebuie adăugate în do
 <code>
 &lt;IfModule fcgid_module>
   Define FCGIPHPVERSION "7.4.27"
-  FcgidInitialEnv PHPRC ${PHPROOT}${FCGIPHPVERSION}
+  FcgidCmdOptions ${PHPROOT}${FCGIPHPVERSION}/php-cgi.exe \
+  InitialEnv PHPRC=${PHPROOT}${FCGIPHPVERSION}/php.ini
 &lt;/IfModule>
 </code>
 chiar înaintea directivei &lt;Directory...
@@ -93,7 +95,8 @@ Cea de-a doua parte:
 Alias /myalias "g:/www/mydir/"
 &lt;IfModule fcgid_module>
   Define FCGIPHPVERSION "7.4.27"
-  FcgidInitialEnv PHPRC ${PHPROOT}${FCGIPHPVERSION}
+  FcgidCmdOptions ${PHPROOT}${FCGIPHPVERSION}/php-cgi.exe \
+  InitialEnv PHPRC=${PHPROOT}${FCGIPHPVERSION}/php.ini
 &lt;/IfModule>
 &lt;Directory "g:/www/mydir/">
   Options Indexes FollowSymLinks

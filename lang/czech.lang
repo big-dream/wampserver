@@ -3,6 +3,9 @@
 //        $w_apacheDoc - $w_mysqlDoc - $w_mariadbDoc - $w_phpDoc - $w_doc
 //3.0.8 - $w_noDBMS
 //3.1.1   $w_cmdWindows - $w_mysqlCommand - $w_mariadbCommand - $w_apacheCommand - $w_services_msc
+//3.2.10  $file_charset
+
+$file_charset = 'iso-8859-2'; //Same as Windows-1250 not used by mb_encoding...
 
 // translated by František Bartoš (Bart, admin@bart.cz)
 $w_translated_by = 'Do ceštiny preložil František Bartoš (Bart)';

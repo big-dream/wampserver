@@ -13,7 +13,7 @@ require 'wampserver.lib.php';
 $allOK = true;
 $message = "Relationship between Alias and Directories\n";
 //Get alias files & directory
-$aliasList = array();
+$aliasList = $aliasListDir = array();
 if(is_dir($aliasDir)) {
   $handle=opendir($aliasDir);
   $i = 0;
@@ -23,13 +23,14 @@ if(is_dir($aliasDir)) {
 			$alias_contents = @file_get_contents($aliasDir.$file);
 	  	if(preg_match('~^Alias\s+/(.+)\s+"(.+)"\r?$~m',$alias_contents,$matches) > 0) {
     		$aliasList[$i]['alias'] = $matches[1];
-	  		$aliasList[$i]['dir'] = replace_apache_var($matches[2]);
+	  		$aliasList[$i]['dir'] = $aliasListDir[] = strtolower(replace_apache_var($matches[2]));
 	  		$i++;
 	  	}
   	}
   }
   closedir($handle);
   $countAlias = $i--;
+
   //Check if directory exists for each alias
   if($countAlias > 0) {
   	foreach($aliasList as $key => $value) {
@@ -56,24 +57,25 @@ if(is_dir($aliasDir)) {
 $appsDir = $c_installDir.'/apps/';
 $listAppsDir = array();
 $listAppsDir = glob($appsDir.'*',GLOB_ONLYDIR);
-//error_log("listAppsDirGlob=".print_r($listAppsDir,true));
 
 // Check if each directory is used by an alias
 $DirAlias = array_column($aliasList, 'dir');
 foreach($listAppsDir as $value) {
-	if($value[strlen($value)-1] != '/')	$value .= '/';
-	if(!in_array($value, $DirAlias)) {
+	if(substr($value,-1) != '/')	$value .= '/';
+	$value = strtolower($value);
+	if(!in_array($value, $aliasListDir)) {
+		$folderNotUse = $value;
 		$allOK = false;
-		$message .= "\n'".$value."' directory is not used by any alias\n";
-  	$message .= "Do you want to delete directory : '".$value."'\n\nType 'Y' key then Enter to confirm\nPress Enter to exit : ";
+		$message .= "\n'".$folderNotUse."' directory is not used by any alias\n";
+  	$message .= "Do you want to delete directory : '".$folderNotUse."'\n\nType 'Y' key then Enter to confirm\nPress Enter to exit : ";
   	Command_Windows($message,-1,-1,0,'Reliationships Alias & Directories');
 		$confirm = trim(fgets(STDIN));
 		$confirm = strtolower(trim($confirm ,'\''));
-		if($confirm == 'yes') {
-			if(rrmdir($value) === false)
-				$message .= "\n\nFolder ".$value." **not** deleted\n";
+		if($confirm == 'y') {
+			if(rrmdir($folderNotUse) === false)
+				$message .= "\n\nFolder ".$folderNotUse." **not** deleted\n";
 			else
-				$message .= "\n\nFolder ".$value." deleted\n";
+				$message .= "\n\nFolder ".$folderNotUse." deleted\n";
 		}
 	}
 }

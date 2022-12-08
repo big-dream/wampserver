@@ -1,6 +1,9 @@
 <?php
 
 //translated by radalin
+//3.2.10  $file_charset
+
+$file_charset = 'Windows-1254';
 
 $w_allServicesRunning = 'Bütün Servisler Çalisiyor';
 $w_oneServiceRunning = '%n servisten %t tanesi çalisiyor';

@@ -1,4 +1,13 @@
 Changelog
+--- Wampserver 3.3.0
+- PHP 8.2.0 Support
+- Support for Windows Parameter Region, Administration, Beta utf-8
+- Change Wampserver browser by menu
+- Removal of PHP CLI version change
+- Fixed some small defects
+To use or unactive MariaDB or MySQL, read the file mariadb_mysql.txt
+This update is cumulative Updates 3.0.1 to 3.3.0 It may be reinstalled in case of modified files by error
+
 --- Wampserver 3.2.9
 - Improvement of PHP FCGI support
 - Improved wampmanager.ini file management
@@ -7,8 +16,6 @@ Changelog
 - Adds a startup initialization screen.
 - Display at startup all Actifs and Inactifs services.
 - Fix minor bug
-To use or unactive MariaDB or MySQL, read the file mariadb_mysql.txt
-This update is cumulative Updates 3.0.1 to 3.2.8. It may be reinstalled in case of modified files by error
 
 --- Wampserver 3.2.8
 - Fix minor bug

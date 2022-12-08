@@ -44,6 +44,48 @@ if(!empty($wampConf['installVersion'])) {
 			$c_wampVersionUpdate .= 'Updated to '.$c_wampVersion.' on '.$wampConf['update'.$c_wampVersion];
 	}
 }
+
+//Retrieve Windows charset
+/*
+--- Normal (French Windows)
+Text_Encoding=Array
+(
+    [IsSingleByte] => True
+    [BodyName] => iso-8859-1
+    [EncodingName] => Europe de l'Ouest (Windows)
+    [HeaderName] => Windows-1252
+    [WebName] => Windows-1252
+    [WindowsCodePage] => 1252
+    [CodePage] => 1252
+    [LocaleCtype] => 1252
+)
+--- With beta utf-8 checked in Configuration Panel
+--- Region -> Administration -> Change regional settings
+--- Beta: Use Unicode UTF-8 format for global language support
+Text_Encoding=
+Array
+(
+    [IsSingleByte] => False
+    [BodyName] => utf-8
+    [EncodingName] => Unicode (UTF-8)
+    [HeaderName] => utf-8
+    [WebName] => utf-8
+    [WindowsCodePage] => 1200
+    [CodePage] => 65001
+    [LocaleCtype] => 1252
+*/
+$Windows_Charset = '';
+$Text_Encoding = array('IsSingleByte' => '','BodyName' => '','EncodingName' => '','HeaderName' => '','WebName' => '','WindowsCodePage' => '', 'CodePage' => '');
+$command = 'CMD /D /C powershell [System.Text.Encoding]::Default';
+$output = `$command`;
+foreach($Text_Encoding as $key => $value) {
+	if(preg_match('~^'.$key.'\s+:\s+(.+)~mi',$output,$matches) === 1) {
+		$Text_Encoding[$key] = $matches[1];
+	}
+}
+$Text_Encoding['LocaleCtype']= trim(strstr(setlocale(LC_CTYPE,''),'.'),'.');
+$Windows_Charset = 'Windows-'.$Text_Encoding['LocaleCtype'];
+
 //To be able to launch projects by IP instead of localhost
 //http://169.254.x.y/myproject/ instead of http://localhost/myproject/
 $c_local_host = gethostname();
@@ -52,7 +94,7 @@ $c_local_ip = (($c_local_host !== false) ? gethostbyname($c_local_host) : 'local
 // See Message For information items in configuration submenus
 $seeInfoMessage = true;
 
-//For Windows 10 and Edge it is not the same as for other browsers
+//For Windows 10 and Edge it is not the same as for other browsers
 //It is not complete path to browser with parameter http://website/
 //but by 'cmd.exe /c "start /b Microsoft-Edge:http://website/"'
 $c_edge = "";
@@ -189,9 +231,9 @@ if($wampConf['BackupHosts'] == 'on') {
 //dll to create symbolic links from php to apache/bin
 //Versions of ICU are 38, 40, 42, 44, 46, 48 to 57, 60 (PHP 7.2), 61 (PHP 7.2.5)
 // 62 (PHP 7.2.8), 63 (PHP 7.2.12), 64 (PHP 7.2.20), 65 (PHP 7.4.0), 66 (PHP 7.4.6)
-// 67, 68 (PHP 8.0.0), 70 (PHP 8.1.0)
+// 67, 68 (PHP 8.0.0), 70 (PHP 8.1.0), 71 (PHP 8.2.0)
 $icu = array(
-	'number' => array('70', '68', '67', '66', '65','64', '63', '62', '61', '60', '57', '56', '55', '54', '53', '52', '51', '50', '49', '48', '46', '44', '42', '40', '38'),
+	'number' => array('71', '70', '68', '67', '66', '65','64', '63', '62', '61', '60', '57', '56', '55', '54', '53', '52', '51', '50', '49', '48', '46', '44', '42', '40', '38'),
 	'name' => array('icudt', 'icuin', 'icuio', 'icule', 'iculx', 'icutest', 'icutu', 'icuuc'),
 	);
 $php_icu_dll = array();
@@ -220,10 +262,16 @@ $phpDllToCopy = array_merge(
 	)
 );
 
-//Existing dlls in apache/bin and in php
-//symbolic links created only if
-//'apachePhpCurlDll' is on in wampmanager.conf
-$phpDllApacheDll = array (
+//SSL 3 for PHP 8.2.0 extensions curl, ldap, openssl, snmp
+$php820_DllToCopy = array(
+	'libcrypto-3-x64.dll',
+	'libssl-3-x64.dll',
+	'libcrypto-3.dll',
+	'libssl-3.dll',
+);
+
+//SSL 1 for PHP < 8.2.0
+$phpN820_DllToCopy = array(
 	'libcrypto-1_1-x64.dll',
 	'libssl-1_1-x64.dll',
 	'libcrypto-1_1.dll',
@@ -679,6 +727,8 @@ $wamp_Param = array(
 	'HomepageAtStartup',
 	'BackupHosts',
 	'ScrollListsHomePage',
+	'##WampserverBrowser',
+	'###BrowserChange',
 	'##CheckVirtualHost',
 	'NotCheckVirtualHost',
 	'NotCheckDuplicate',
@@ -686,7 +736,6 @@ $wamp_Param = array(
 	'##ApacheWampParams', //do not modify - submenu ApacheWampParams is used in Apache configuration
 	'apacheRestoreFiles',
 	'apacheCompareVersion',
-	'apachePhpCurlDll',
 	'###apacheGracefulRestart',
 	'##Cleaning',
 	'AutoCleanLogs',
@@ -743,9 +792,17 @@ $wampParamsNotOnOff = array(
 		'dependance' => 'LinksOnProjectsHomePage',
 		'title' => 'OnOff',
 		),
+	'WampserverBrowser' => array(
+		'change' => false,
+	),
+	'BrowserChange' => array(
+		'change' => true,
+		'title' => 'Special',
+		'quoted' => true,
+	),
 );
 
-//Parameter servitude muts be off if first parameter is off
+//Parameter servitude must be off if first parameter is off
 $WampParamServitude = array(
 	'LinksOnProjectsHomePage' => array(
 	'servitude' => 'LinksOnProjectsHomeByIp',
@@ -845,6 +902,7 @@ $AesTextMenuColor = array(
 	array('[FCGI-','$F8F8F8','$F8F8F7','$FF0000',2),
 	array('[IDNA-','$F8F8F8','$F8F8F7','$FF0000',2),
 	array('[HTTPS]','$F8F8F8','$F8F8F7','$FF0000',2),
+	array('[FCGI ->','$F8F8F8','$F8F8F7','$FF0000',0),
 	array('[FCGI - CLI]','$F8F8F8','$F8F8F7','$FF0000',0),
 	array('$w_settings[DaredevilOptions]','$FFFFFF','$FFFFFE','$0000FF',0),
 	array('$w_apache_restore','$FFFFFF','$EEEEEE','$FF0000',2),

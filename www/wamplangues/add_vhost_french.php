@@ -8,6 +8,7 @@
 //      - modifyAlias - StartAlias - ModifiedAlias - NoModifyAlias - HoweverAlias
 //    modifiés: VirtualHostPort - Start - VirtualCreated - However - HoweverWamp
 //    array $langues_help ajouté.
+//3.3.0 - Modification des lignes FcgidInitialEnv
 
 $langues = array(
 	'langue' => 'Français',
@@ -115,7 +116,7 @@ Cette même page 'http://localhost/add_vhost.php' permet également, via le Form
 Pour ajouter le mode FCGI à un VirtualHost déjà existant, il suffit d'ajouter les directives suivantes, juste avant la fin </VirtualHost> de ce VirtualHost:
   <IfModule fcgid_module>
     Define FCGIPHPVERSION "7.4.27"
-    FcgidInitialEnv PHPRC ${PHPROOT}${FCGIPHPVERSION}
+    FcgidInitialEnv PHPRC "${PHPROOT}${FCGIPHPVERSION}/php.ini"
     <Files ~ "\.php$">
       Options +Indexes +Includes +FollowSymLinks +MultiViews +ExecCGI
       AddHandler fcgid-script .php
@@ -129,7 +130,8 @@ La version PHP doit exister comme addon PHP dans votre Wampserver et peut être 
 Pour les Alias, c'est un petit peu moins simple, il faut ajouter les lignes précédentes en deux parties, la première partie :
 <IfModule fcgid_module>
   Define FCGIPHPVERSION "7.4.27"
-  FcgidInitialEnv PHPRC ${PHPROOT}${FCGIPHPVERSION}
+  FcgidCmdOptions ${PHPROOT}${FCGIPHPVERSION}/php-cgi.exe \
+  InitialEnv PHPRC=${PHPROOT}${FCGIPHPVERSION}/php.ini
 </IfModule>
 juste avant la directive <Directory...
 La seconde partie :
@@ -144,7 +146,8 @@ La seconde partie :
 Alias /myalias "g:/www/mydir/"
 <IfModule fcgid_module>
   Define FCGIPHPVERSION "7.4.27"
-  FcgidInitialEnv PHPRC ${PHPROOT}${FCGIPHPVERSION}
+  FcgidCmdOptions ${PHPROOT}${FCGIPHPVERSION}/php-cgi.exe \
+  InitialEnv PHPRC=${PHPROOT}${FCGIPHPVERSION}/php.ini
 </IfModule>
 <Directory "g:/www/mydir/">
   Options Indexes FollowSymLinks

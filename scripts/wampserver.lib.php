@@ -1,5 +1,5 @@
 <?php
-//3.2.9 GetAliasVersions & GetPhpLoadedExtensions modified
+//3.3.0 Fix ServerName not in hosts file error in check_virtualhost function
 
 if(!defined('WAMPTRACE_PROCESS')) require 'config.trace.php';
 if(WAMPTRACE_PROCESS) {
@@ -158,14 +158,25 @@ function checkMariaDBConf($baseDir,$version,$racine) {
 }
 
 function linkPhpDllToApacheBin($php_version) {
-	global $phpDllToCopy, $phpDllApacheDll, $c_phpVersionDir, $c_apacheVersionDir, $wampConf, $phpConfFileForApache;
+	global $phpDllToCopy, $php820_DllToCopy, $phpN820_DllToCopy, $c_phpVersionDir, $c_apacheVersionDir, $wampConf, $phpConfFileForApache;
 	if(WAMPTRACE_PROCESS) error_log("function ".__FUNCTION__." - php_version=".$php_version."\n",3,WAMPTRACE_FILE);
 	$errorTxt = '';
 	//Create symbolic link or copy dll's files
 	clearstatcache();
+	//Check if PHP version is >= 8.2.0
+	if(version_compare($php_version, '8.2.0', '>=')) {
+		$phpDllToCopy = array_unique(array_merge($phpDllToCopy,$php820_DllToCopy));
+		$phpDllAdded = $php820_DllToCopy;
+	}
+	else {
+		$phpDllToCopy = array_unique(array_merge($phpDllToCopy,$phpN820_DllToCopy));
+		$phpDllAdded = $phpN820_DllToCopy;
+	}
 	foreach ($phpDllToCopy as $dll)	{
 		$target = $c_phpVersionDir.'/php'.$php_version.'/'.$dll;
 		$link = $c_apacheVersionDir.'/apache'.$wampConf['apacheVersion'].'/'.$wampConf['apacheExeDir'].'/'.$dll;
+		//dll already exists and it is ssl file, do nothing
+		if(is_file($link) && in_array($dll,$phpDllAdded)) continue;
 		//File or symlink deleted if exists
 		if(is_file($link) || is_link($link)) {
 			unlink($link);
@@ -180,50 +191,6 @@ function linkPhpDllToApacheBin($php_version) {
 			elseif($wampConf['CreateSymlink'] == 'copy') {
 				if(copy($target, $link) === false) {
 					$errorTxt .= "Error while copy '".$target."' to '".$link."' using php copy() function\n";
-				}
-			}
-		}
-	}
-	//Create symbolic link for php and Apache curl dll if needed
-	//Save original Apache dll file
-	if($wampConf['apachePhpCurlDll'] == 'on') {
-		foreach ($phpDllApacheDll as $dll)	{
-			$target = $c_phpVersionDir.'/php'.$php_version.'/'.$dll;
-			$link = $c_apacheVersionDir.'/apache'.$wampConf['apacheVersion'].'/'.$wampConf['apacheExeDir'].'/'.$dll;
-			//File saved with .original extension or symlink deleted if exists
-			if(is_link($link)) {
-				unlink($link);
-			}
-			elseif(is_file($link)) {
-				if(rename($link,$link.'.original') === false) {
-					$errorTxt .= "Error while renaming file '".$link."' to '".$link.".original' using php rename function\n";
-				}
-			}
-			//Symlink created if file exists in phpx.y.z directory
-			if($wampConf['CreateSymlink'] == 'symlink') {
-				if(is_file($target)) {
-					if(symlink($target, $link) === false) {
-						$errorTxt .= "Error while creating symlink '".$link."' to '".$target."' using php symlink function\n";
-					}
-				}
-			}
-			elseif($wampConf['CreateSymlink'] == 'copy') {
-				if(copy($target, $link) === false) {
-					$errorTxt .= "Error while copy '".$target."' to '".$link."' using php copy() function\n";
-				}
-			}
-		}
-	}
-	else { // Restore original Apache curl dll's if exist
-		foreach ($phpDllApacheDll as $dll) {
-			$target = $c_phpVersionDir.'/php'.$php_version.'/'.$dll;
-			$original = $c_apacheVersionDir.'/apache'.$wampConf['apacheVersion'].'/'.$wampConf['apacheExeDir'].'/'.$dll.'.original';
-			$link = $c_apacheVersionDir.'/apache'.$wampConf['apacheVersion'].'/'.$wampConf['apacheExeDir'].'/'.$dll;
-			//link or file deleted if file with .original extension exist then file renamed
-			if((is_link($link) || is_file($link)) && file_exists($original)) {
-				unlink($link);
-				if(rename($original,$link) === false) {
-					$errorTxt .= "Error while renaming file '".$original."' to '".$link."' using php rename function\n";
 				}
 			}
 		}
@@ -256,14 +223,24 @@ function linkPhpDllToApacheBin($php_version) {
 }
 
 function CheckSymlink($php_version) {
-	global $phpDllToCopy, $phpDllApacheDll, $c_phpVersionDir, $c_apacheVersionDir, $wampConf, $phpConfFileForApache;
+	global $phpDllToCopy, $php820_DllToCopy, $phpN820_DllToCopy, $c_phpVersionDir, $c_apacheVersionDir, $wampConf, $phpConfFileForApache;
 	if(WAMPTRACE_PROCESS) error_log("function ".__FUNCTION__."\n",3,WAMPTRACE_FILE);
 	$errorTxt = '';
 	//Check if necessary symlinks exists
 	clearstatcache();
+	//Check if PHP version is >= 8.2.0
+	if(version_compare($php_version, '8.2.0', '>=')) {
+		$phpDllToCopy = array_unique(array_merge($phpDllToCopy,$php820_DllToCopy));
+		$phpDllAdded = $php820_DllToCopy;
+	}
+	else {
+		$phpDllToCopy = array_unique(array_merge($phpDllToCopy,$phpN820_DllToCopy));
+		$phpDllAdded = $phpN820_DllToCopy;
+	}
 	foreach ($phpDllToCopy as $dll)	{
 		$target = $c_phpVersionDir.'/php'.$php_version.'/'.$dll;
 		$link = $c_apacheVersionDir.'/apache'.$wampConf['apacheVersion'].'/'.$wampConf['apacheExeDir'].'/'.$dll;
+		if(is_file($link) && in_array($dll,$phpDllAdded)) continue;
 		//Check Symlink if file exists in phpx.y.z directory
 		if(is_file($target)) {
 			if(is_link($link)) {
@@ -278,28 +255,6 @@ function CheckSymlink($php_version) {
 			}
 			else {
 				$errorTxt .= "Symbolic link ".$link." does not exist\n";
-			}
-		}
-	}
-	//Check symbolic link for php and Apache curl dll if needed
-	if($wampConf['apachePhpCurlDll'] == 'on') {
-		foreach ($phpDllApacheDll as $dll)	{
-			$target = $c_phpVersionDir.'/php'.$php_version.'/'.$dll;
-			$link = $c_apacheVersionDir.'/apache'.$wampConf['apacheVersion'].'/'.$wampConf['apacheExeDir'].'/'.$dll;
-			//Check Symlink if file exists in phpx.y.z directory
-			if(is_file($target)) {
-				if(is_link($link)) {
-					$real_link = str_replace("\\", "/",readlink($link));
-					if(strtolower($real_link) != strtolower($target)) {
-						$errorTxt .= "Symbolic link ".$link."\n      is: ".$real_link."\nshould be ".$target."\n\n";
-					}
-				}
-				elseif(is_file($link)) {
-					$errorTxt .= "File ".$link." exists.\nShould be a symbolic link\n";
-				}
-				else {
-					$errorTxt .= "Symbolic link ".$link." does not exist\n";
-				}
 			}
 		}
 	}
@@ -332,6 +287,8 @@ function CheckSymlink($php_version) {
 }
 
 function switchPhpVersion($newPhpVersion) {
+	global $phpDllToCopy, $php820_DllToCopy, $phpN820_DllToCopy;
+
 	require 'config.inc.php';
 	if(WAMPTRACE_PROCESS) error_log("function ".__FUNCTION__." ".$newPhpVersion."\n",3,WAMPTRACE_FILE);
 
@@ -358,6 +315,16 @@ function switchPhpVersion($newPhpVersion) {
 		}
 	}
 	unset($httpdFileContents);
+
+	//Check if new or old PHP version is >= 8.2.0
+	if(version_compare($newPhpVersion, '8.2.0', '>=') || version_compare($c_phpVersion, '8.2.0', '>=')) {
+		$phpDllToCopy = array_unique(array_merge($phpDllToCopy,$php820_DllToCopy));
+		$phpDllAdded = $php820_DllToCopy;
+	}
+	else {
+		$phpDllToCopy = array_unique(array_merge($phpDllToCopy,$phpN820_DllToCopy));
+		$phpDllAdded = $phpN820_DllToCopy;
+	}
 
 	//modifying the conf of WampServer
 	$wampIniNewContents['phpIniDir'] = $phpConf['phpIniDir'];
@@ -591,7 +558,9 @@ function check_virtualhost($check_files_only = false) {
 		'nb_End_Directory' => 0,
 		'directoryPath' => array(),
 		'directoryPathValid' => array(),
+		'directoryPathSlashEnded' => array(),
 		'directory' => true,
+		'directorySlash' => true,
 		'port_number' => true,
 		'nb_duplicate' => 0,
 		'duplicate' => array(),
@@ -696,6 +665,13 @@ function check_virtualhost($check_files_only = false) {
 		}
 		else
 			$virtualHost['directoryPathValid'][$chemin] = true;
+		//Check Directory path ended with slash
+		if(substr($chemin,-1) != '/') {
+			$virtualHost['directoryPathSlashEnded'][$chemin] = false;
+			$virtualHost['directorySlash'] = false;
+		}
+		else
+			$virtualHost['directoryPathSlashEnded'][$chemin] = true;
 	}
 
 	//Check validity of ServerName
@@ -773,7 +749,7 @@ function check_virtualhost($check_files_only = false) {
 			}
 		}
 	//Check ServerName into hosts file
-	if(stripos($myHostsContents, $value_ori) === false && $wampConf['NotCheckVirtualHost'] =='off')
+	if(stripos($myHostsContents, $value) === false && $wampConf['NotCheckVirtualHost'] =='off')
 		$virtualHost['ServerNameIntoHosts'][$value] = false;
 	} //End for
 
@@ -836,13 +812,13 @@ function check_virtualhost($check_files_only = false) {
 		$virtualHost['ServerNameFcgidPHPOK'][$value] = false;
 		$p_value = preg_quote($value);
 		//Extract <VirtualHost... </VirtualHost>
-		$mask = "{
-			<VirtualHost                        # beginning of VirtualHost
+		$mask = "~
+			<VirtualHost                         # beginning of VirtualHost
 			[^<]*(?:<(?!/VirtualHost)[^<]*)*     # avoid premature end
-			\n\s*ServerName\s+${p_value}\s*\n    # Test server name
+			\n\s*ServerName\s+{$p_value}\s*\n    # Test server name
 			.*?                                  # we stop as soon as possible
-			</VirtualHost\>\s*\n                # end of VirtualHost
-			}isx";
+			</VirtualHost\>\s*\n                 # end of VirtualHost
+			~isx";
 		if(preg_match($mask,$myVhostsContents,$matches) === 1) {
 			//Check if VirtualHost use <IfModule fcgid_module> not commented
 			//if(strpos($matches[0],'<IfModule fcgid_module>') !== false) {
@@ -883,7 +859,7 @@ function check_virtualhost($check_files_only = false) {
 		foreach($virtualHost['ServerNameHttps'] as $value) {
 			//Extract Define SERVERNAMEVHOSTSSL ... </VirtualHost>
 			$p_value = preg_quote($value);
-			$mask = "~^Define SERVERNAMEVHOSTSSL ${p_value}.*?</VirtualHost>\r?$~mis";
+			$mask = "~^Define SERVERNAMEVHOSTSSL {$p_value}.*?</VirtualHost>\r?$~mis";
 			if(preg_match($mask,$httpdsslFileContents,$matches) !== 1) continue;
 			//Check if there is FCGI PHP used in https vhost
 			$virtualHost['ServerNameHttpsFcgid'][$value] = false;
@@ -1394,9 +1370,10 @@ function GetAliasVersions(){
 							//PHP version used is $matches_fcgi[1]
 							$Alias_Contents[$matches[1]]['fcgidPHP'] = $phpFcgiVersionList[] = $matches_fcgi[1];
 							$phpFcgiVersionListUsed[$matches_fcgi[1]][] = 'phpmyadmin'.$matches[2];
+							$Alias_Contents[$matches[1]]['fcgiaff'] = '';
 							if(in_array($Alias_Contents[$matches[1]]['fcgidPHP'],$phpVersionList))
 								$Alias_Contents[$matches[1]]['fcgidPHPOK'] = true;
-								$Alias_Contents[$matches[1]]['fcgiaff'] = ' [FCGI -> PHP '.$Alias_Contents[$matches[1]]['fcgidPHP'].']';
+								$Alias_Contents[$matches[1]]['fcgiaff'] .= ' #13 [FCGI -> PHP '.$Alias_Contents[$matches[1]]['fcgidPHP'].']';
 						}
 					}
 				}
@@ -1465,7 +1442,7 @@ Action: run; FileName: "'.$c_phpExe.'";Parameters: "msg.php 11 '.base64_encode($
 						$phpFcgiVersionListUsed[$matches_fcgi[1]][] = 'adminer';
 						if(in_array($Alias_Contents['adminer']['fcgidPHP'],$phpVersionList)) {
 							$Alias_Contents['adminer']['fcgidPHPOK'] = true;
-							$Alias_Contents['adminer']['fcgiaff'] .= ' [FCGI -> PHP '.$Alias_Contents['adminer']['fcgidPHP'].']';
+							$Alias_Contents['adminer']['fcgiaff'] .= ' #13 [FCGI -> PHP '.$Alias_Contents['adminer']['fcgidPHP'].']';
 						}
 					}
 				}
@@ -1499,7 +1476,7 @@ Action: run; FileName: "'.$c_phpExe.'";Parameters: "msg.php 11 '.base64_encode($
 						$phpFcgiVersionListUsed[$matches_fcgi[1]][] = 'phpsysinfo';
 						if(in_array($Alias_Contents['phpsysinfo']['fcgidPHP'],$phpVersionList)) {
 							$Alias_Contents['phpsysinfo']['fcgidPHPOK'] = true;
-							$Alias_Contents['phpsysinfo']['fcgiaff'] .= ' [FCGI -> PHP '.$Alias_Contents['phpsysinfo']['fcgidPHP'].']';
+							$Alias_Contents['phpsysinfo']['fcgiaff'] .= ' #13 [FCGI -> PHP '.$Alias_Contents['phpsysinfo']['fcgidPHP'].']';
 						}
 					}
 				}
@@ -1531,7 +1508,7 @@ Action: run; FileName: "'.$c_phpExe.'";Parameters: "msg.php 11 '.base64_encode($
 								$phpFcgiVersionListUsed[$matches_fcgi[1]][] = $aliasName;
 								if(in_array($Alias_Contents[$aliasName]['fcgidPHP'],$phpVersionList)) {
 									$Alias_Contents[$aliasName]['fcgidPHPOK'] = true;
-									$Alias_Contents[$aliasName]['fcgiaff'] .= ' [FCGI -> PHP '.$Alias_Contents[$aliasName]['fcgidPHP'].']';
+									$Alias_Contents[$aliasName]['fcgiaff'] .= ' #13 [FCGI -> PHP '.$Alias_Contents[$aliasName]['fcgidPHP'].']';
 								}
 							}
 						}
@@ -1637,7 +1614,7 @@ function GetPhpVersionsUsage($modeWeb = true, $doReport = false){
 		$Used = $ModeFCGI = $usedTxt = false;
 		$Usage = $UsageFCGI = '';
 		if(strpos($PhpUsed,'CLI')) {
-			$Usage .= " used as ".(($modeWeb) ? "<span style='color:red;'>CLI</span>" : color('red','CLI'));
+			$Usage .= " used for ".(($modeWeb) ? "<span style='color:red;'>Wampserver internal PHP scripts</span> " : color('red','Wampserver internal PHP scripts'));
 			$PhpUsed = str_replace('CLI','',$PhpUsed);
 			$Used = $usedTxt = true;
 		}

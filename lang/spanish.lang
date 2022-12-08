@@ -1,5 +1,8 @@
 <?php
 
+//3.2.10  $file_charset
+
+$file_charset = 'iso-8859-1';
 
 $w_allServicesRunning = 'Todos los servicios estan ejecutandose';
 $w_oneServiceRunning = '%n de %t servicios se estan ejecutando';
@@ -18,9 +21,9 @@ $w_phpmyadmin = 'phpMyAdmin';
 $w_sqlitemanager = 'SQLiteManager';
 $w_wwwDirectory = 'directorio www';
 $w_logFiles = 'Registros';
-$w_configFiles = 'Configuración';
-$w_apacheModules = 'Módulos de Apache';
-$w_phpSettings = 'Configuración de PHP';
+$w_configFiles = 'Configuraci?n';
+$w_apacheModules = 'M?dulos de Apache';
+$w_phpSettings = 'Configuraci?n de PHP';
 $w_aliasDirectories = 'Directorios Alias';
 $w_services = 'Servicios';
 $w_apache = 'Apache';
@@ -38,7 +41,7 @@ $w_mysqlLog = 'MySQL log';
 $w_addAlias = 'Agregar un alias';
 $w_refresh = 'Refrescar';
 $w_phpExtensions = 'Extensiones de PHP';
-$w_addExtension = 'Agregar extensión';
+$w_addExtension = 'Agregar extensi?n';
 
 $w_startResume = 'Iniciar/Continuar Servicio';
 $w_pauseService = 'Pausar Servicio';

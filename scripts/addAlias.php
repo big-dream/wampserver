@@ -79,8 +79,8 @@ if(empty($newAliasDest)) {
 }
 
 $newConfFileContents = <<< ALIASEOF
-Alias /${newAliasDir} "${newAliasDest}"
-<Directory "${newAliasDest}">
+Alias /{$newAliasDir} "{$newAliasDest}"
+<Directory "{$newAliasDest}">
 	Options +Indexes +FollowSymLinks +MultiViews
   AllowOverride all
 	Require local

@@ -24,33 +24,33 @@ $myPattern = ';WAMPMARIADBMENUSTART';
 $DBMSFooter = '';
 if($nbDBMS > 1 && $DBMSdefault !== 'mariadb') {
 	$DBMSFooter = <<< EOF
-Type: separator; Caption: "${w_defaultDBMS} ${DefaultDBMS}"
-Type: item; Caption: "${w_help} -> MariaDB - MySQL"; Action: run; Filename: "%Windows%\Notepad.exe"; Parameters: "%AeTrayMenuPath%\mariadb_mysql.txt"; ShowCmd: Normal; Glyph: 31
+Type: separator; Caption: "{$w_defaultDBMS} {$DefaultDBMS}"
+Type: item; Caption: "{$w_help} -> MariaDB - MySQL"; Action: run; Filename: "%Windows%\Notepad.exe"; Parameters: "%AeTrayMenuPath%\mariadb_mysql.txt"; ShowCmd: Normal; Glyph: 31
 EOF;
 	$DBMSHeader = <<< EOF
-Type: separator; Caption: "MariaDB ${c_mariadbVersion}"
+Type: separator; Caption: "MariaDB {$c_mariadbVersion}"
 EOF;
 }
 else {
 	$DBMSHeader = <<< EOF
-Type: separator; Caption: "MariaDB ${c_mariadbVersion}  (${w_defaultDBMS})"
+Type: separator; Caption: "MariaDB {$c_mariadbVersion}  ({$w_defaultDBMS})"
 EOF;
 }$myreplace = <<< EOF
 ;WAMPMARIADBMENUSTART
-${DBMSHeader}
-Type: submenu; Caption: "${w_version}"; SubMenu: mariadbVersion; Glyph: 3
-Type: servicesubmenu; Caption: "${w_service} '${c_mariadbService}'"; Service: ${c_mariadbService}; SubMenu: mariadbService
-Type: submenu; Caption: "${w_mariaSettings}"; SubMenu: mariadb_params; Glyph: 25
-Type: item; Caption: "${w_mariadbConsole}"; Action: run; FileName: "${c_mariadbConsole}";Parameters: "-u %MariaUser% -p"; Glyph: 0
-Type: separator; Caption: "${w_helpFile}";
-Type: item; Caption: "my.ini"; Glyph: 6; Action: run; FileName: "${c_editor}"; parameters: "${c_mariadbConfFile}"
-Type: item; Caption: "${w_mariadbLog}	(${logFilesSize['mariadb.log']})"; Glyph: 6; Action: run; FileName: "${c_logviewer}"; parameters: "${c_installDir}/${logDir}mariadb.log"
-Type: item; Caption: "${w_mariadbDoc}"; Action: run; FileName: "${c_navigator}"; Parameters: "${c_edge}http://mariadb.com/kb/en/mariadb/documentation"; Glyph: 35
-${MariaTestPortUsed}Type: separator; Caption: "${w_portUsedMaria}${c_UsedMariaPort}"
-${TestPort3306}${MariaTestPortUsed}Type: item; Caption: "${w_testPortMysql}"; Action: run; FileName: "${c_phpExe}"; Parameters: "testPort.php 3306 ${c_mariadbService}";WorkingDir: "$c_installDir/scripts"; Flags: waituntilterminated; Glyph: 24
-${MariaTestPortUsed}Type: item; Caption: "${w_AlternateMariaPort}"; Action: multi; Actions: UseAlternateMariaPort; Glyph: 24
-${MariaTestPortUsed}Type: item; Caption: "${w_testPortMariaUsed}${c_UsedMariaPort}"; Action: run; FileName: "${c_phpExe}"; Parameters: "testPort.php ${c_UsedMariaPort} ${c_mariadbService}";WorkingDir: "$c_installDir/scripts"; Flags: waituntilterminated; Glyph: 24
-${DBMSFooter}
+{$DBMSHeader}
+Type: submenu; Caption: "{$w_version}"; SubMenu: mariadbVersion; Glyph: 3
+Type: servicesubmenu; Caption: "{$w_service} '{$c_mariadbService}'"; Service: {$c_mariadbService}; SubMenu: mariadbService
+Type: submenu; Caption: "{$w_mariaSettings}"; SubMenu: mariadb_params; Glyph: 25
+Type: item; Caption: "{$w_mariadbConsole}"; Action: run; FileName: "{$c_mariadbConsole}";Parameters: "-u %MariaUser% -p"; Glyph: 0
+Type: separator; Caption: "{$w_helpFile}";
+Type: item; Caption: "my.ini"; Glyph: 6; Action: run; FileName: "{$c_editor}"; parameters: "{$c_mariadbConfFile}"
+Type: item; Caption: "{$w_mariadbLog}	({$logFilesSize['mariadb.log']})"; Glyph: 6; Action: run; FileName: "{$c_logviewer}"; parameters: "{$c_installDir}/{$logDir}mariadb.log"
+Type: item; Caption: "{$w_mariadbDoc}"; Action: run; FileName: "{$c_navigator}"; Parameters: "{$c_edge}http://mariadb.com/kb/en/mariadb/documentation"; Glyph: 35
+{$MariaTestPortUsed}Type: separator; Caption: "{$w_portUsedMaria}{$c_UsedMariaPort}"
+{$TestPort3306}{$MariaTestPortUsed}Type: item; Caption: "{$w_testPortMysql}"; Action: run; FileName: "{$c_phpExe}"; Parameters: "testPort.php 3306 {$c_mariadbService}";WorkingDir: "$c_installDir/scripts"; Flags: waituntilterminated; Glyph: 24
+{$MariaTestPortUsed}Type: item; Caption: "{$w_AlternateMariaPort}"; Action: multi; Actions: UseAlternateMariaPort; Glyph: 24
+{$MariaTestPortUsed}Type: item; Caption: "{$w_testPortMariaUsed}{$c_UsedMariaPort}"; Action: run; FileName: "{$c_phpExe}"; Parameters: "testPort.php {$c_UsedMariaPort} {$c_mariadbService}";WorkingDir: "$c_installDir/scripts"; Flags: waituntilterminated; Glyph: 24
+{$DBMSFooter}
 EOF;
 $tpl = str_replace($myPattern,$myreplace,$tpl);
 
@@ -60,12 +60,12 @@ $myreplace = <<< EOF
 ;WAMPMARIADBSERVICESTART
 [MariaDBService]
 Type: separator; Caption: "MariaDB"
-Type: item; Caption: "${w_startResume}"; Action: service; Service: ${c_mariadbService}; ServiceAction: startresume; Flags: ignoreerrors waituntilterminated; Glyph: 9
-Type: item; Caption: "${w_stopService}"; Action: service; Service: ${c_mariadbService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated; Glyph: 11
-Type: item; Caption: "${w_restartService}"; Action: service; Service: ${c_mariadbService}; ServiceAction: restart; Flags: ignoreerrors waituntilterminated; Glyph: 12
+Type: item; Caption: "{$w_startResume}"; Action: service; Service: {$c_mariadbService}; ServiceAction: startresume; Flags: ignoreerrors waituntilterminated; Glyph: 9
+Type: item; Caption: "{$w_stopService}"; Action: service; Service: {$c_mariadbService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated; Glyph: 11
+Type: item; Caption: "{$w_restartService}"; Action: service; Service: {$c_mariadbService}; ServiceAction: restart; Flags: ignoreerrors waituntilterminated; Glyph: 12
 Type: separator
-Type: item; Caption: "${w_installService}"; Action: multi; Actions: MariaDBServiceInstall; Glyph: 8
-Type: item; Caption: "${w_removeService}"; Action: multi; Actions: MariaDBServiceRemove; Glyph: 26
+Type: item; Caption: "{$w_installService}"; Action: multi; Actions: MariaDBServiceInstall; Glyph: 8
+Type: item; Caption: "{$w_removeService}"; Action: multi; Actions: MariaDBServiceRemove; Glyph: 26
 EOF;
 $tpl = str_replace($myPattern,$myreplace,$tpl);
 
@@ -73,8 +73,8 @@ $myPattern = ';WAMPMARIADBSERVICEINSTALLSTART';
 $myreplace = <<< EOF
 ;WAMPMARIADBSERVICEINSTALLSTART
 [MariaDBServiceInstall]
-{$mariaMysqlService}Action: run; FileName: "${c_mariadbExe}"; Parameters: "${c_mariadbServiceInstallParams}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
-{$mariaCmdScService}Action: run; FileName: "CMD"; Parameters: "/D /C sc create ${c_mariadbService} binpath=""${c_mariadbExeAnti} --defaults-file=${c_mariadbConfFileAnti} ${c_mariadbService}"""; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
+{$mariaMysqlService}Action: run; FileName: "{$c_mariadbExe}"; Parameters: "{$c_mariadbServiceInstallParams}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
+{$mariaCmdScService}Action: run; FileName: "CMD"; Parameters: "/D /C sc create {$c_mariadbService} binpath=""{$c_mariadbExeAnti} --defaults-file={$c_mariadbConfFileAnti} {$c_mariadbService}"""; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
 Action: resetservices
 Action: readconfig
 EOF;
@@ -84,9 +84,9 @@ $myPattern = ';WAMPMARIADBSERVICEREMOVESTART';
 $myreplace = <<< EOF
 ;WAMPMARIADBSERVICEREMOVESTART
 [MariaDBServiceRemove]
-Action: service; Service: ${c_mariadbService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated
-{$mariaMysqlService}Action: run; FileName: "${c_mariadbExe}"; Parameters: "${c_mariadbServiceRemoveParams}"; ShowCmd: hidden; Flags: waituntilterminated
-{$mariaCmdScService}Action: run; FileName: "CMD"; Parameters: "/D /C sc delete ${c_mariadbService}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
+Action: service; Service: {$c_mariadbService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated
+{$mariaMysqlService}Action: run; FileName: "{$c_mariadbExe}"; Parameters: "{$c_mariadbServiceRemoveParams}"; ShowCmd: hidden; Flags: waituntilterminated
+{$mariaCmdScService}Action: run; FileName: "CMD"; Parameters: "/D /C sc delete {$c_mariadbService}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
 Action: resetservices
 Action: readconfig
 EOF;
@@ -97,10 +97,10 @@ $myPattern = ';WAMPALTERNATEMARIAPORTSTART';
 $myreplace = <<< EOF
 ;WAMPALTERNATEMARIAPORTSTART
 [UseAlternateMariaPort]
-Action: service; Service: ${c_mariadbService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated
-Action: run; FileName: "${c_phpExe}"; Parameters: "switchMariaPort.php %MariaPort%";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-${Apache_Restart}
-Action: service; Service: ${c_mariadbService}; ServiceAction: startresume; Flags: ignoreerrors waituntilterminated
+Action: service; Service: {$c_mariadbService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated
+Action: run; FileName: "{$c_phpExe}"; Parameters: "switchMariaPort.php %MariaPort%";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
+{$Apache_Restart}
+Action: service; Service: {$c_mariadbService}; ServiceAction: startresume; Flags: ignoreerrors waituntilterminated
 Action: multi; Actions: refresh_readconfig; Flags:appendsection
 EOF;
 $tpl = str_replace($myPattern,$myreplace,$tpl);
@@ -111,7 +111,7 @@ if($MysqlMariaPromptBool) {
 	$myreplace = <<< EOF
 ;WAMPMARIADBUSECONSOLEPROMPTSTART
 [mariadbUseConsolePrompt]
-Action: run; FileName: "${c_phpExe}";Parameters: "switchWampParam.php mariadbUseConsolePrompt ${mariadbConsolePromptChange}"; WorkingDir: "$c_installDir/scripts"; Flags: waituntilterminated
+Action: run; FileName: "{$c_phpExe}";Parameters: "switchWampParam.php mariadbUseConsolePrompt {$mariadbConsolePromptChange}"; WorkingDir: "$c_installDir/scripts"; Flags: waituntilterminated
 Action: multi; Actions: apache_restart_refresh; Flags:appendsection
 EOF;
 	$tpl = str_replace($myPattern,$myreplace,$tpl);
@@ -121,11 +121,11 @@ EOF;
 $myPattern = ';WAMPMARIADBSUPPORTTOOLS';
 $myreplace = <<< EOF
 ;WAMPMARIADBSUPPORTTOOLS
-Type: separator; Caption: "${w_portUsedMaria}${c_UsedMariaPort}"
-${TestPort3306}Type: item; Caption: "${w_testPortMysql}"; Action: run; FileName: "${c_phpExe}"; Parameters: "testPort.php 3306 ${c_mariadbService}";WorkingDir: "$c_installDir/scripts"; Flags: waituntilterminated; Glyph: 24
-${MariaTestPortUsed}Type: item; Caption: "${w_testPortMariaUsed}${c_UsedMariaPort}"; Action: run; FileName: "${c_phpExe}"; Parameters: "testPort.php ${c_UsedMariaPort} ${c_mariadbService}";WorkingDir: "$c_installDir/scripts"; Flags: waituntilterminated; Glyph: 24
-Type: item; Caption: "${w_AlternateMariaPort}"; Action: multi; Actions: UseAlternateMariaPort; Glyph: 24
-${MysqlMariaPrompt}Type: item; Caption: "${w_settings['mariadbUseConsolePrompt']}: ${mariadbConsolePromptUsed}"; Glyph: 24; Action: multi; Actions: mariadbUseConsolePrompt
+Type: separator; Caption: "{$w_portUsedMaria}{$c_UsedMariaPort}"
+{$TestPort3306}Type: item; Caption: "{$w_testPortMysql}"; Action: run; FileName: "{$c_phpExe}"; Parameters: "testPort.php 3306 {$c_mariadbService}";WorkingDir: "$c_installDir/scripts"; Flags: waituntilterminated; Glyph: 24
+{$MariaTestPortUsed}Type: item; Caption: "{$w_testPortMariaUsed}{$c_UsedMariaPort}"; Action: run; FileName: "{$c_phpExe}"; Parameters: "testPort.php {$c_UsedMariaPort} {$c_mariadbService}";WorkingDir: "$c_installDir/scripts"; Flags: waituntilterminated; Glyph: 24
+Type: item; Caption: "{$w_AlternateMariaPort}"; Action: multi; Actions: UseAlternateMariaPort; Glyph: 24
+{$MysqlMariaPrompt}Type: item; Caption: "{$w_settings['mariadbUseConsolePrompt']}: {$mariadbConsolePromptUsed}"; Glyph: 24; Action: multi; Actions: mariadbUseConsolePrompt
 EOF;
 $tpl = str_replace($myPattern,$myreplace,$tpl);
 
@@ -172,27 +172,27 @@ foreach ($mariadbVersionList as $oneMariaDBVersion) {
 ';
 
     $mareplacemenu .= <<< EOF
-[switchMariaDB${oneMariaDBVersion}]
+[switchMariaDB{$oneMariaDBVersion}]
 Action: closeservices; Flags: ignoreerrors
-Action: service; Service: ${c_mariadbService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated
-Action: run; FileName: "CMD"; Parameters: "/D /C net stop ${c_mariadbService}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
-{$mariaMysqlService}Action: run; FileName: "${c_mariadbExe}"; Parameters: "${c_mariadbServiceRemoveParams}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
-{$mariaCmdScService}Action: run; FileName: "CMD"; Parameters: "/D /C sc delete ${c_mariadbService}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
-Action: run; FileName: "{$c_phpCli}";Parameters: "switchMariaDBVersion.php ${oneMariaDBVersion}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
-Action: run; FileName: "{$c_phpCli}";Parameters: "switchMariaPort.php ${c_UsedMariaPort}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
+Action: service; Service: {$c_mariadbService}; ServiceAction: stop; Flags: ignoreerrors waituntilterminated
+Action: run; FileName: "CMD"; Parameters: "/D /C net stop {$c_mariadbService}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
+{$mariaMysqlService}Action: run; FileName: "{$c_mariadbExe}"; Parameters: "{$c_mariadbServiceRemoveParams}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
+{$mariaCmdScService}Action: run; FileName: "CMD"; Parameters: "/D /C sc delete {$c_mariadbService}"; ShowCmd: hidden; Flags: ignoreerrors waituntilterminated
+Action: run; FileName: "{$c_phpCli}";Parameters: "switchMariaDBVersion.php {$oneMariaDBVersion}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
+Action: run; FileName: "{$c_phpCli}";Parameters: "switchMariaPort.php {$c_UsedMariaPort}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
 
 EOF;
 		if(isset($mariadbConf['mariadbServiceCmd']) && $mariadbConf['mariadbServiceCmd'] == 'windows') {
 			$binpath = str_replace('/','\\',$c_mariadbVersionDir.'/mariadb'.$oneMariaDBVersion.'/'.$mariadbConf['mariadbExeDir'].'/'.$mariadbConf['mariadbExeFile']);
 			$default = str_replace('/','\\',$c_mariadbVersionDir.'/mariadb'.$oneMariaDBVersion.'/'.$mariadbConf['mariadbConfDir'].'/'.$mariadbConf['mariadbConfFile']);
 			$mareplacemenu .= <<< EOF
-Action: run; FileName: "CMD"; parameters: "/D /C sc create ${c_mariadbService} binpath=""${binpath} --defaults-file=${default} ${c_mariadbService}"""; ShowCmd: hidden; Flags: waituntilterminated
+Action: run; FileName: "CMD"; parameters: "/D /C sc create {$c_mariadbService} binpath=""{$binpath} --defaults-file={$default} {$c_mariadbService}"""; ShowCmd: hidden; Flags: waituntilterminated
 
 EOF;
 		}
 		else {
 			$mareplacemenu .= <<< EOF
-Action: run; FileName: "${c_mariadbVersionDir}/mariadb${oneMariaDBVersion}/${mariadbConf['mariadbExeDir']}/${mariadbConf['mariadbExeFile']}"; Parameters: "${mariadbConf['mariadbServiceInstallParams']}"; ShowCmd: hidden; Flags: waituntilterminated
+Action: run; FileName: "{$c_mariadbVersionDir}/mariadb{$oneMariaDBVersion}/{$mariadbConf['mariadbExeDir']}/{$mariadbConf['mariadbExeFile']}"; Parameters: "{$mariadbConf['mariadbServiceInstallParams']}"; ShowCmd: hidden; Flags: waituntilterminated
 
 EOF;
 		}
@@ -213,10 +213,10 @@ $tpl = str_replace($maPattern,$mareplace.$mareplacemenu,$tpl);
 // them efficiently, it is better that in the my.ini file
 // all directives use _ as in default_storage_engine=
 $myIniFileContents = @file_get_contents($c_mariadbConfFile) or die ("my.ini file not found");
-//Replace all - by _ in my.ini directives
-if(preg_match_all('~^;?[a-z]+-[a-z]+(?:-[a-z]*)*.*\r?$~mi',$myIniFileContents,$matches) > 0) {
+//Replace all - by _ in my.ini directives only at the left of = sign
+if(preg_match_all('~^(;?[a-z]+-[a-z]+(?:-[a-z]*)*)=?.*\r?$~mi',$myIniFileContents,$matches) > 0) {
 	$counts = 0;
-	foreach($matches[0] as $value) {
+	foreach($matches[1] as $value) {
 		$myIniFileContents = str_replace($value,str_replace('-','_',$value),$myIniFileContents,$count);
 		$counts += $count;
 	}
@@ -410,10 +410,9 @@ foreach ($params_for_mariadb as $paramname=>$paramstatus) {
 ';
 				$mariadbConfTextInfo .= 'Type: submenu; Caption: "'.$w_mysql_mode.'"; Submenu: mysql_mode; Glyph: 22
 ';
-				foreach($valeurs as $val) {
-					$mariadbConfTextInfo .= 'Type: item; Caption: "'.$val.'"; Action:  none
+				$values = implode(' #13 ',$valeurs);
+				$mariadbConfTextInfo .= 'Type: item; Caption: "'.$values.'"; Action: none
 ';
-				}
 				$m_valeur = 'default';
 				$mariadbConfTextMode = 'Type: submenu; Caption: "'.$paramname.'"; Submenu: '.$paramname.$typebase.'; Glyph: 9
 ';
@@ -497,23 +496,20 @@ Type: separator; Caption: "sql_mode"
 					if($actionToDo[$j] == 'default') {
 						$MenuSup[$i] .= <<< EOF
 
-Type: separator; Caption: "MariaDB ${c_mariadbVersion}"
-Type: separator; Caption: "sql_mode ${actionName[$j]} = "
+Type: separator; Caption: "MariaDB {$c_mariadbVersion}"
+Type: separator; Caption: "sql_mode {$actionName[$j]} = "
 
 EOF;
-						foreach($default_valeurs as $val) {
-						$MenuSup[$i] .= 'Type: item; Caption: "'.$val.'"; Action:  none
-';
-						}
-						$MenuSup[$i] .= 'Type: separator
+						$values = implode(' #13 ',$default_valeurs);
+						$MenuSup[$i] .= 'Type: item; Caption: "'.$values.'"; Action: none
 ';
 					}
 				$MenuSup[$i] .= 'Type: item; Caption: "sql_mode -> '.$actionName[$j].'"; Action: multi; Actions: '.$action.$actionToDo[$j].$typebase.'
 ';
 					$SubMenuSup[$i] .= <<< EOF
-[${action}${actionToDo[$j]}${typebase}]
-Action: service; Service: ${c_mariadbService}; ServiceAction: stop; Flags: waituntilterminated
-Action: run; FileName: "${c_phpExe}";Parameters: "changeMariadbParam.php noquotes ${action} ${param_value[$j]}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
+[{$action}{$actionToDo[$j]}{$typebase}]
+Action: service; Service: {$c_mariadbService}; ServiceAction: stop; Flags: waituntilterminated
+Action: run; FileName: "{$c_phpExe}";Parameters: "changeMariadbParam.php noquotes {$action} {$param_value[$j]}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
 Action: multi; Actions: mariadb_refresh_start; Flags:appendsection
 
 EOF;
@@ -545,9 +541,9 @@ Type: separator; Caption: "'.$mariadbParamsNotOnOff[$action]['title'].'"
 					$c_phpRun = $c_phpCli;
 				}
 				$SubMenuSup[$i] .= <<< EOF
-[maria_${action}${value}]
-Action: service; Service: ${c_mariadbService}; ServiceAction: stop; Flags: waituntilterminated
-Action: run; FileName: "${c_phpRun}";Parameters: "changeMariadbParam.php ${quoted} ${action} ${param_value}${param_third}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
+[maria_{$action}{$value}]
+Action: service; Service: {$c_mariadbService}; ServiceAction: stop; Flags: waituntilterminated
+Action: run; FileName: "{$c_phpRun}";Parameters: "changeMariadbParam.php {$quoted} {$action} {$param_value}{$param_third}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
 Action: multi; Actions: mariadb_refresh_start; Flags:appendsection
 
 EOF;
@@ -565,9 +561,9 @@ foreach ($params_for_mariadb as $paramname=>$paramstatus) {
 		else
 			$SwitchAction = ($params_for_mariadb[$paramname] == 'on' ? 'off' : 'on');
   	$mariadbConfText .= <<< EOF
-[maria_${mariadbParams[$paramname]}]
-Action: service; Service: ${c_mariadbService}; ServiceAction: stop; Flags: waituntilterminated
-Action: run; FileName: "${c_phpCli}";Parameters: "switchMariadbParam.php ${mariadbParams[$paramname]} ${SwitchAction}";WorkingDir: "${c_installDir}/scripts"; Flags: waituntilterminated
+[maria_{$mariadbParams[$paramname]}]
+Action: service; Service: {$c_mariadbService}; ServiceAction: stop; Flags: waituntilterminated
+Action: run; FileName: "{$c_phpCli}";Parameters: "switchMariadbParam.php {$mariadbParams[$paramname]} {$SwitchAction}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
 Action: multi; Actions: mariadb_refresh_start; Flags:appendsection
 
 EOF;

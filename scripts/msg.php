@@ -63,10 +63,10 @@ elseif(is_string($msgId)) {
 	$complete_result = $msg_index = '';
 	if($msgId == "stateservices") {
 		Command_Windows('Check states of services',40,2,0,'Check states of services');
-		$services_OK = $service_PATH = true;
+		$services_OK = $service_PATH = $service_START = true;
 		$message['stateservices'] = ($doReport ? "--------------------------------------------------\n" : '');
 		$message['stateservices'] .= "State of services:\n\n";
-		$message['binarypath'] = '';
+		$message['binarypath'] = $message['typestart'] = '';
 		$services = array($c_apacheService);
 		$service_path_correct[$c_apacheService] = $c_installDir.'/bin/apache/apache'.$c_apacheVersion.'/bin/httpd.exe';
 		if($wampConf['SupportMySQL'] == 'on') {
@@ -88,10 +88,9 @@ elseif(is_string($msgId)) {
 				// For Apache :        BINARY_PATH_NAME   : "J:\wamp\bin\apache\apache2.4.39\bin\httpd.exe"
 				// For MySQL  :        BINARY_PATH_NAME   : J:\wamp\bin\mysql\mysql5.7.27\bin\mysqld.exe
 				// For MariaDB:        BINARY_PATH_NAME   : J:\wamp\bin\mariadb\mariadb10.4.6\bin\mysqld.exe
-				$command = 'CMD /D /C sc qc '.$value.' | FINDSTR "BINARY_PATH_NAME SERVICE_START_NAME"';
+				$command = 'CMD /D /C sc qc '.$value.' | FINDSTR "BINARY_PATH_NAME START_TYPE SERVICE_START_NAME"';
 				$output = `$command`;
 				if(preg_match("/[ \t]+BINARY_PATH_NAME[ \t]+:[ \t]+(.+\.exe).*$/m", $output, $matches) > 0) {
-					//error_log(print_r($matches,true));
 					$service_path = str_replace(array("\\",'"'),array("/",""),$matches[1]);
 					if(strcasecmp($service_path_correct[$value],$service_path) <> 0) {
 						$message['binarypath'] .= color('red')."*** BINARY_PATH_NAME of the service ".$value." is not the good one:".color('black')."\n";
@@ -99,6 +98,18 @@ elseif(is_string($msgId)) {
 						$message['binarypath'] .= $service_path_correct[$value]."\n";
 						$service_PATH = false;
 					}
+				}
+				//Check START_TYPE
+				if(preg_match("/[ \t]+START_TYPE[ \t]+:[ \t0-9]+([A-Z_]+).*$/m", $output, $matches) > 0) {
+					$service_type = $matches[1];
+					$message['stateservices'] .= ' Start type : '.$service_type."\n";
+					if(strcasecmp($service_type,'DEMAND_START') <> 0) {
+						$message['typestart'] .= color('red')."*** START_TYPE of the service ".$value." is not the good one:".color('black')."\n";
+						$message['typestart'] .= $service_type."\n*** should be:\n";
+						$message['typestart'] .= 'DEMAND_START'."\n";
+						$service_START = false;
+					}
+					//$message['stateservices'] .= 'Start type is: '.$service_type;
 				}
 				// Checks service session : LocalSystem by default
 				//Command is: sc qc service | findstr "SERVICE_START_NAME" (done before, see upper)
@@ -160,6 +171,13 @@ elseif(is_string($msgId)) {
 		}
 		else
 			$message['stateservices'] .= "\tall services BINARY_PATH_NAME are OK\n";
+		if(!$service_START) {
+			$message['stateservices'] .= color('red')."***** One or more START_TYPE is incorrect *****\n";
+			$message['stateservices'] .= $message['typestart'];
+			$message['stateservices'] .= "You should reinstall the services using the integrated Wampserver's tool:\nLeft-Click-> Apache or MySQL or MariaDB -> Service administration then four steps: Stop, Remove, Install, Start then Right-Click -> Refresh".color('black')."\n\n";
+		}
+		else
+			$message['stateservices'] .= "\tall services START_TYPE are OK\n";
 
 		if($doReport){
 			write_file($c_installDir."/wampConfReportTemp.txt",$message['stateservices'],false,false,'ab');

@@ -8,6 +8,9 @@
 //3.2.0		$w_helpForums - $w_helpUse
 //3.2.1   $w_apacheSettings - $w_apacheDefaults
 //3.2.2 $w_helpFile modifié
+//3.2.10  $file_charset
+
+$file_charset = 'GB2312';
 
 $w_allServicesRunning = '所有服务正常运行中';
 $w_oneServiceRunning = '%n / %t 个服务正在运行';

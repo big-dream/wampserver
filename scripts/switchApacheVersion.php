@@ -54,11 +54,6 @@ if(!$compareOnly) {
 		$wampIniNewContents['apacheRestoreFiles'] = 'off';
 		$wampConf['apacheRestoreFiles'] = 'off';
 	}
-	if($wampConf['apachePhpCurlDll'] == 'on') {
-		$wampIniNewContents['apachePhpCurlDll'] = 'off';
-		$wampConf['apachePhpCurlDll'] = 'off';
-		linkPhpDllToApacheBin($c_phpVersion);
-	}
 	if(count($wampIniNewContents) > 0) {
 		wampIniSet($configurationFile, $wampIniNewContents);
 	}
@@ -69,8 +64,8 @@ if(!$compareOnly) {
 
 // Verify new Apache version configuration from old Apache version
 if($apacheNew != $apacheOld) {
-	$majTodo = $majModules = $majIncludes = $majVhost = $majHttpdssl = $majOpenssl = $majCerts = $majListen = $majDefaultListen = false;
-	$majModulesGo = $majIncludesGo = $majVhostGo = $majHttpdsslGo = $majOpensslGo = $majCertsGo = $majListenGo = $majDefaultListenGo = false;
+	$majTodo = $majModules = $majIncludes = $majVhost = $majHttpdssl = $majOpenssl = $majListen = $majDefaultListen = false;
+	$majModulesGo = $majIncludesGo = $majVhostGo = $majHttpdsslGo = $majOpensslGo = $majListenGo = $majDefaultListenGo = false;
 
 	//--- File to save for LoadModule and Include arrays
 	//    of old Apache and new Apache httpd.conf files
@@ -295,7 +290,7 @@ if($apacheNew != $apacheOld) {
 	}
 	unset($content1,$content2);
 
-	//Compare Certificats if exist
+	/*Compare Certificats if exist
 	$oldDirCerts = $c_apacheVersionDir.'/apache'.$apacheOld.'/'.$wampConf['apacheConfDir'].'/Certs';
 	$newDirCerts = $c_apacheVersionDir.'/apache'.$apacheNew.'/'.$wampConf['apacheConfDir'].'/Certs';
 	$oldDirCertsAnti = str_replace('/','\\',$oldDirCerts);
@@ -339,6 +334,7 @@ if($apacheNew != $apacheOld) {
 		}
 	}
 	unset($files1,$files2);
+	*/
 
 	//Compare Listen Port added
 	$nbListenOld = count($oldListenPort);
@@ -457,26 +453,6 @@ if($apacheNew != $apacheOld) {
 			}
 			$message .= str_repeat('-',86)."\n";
 		}
-		if($majCerts) {
-			$message .= str_pad("  *** -> Certs directory (SSL certificats)",48).str_pad("Key 'C' for ".($majCertsGo ? 'NO' : 'YES'),16)."- Requested update ".($majCertsGo ? $YESred : $NOgreen)."\n";
-			$message .= str_pad(" ",50).str_pad($apacheNew,12).$apacheOld."\n";
-			$message .= str_pad("Certs directory",50).($CertsNew ? str_pad("Exists",12) : str_pad("Not exists",12)).($CertsOld ? str_pad("Exists",12) : str_pad("Not exists",12))."\n";
-			if(count($notCertsNew) > 0) {
-				//Certs files not found on Apache New
-				$message .= str_pad("File or Dir",50)."\n";
-				foreach($notCertsNew as $value) {
-					$message .= str_pad($value,50)."Not exists\n";
-				}
-			}
-			if(count($notCertsOld) > 0) {
-				//Certs files not found on Apache New
-				$message .= str_pad("File or Dir",50)."\n";
-				foreach($notCertsOld as $value) {
-					$message .= str_pad($value,62)."Not exists\n";
-				}
-			}
-			$message .= str_repeat('-',86)."\n";
-		}
 		$listenToAdd = $listenToDel = false;
 		if($majListen) {
 			$message .= str_pad("  *** -> Listen Ports",48).str_pad("Key 'L' for ".($majListenGo ? 'NO' : 'YES'),16)."- Requested update ".($majListenGo ? $YESred : $NOgreen)."\n";
@@ -503,11 +479,11 @@ if($apacheNew != $apacheOld) {
 		Command_Windows($message,-1,-1,0,'Compare Apache version');
 		$touche = strtoupper(trim(fgets(STDIN)));
 		if($touche == 'A') {
-			$majModulesGo = $majIncludesGo = $majVhostGo = $majHttpdsslGo = $majOpensslGo = $majCertsGo = $majListenGo = $majDefaultListenGo = true;
+			$majModulesGo = $majIncludesGo = $majVhostGo = $majHttpdsslGo = $majOpensslGo = $majListenGo = $majDefaultListenGo = true;
 			goto generatemessage;
 		}
 		elseif($touche == 'R') {
-			$majModulesGo = $majIncludesGo = $majVhostGo = $majHttpdsslGo = $majOpensslGo = $majCertsGo = $majListenGo = $majDefaultListen = false;
+			$majModulesGo = $majIncludesGo = $majVhostGo = $majHttpdsslGo = $majOpensslGo = $majListenGo = $majDefaultListen = false;
 			goto generatemessage;
 		}
 		elseif($touche == 'M') {
@@ -534,18 +510,14 @@ if($apacheNew != $apacheOld) {
 			$majOpensslGo = ($majOpensslGo ? false : true);
 			goto generatemessage;
 		}
-		elseif($touche == 'C') {
-			$majCertsGo = ($majCertsGo ? false : true);
-			goto generatemessage;
-		}
 		elseif($touche == 'L') {
 			$majListenGo = ($majListenGo ? false : true);
 			goto generatemessage;
 		}
 		elseif($touche == 'G') {}
 		else{
-		$majTodo = $majModules = $majIncludes = $majVhost = $majHttpdssl = $majOpenssl = $majCerts = $majListen = $majDefaultListen = false;
-		$majModulesGo = $majIncludesGo = $majVhostGo = $majHttpdsslGo = $majOpensslGo = $majCertsGo = $majListenGo = $majDefaultListenGo = false;
+		$majTodo = $majModules = $majIncludes = $majVhost = $majHttpdssl = $majOpenssl = $majListen = $majDefaultListen = false;
+		$majModulesGo = $majIncludesGo = $majVhostGo = $majHttpdsslGo = $majOpensslGo = $majListenGo = $majDefaultListenGo = false;
 		}
 	}
 	elseif($compareOnly){
@@ -680,12 +652,6 @@ if($apacheNew != $apacheOld) {
 				error_log("**** Copy error ****\n".$oldOpenssl."\nto\n".$newOpenssl."\n");
 			}
 			else $copyConf = true;
-		}
-		// Do we need to copy certificates SSL?
-		if($majCerts && $majCertsGo) {
-			$command = "xcopy ".$oldDirCertsAnti." ".$newDirCertsAnti." /E /Y /I /Q";
-			`$command`;
-			$copyConf = true;
 		}
 	}
 }

@@ -12,6 +12,9 @@
 //      --- Suppress: $w_putOnline - $w_putOffline
 //3.2.9 $w_startOfServices - $w_servicesStarted - $w_bepatient - $w_ready - $w_state_services
 //      --- Suppress: $w_serverOffline - $w_serverOnline
+//3.3.0 $w_waitConfig - $file_charset
+
+$file_charset = 'iso-8859-1';
 
 $w_allServicesRunning = 'Tous les services sont lancés';
 $w_oneServiceRunning = '%n service sur %t est lancé';
@@ -58,7 +61,7 @@ $w_restartServices = 'Redémarrer les services';
 $w_FormatDate = "eeee d MMMM YYYY H:mm";
 $w_startedOn = 'Démarré le : ';
 $w_restartWamp = 'Redémarrer de zéro';
-$w_warning = 'ATTENTION';
+$w_warning = 'ATTENTION !';
 
 $w_apacheErrorLog = 'Apache error log';
 $w_apacheAccessLog = 'Apache access log';
@@ -96,5 +99,6 @@ $w_startOfServices = 'Démarrage des services';
 $w_servicesStarted = 'Services démarrés';
 $w_bepatient = 'Soyez patient !';
 $w_ready = 'Prêt !';
+$w_waitConfig = 'Mise à jour des paramètres !';
 
 ?>

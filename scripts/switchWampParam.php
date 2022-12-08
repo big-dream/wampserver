@@ -184,10 +184,6 @@ else {
 		}
 		$wampIniNewContents[$_SERVER['argv'][1]] = $_SERVER['argv'][2];
 		wampIniSet($configurationFile, $wampIniNewContents);
-		if($_SERVER['argv'][1] == 'apachePhpCurlDll') {
-			$wampConf['apachePhpCurlDll'] = $_SERVER['argv'][2];
-			linkPhpDllToApacheBin($c_phpVersion);
-		}
 	}
 	else {
 		$message = "The parameter '".$_SERVER['argv'][1]."' cannot be switched '".$_SERVER['argv'][2]."'\n\n";

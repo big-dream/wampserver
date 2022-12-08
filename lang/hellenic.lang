@@ -1,4 +1,7 @@
 <?php
+//3.2.10  $file_charset
+
+$file_charset = 'Windows-1253';
 
 $w_allServicesRunning = 'Όλες οι υπηρεσίες λειτουργούν';
 $w_oneServiceRunning = '%n από τις %t υπηρεσίες λειτουργεί';
