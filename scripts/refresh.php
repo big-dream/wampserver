@@ -44,30 +44,40 @@ require 'refreshVerifyFiles.php';
 // Get current language
 $lang = $wampConf['language'];
 
-// Load language file if exists
+// List of all supported encodings
+$List_Encodings = array_map('strtolower',mb_list_encodings());
+
+// Load default language file if exists
 require $langDir.$wampConf['defaultLanguage'].'.lang';
-$charset_used = $file_charset;
+$charset_used = $charset_saved = $file_charset;
+$charset_used_valid = in_array(strtolower($file_charset),$List_Encodings) ? true : false;
+
 $utf8_file = '';
-$use_utf8 = false;
+$use_utf8 = $convertOK = false;
+// Load language file if exists
 if(file_exists($langDir.$lang.'.lang')){
 	//$Text_Encoding['CodePage'] = '65001';
-	if($Text_Encoding['CodePage'] == '65001') {
+	if(isset($wampConf['utf8_beta']) && $wampConf['utf8_beta'] == 'on' && $Text_Encoding['CodePage'] == '65001') {
 		//Beta utf-8 region option is checked
 		$utf8_file = '_utf-8';
 		$use_utf8 = true;
 		if(!file_exists($langDir.$lang.$utf8_file.'.lang')) {
 			require $langDir.$lang.'.lang';
-			$temp = file_get_contents($langDir.$lang.'.lang');
-			$convertOK = true;
-			$temp_utf8 = mb_convert_encoding($temp, "utf-8", $charset_used);
-			if($temp_utf8 !== false) {
-				$temp_utf8 = str_replace('$file_charset = \''.$charset_used.'\';','$file_charset = \'utf-8\';',$temp_utf8);
-				if(write_file($langDir.$lang.$utf8_file.'.lang',$temp_utf8) === false) {
-					$convertOK = false;
+			$charset_saved = $file_charset;
+			$charset_used_valid = in_array(strtolower($file_charset),$List_Encodings) ? true : false;
+			if($charset_used_valid) {
+				$temp = file_get_contents($langDir.$lang.'.lang');
+				$temp_utf8 = mb_convert_encoding($temp, "utf-8", $file_charset);
+				if($temp_utf8 !== false) {
+					$convertOK = true;
+					$temp_utf8 = str_replace('$file_charset = \''.$file_charset.'\';','$file_charset = \'utf-8\';',$temp_utf8);
+					if(write_file($langDir.$lang.$utf8_file.'.lang',$temp_utf8) === false) {
+						$convertOK = false;
+					}
 				}
 			}
 			else {
-				$convertOK = false;
+				error_log('Encoding: '.$file_charset." is not accepted by mb_list_encoding\n");
 			}
 			if($convertOK === false) {
 				$utf8_file = '';
@@ -77,7 +87,9 @@ if(file_exists($langDir.$lang.'.lang')){
 	}
 	require $langDir.$lang.$utf8_file.'.lang';
 	$charset_used = $file_charset;
+	$charset_used_valid = in_array(strtolower($file_charset),$List_Encodings) ? true : false;
 }
+unset($file_charset);
 
 // Load modules default language files - settings_english.php
 require $langDir.$modulesDir.'settings_'.$wampConf['defaultLanguage'].'.php';
@@ -89,7 +101,7 @@ if(file_exists($langDir.$modulesDir.'settings_'.$lang.'.php')) {
 	if($use_utf8) {
 		if(!file_exists($langDir.$modulesDir.'settings_'.$lang.$utf8_file.'.php')) {
 			$temp = file_get_contents($langDir.$modulesDir.'settings_'.$lang.'.php');
-			$temp_utf8 = mb_convert_encoding($temp, "utf-8", $charset_used);
+			$temp_utf8 = mb_convert_encoding($temp, "utf-8", $charset_saved);
 			if($temp_utf8 !== false) {
 				if(write_file($langDir.$modulesDir.'settings_'.$lang.$utf8_file.'.php',$temp_utf8) === false) {
 					$utf8_file = '';
@@ -154,7 +166,7 @@ else {
 $WampStartOnOri = $wampConf['wampStartDate'];
 // Wampserver last launched date and hour (formated)
 $WampStartOn = IntlDateFormatter::formatObject(new DateTime($WampStartOnOri),$w_FormatDate);
-if(!$use_utf8) {
+if(!$use_utf8 && $charset_used_valid) {
 	$temp = mb_convert_encoding($WampStartOn, $charset_used, "utf-8");
 	if($temp !== false) $WampStartOn = $temp;
 }

@@ -148,7 +148,7 @@ $c_apacheVarNotChange = array('APACHE24', 'VERSION_APACHE', 'INSTALL_DIR', 'APAC
 
 //Variables for PHP
 $c_phpVersion = $wampConf['phpVersion'];
-$c_phpCliVersion = $wampConf['phpCliVersion'];
+$c_phpCliVersion = $wampConf['phpWampVersion'];
 $c_phpVersionDir = $c_installDir.'/bin/php';
 $c_phpConfFile = $c_apacheVersionDir.'/apache'.$wampConf['apacheVersion'].'/'.$wampConf['apacheExeDir'].'/'.$wampConf['phpConfFile'];
 $c_phpConfFileIni = $c_phpVersionDir.'/php'.$c_phpVersion.'/'.$wampConf['phpConfFile'];
@@ -262,7 +262,7 @@ $phpDllToCopy = array_merge(
 	)
 );
 
-//SSL 3 for PHP 8.2.0 extensions curl, ldap, openssl, snmp
+//SSL 3 for PHP >= 8.2.0 extensions curl, ldap, openssl, snmp
 $php820_DllToCopy = array(
 	'libcrypto-3-x64.dll',
 	'libssl-3-x64.dll',

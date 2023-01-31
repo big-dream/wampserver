@@ -163,19 +163,22 @@ function linkPhpDllToApacheBin($php_version) {
 	$errorTxt = '';
 	//Create symbolic link or copy dll's files
 	clearstatcache();
-	//Check if PHP version is >= 8.2.0
+	//Check if new PHP version is >= 8.2.0
 	if(version_compare($php_version, '8.2.0', '>=')) {
 		$phpDllToCopy = array_unique(array_merge($phpDllToCopy,$php820_DllToCopy));
-		$phpDllAdded = $php820_DllToCopy;
 	}
 	else {
 		$phpDllToCopy = array_unique(array_merge($phpDllToCopy,$phpN820_DllToCopy));
-		$phpDllAdded = $phpN820_DllToCopy;
+	}
+	$phpDllAdded = array_merge($php820_DllToCopy,$phpN820_DllToCopy);
+	foreach($phpDllAdded as $dll) {
+		$link = $c_apacheVersionDir.'/apache'.$wampConf['apacheVersion'].'/'.$wampConf['apacheExeDir'].'/'.$dll;
+		if(is_link($link)) unlink($link);
 	}
 	foreach ($phpDllToCopy as $dll)	{
 		$target = $c_phpVersionDir.'/php'.$php_version.'/'.$dll;
 		$link = $c_apacheVersionDir.'/apache'.$wampConf['apacheVersion'].'/'.$wampConf['apacheExeDir'].'/'.$dll;
-		//dll already exists and it is ssl file, do nothing
+		//dll already exists and it is file, do nothing
 		if(is_file($link) && in_array($dll,$phpDllAdded)) continue;
 		//File or symlink deleted if exists
 		if(is_file($link) || is_link($link)) {

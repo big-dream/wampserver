@@ -298,7 +298,8 @@ $file[1]['file'] = $c_installDir.'/restart_wampserver.bat';
 $file[1]['content'] = <<< EOF
 @echo off
 wampmanager.exe -quit -id={$c_wampserverID}
-start /B wampmanager.exe
+ping -n 1 -w 3000 127.255.255.255 > nul
+wampmanager.exe
 exit
 
 EOF;
