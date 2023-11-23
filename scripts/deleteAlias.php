@@ -19,7 +19,7 @@ if(file_exists($aliasDir.$aliasToDelete)) {
 	$message .= "Alias : ".$aliasDir.$aliasToDelete."\n\nDo you really want to delete this alias?\nType Y key then Enter for yes: ";
 	Command_Windows($message,80,-1,0,'delete an Alias');
 	$confirm = trim(fgets(STDIN));
-	$confirm = strtoupper(trim($confirm ,'\''));
+	$confirm = mb_strtoupper(trim($confirm ,'\''));
 	if($confirm == 'Y') {
 		$deleteAlias = true;
 		$alias_contents = @file_get_contents($aliasDir.$aliasToDelete);
@@ -32,7 +32,7 @@ if(file_exists($aliasDir.$aliasToDelete)) {
 				//Command_Windows($message,80,-1,0,'Delete an Alias');
 				echo $message1;
 				$confirm = trim(fgets(STDIN));
-				$confirm = strtoupper(trim($confirm ,'\''));
+				$confirm = mb_strtoupper(trim($confirm ,'\''));
 				if($confirm == 'Y') {
 					$deleteDir = true;
 				}

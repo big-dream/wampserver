@@ -9,13 +9,13 @@
 //  modified: VirtualHostPort (%s replaced by below ) - Start - VirtualCreated - However - HoweverWamp
 //  array $langues_help added.
 //3.3.0 - Modification of lines FcgidInitialEnv
+//3.3.2 - Suppress $langues[''VirtualSubMenuOn']
 
 $langues = array(
 	'langue' => 'English',
 	'locale' => 'english',
 	'addVirtual' => 'Add a VirtualHost',
 	'backHome' => 'Back to homepage',
-	'VirtualSubMenuOn' => 'The <code>VirtualHost sub-menu</code> item must be set to (On) in the <code>Wamp Settings</code> Right-Click menu. Then reload this page',
 	'UncommentInclude' => 'Uncomment <small>(Suppress #)</small> the line <code>#Include conf/extra/httpd-vhosts.conf</code><br>in file %s',
 	'FileNotExists' => 'The file <code>%s</code> does not exists',
 	'txtTLDdev' => 'The ServerName %s use TLD %s which is monopolized by web browsers. Use another TLD (.test for example)',

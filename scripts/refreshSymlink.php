@@ -17,22 +17,10 @@ $doReport = (!empty($_SERVER['argv'][3]) && $_SERVER['argv'][3] == 'doreport') ?
 $noCreate = (!empty($_SERVER['argv'][4]) && $_SERVER['argv'][4] == 'nocreate') ? true : false;
 $message = '';
 
-if($wampConf['CreateSymlink'] == 'copy') {
-	echo "Since you are using file copies and not symbolic links,\nwe need to stop the Apache service before performing the checks.\nStop Apache service\n";
-	$command = "CMD /D /C net stop ".$c_apacheService;
-	`$command`;
-}
-
 // Re-create symbolic links
 if(!$noCreate) linkPhpDllToApacheBin($newPhpVersion);
 
 $checkSymlinkResult = CheckSymlink($newPhpVersion);
-
-if($wampConf['CreateSymlink'] == 'copy') {
-	echo "Start Apache service\n";
-	$command = "CMD /D /C net start ".$c_apacheService;
-	`$command`;
-}
 
 if(!$doReport) {
 	if($checkSymlinkResult !== true) {
@@ -41,15 +29,14 @@ if(!$doReport) {
 		$message .= "\n--- Do you want to copy the results into Clipboard?\n--- Type 'y' to confirm - Press ENTER to continue...\n";
 		Command_Windows($message,-1,-1,0,'Verify Symbolik links');
 	  $confirm = trim(fgetc(STDIN));
-		$confirm = strtolower(trim($confirm ,'\''));
+		$confirm = mb_strtolower(trim($confirm ,'\''));
 		if($confirm == 'y') {
 			write_file("temp.txt",$checkSymlinkResult, true);
 			exit(0);
 		}
 	}
 	elseif($verify) {
-		$symTxt = ($wampConf['CreateSymlink'] == 'copy') ? 'copied files' : 'symbolic links';
-		$message .= "All ".$symTxt." are OK\n\n";
+		$message .= "All symbolic links are OK\n\n";
 		$message .= "Press ENTER to continue... ";
 		Command_Windows($message,50,-1,0,'Verify Symbolik links');
 		fgetc(STDIN);

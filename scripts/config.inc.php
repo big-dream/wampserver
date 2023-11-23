@@ -76,13 +76,20 @@ Array
 */
 $Windows_Charset = '';
 $Text_Encoding = array('IsSingleByte' => '','BodyName' => '','EncodingName' => '','HeaderName' => '','WebName' => '','WindowsCodePage' => '', 'CodePage' => '');
-$command = 'CMD /D /C powershell [System.Text.Encoding]::Default';
+$command = "CMD /D /C powershell [System.Text.Encoding]::Default";
 $output = `$command`;
-foreach($Text_Encoding as $key => $value) {
-	if(preg_match('~^'.$key.'\s+:\s+(.+)~mi',$output,$matches) === 1) {
-		$Text_Encoding[$key] = $matches[1];
+if(is_null($output)) {
+	error_log("Result of command '".$command."' is null");
+}
+else {
+	foreach($Text_Encoding as $key => $value) {
+		if(preg_match('~^'.$key.'\s+:\s+(.+)~mi',$output,$matches) === 1) {
+			$Text_Encoding[$key] = $matches[1];
+		}
 	}
 }
+
+
 $Text_Encoding['LocaleCtype']= trim(strstr(setlocale(LC_CTYPE,''),'.'),'.');
 $Windows_Charset = 'Windows-'.$Text_Encoding['LocaleCtype'];
 
@@ -160,7 +167,6 @@ $c_phBinDir = $c_phpVersionDir.'/php'.$wampConf['phpVersion'].'/';
 $c_phpExtDir = $c_phpVersionDir.'/php'.$wampConf['phpVersion'].'/ext/';
 $phpCliMinVersion = "5.6.40";
 
-
 //Variables for MySQL
 $c_mysqlService = $wampConf['ServiceMysql'];
 $c_mysqlPortUsed = $wampConf['mysqlPortUsed'];
@@ -188,10 +194,6 @@ $c_mariadbConfFile = $c_mariadbVersionDir.'/mariadb'.$wampConf['mariadbVersion']
 $c_mariadbConsole = $c_mariadbVersionDir.'/mariadb'.$c_mariadbVersion.'/'.$wampConf['mariadbExeDir'].'/mysql.exe';
 $c_mariadbExeAnti = str_replace('/','\\',$c_mariadbExe);
 $c_mariadbConfFileAnti = str_replace('/','\\',$c_mariadbConfFile);
-
-//Check symlink or copy PHP dll into Apache bin folder
-if(empty($wampConf['CreateSymlink']) || ($wampConf['CreateSymlink'] != 'symlink' && $wampConf['CreateSymlink'] != 'copy'))
-	$wampConf['CreateSymlink'] = 'symlink';
 
 //Check hosts file writable
 $c_hostsFile = str_replace("\\","/",getenv('WINDIR').'/system32/drivers/etc/hosts');
@@ -231,9 +233,9 @@ if($wampConf['BackupHosts'] == 'on') {
 //dll to create symbolic links from php to apache/bin
 //Versions of ICU are 38, 40, 42, 44, 46, 48 to 57, 60 (PHP 7.2), 61 (PHP 7.2.5)
 // 62 (PHP 7.2.8), 63 (PHP 7.2.12), 64 (PHP 7.2.20), 65 (PHP 7.4.0), 66 (PHP 7.4.6)
-// 67, 68 (PHP 8.0.0), 70 (PHP 8.1.0), 71 (PHP 8.2.0)
+// 67, 68 (PHP 8.0.0), 70 (PHP 8.1.0), 71 (PHP 8.2.0), 72 (PHP 8.3.0)
 $icu = array(
-	'number' => array('71', '70', '68', '67', '66', '65','64', '63', '62', '61', '60', '57', '56', '55', '54', '53', '52', '51', '50', '49', '48', '46', '44', '42', '40', '38'),
+	'number' => array('72', '71', '70', '68', '67', '66', '65','64', '63', '62', '61', '60', '57', '56', '55', '54', '53', '52', '51', '50', '49', '48', '46', '44', '42', '40', '38'),
 	'name' => array('icudt', 'icuin', 'icuio', 'icule', 'iculx', 'icutest', 'icutu', 'icuuc'),
 	);
 $php_icu_dll = array();
@@ -495,7 +497,7 @@ $mysqlParamsNotOnOff = array(
 		),
 	'lc_messages' => array(
 		'change' => false,
-		'msg' => "\nTo set the Error Message Language see:\n\nhttp://dev.mysql.com/doc/refman/5.7/en/error-message-language.html\n",
+		'msg' => "\nTo set the Error Message Language see:\n\nhttps://dev.mysql.com/doc/refman/5.7/en/error-message-language.html\n",
 		),
 	'log_error_verbosity' => array(
 		'change' => true,
@@ -508,7 +510,7 @@ $mysqlParamsNotOnOff = array(
 		'change' => true,
 		'title' => 'Size',
 		'quoted' => false,
-		'values' => array('16M', '32M', '64M', 'Choose'),
+		'values' => array('16M', '32M', '64M', '128M', '256M', '512M', '1G', 'Choose'),
 		),
 	'default_storage_engine' => array(
 		'change' => true,
@@ -526,7 +528,7 @@ $mysqlParamsNotOnOff = array(
 		'change' => true,
 		'title' => 'Size',
 		'quoted' => false,
-		'values' => array('16M', '32M', '64M', '128M', '256M', 'Choose'),
+		'values' => array('16M', '32M', '64M', '128M', '256M', '512M', '1G', 'Choose'),
 		),
 	'innodb_log_file_size' => array(
 		'change' => true,
@@ -640,7 +642,7 @@ $mariadbParamsNotOnOff = array(
 		'change' => true,
 		'title' => 'Size',
 		'quoted' => false,
-		'values' => array('16M', '32M', '64M', 'Choose'),
+		'values' => array('16M', '32M', '64M', '128M', '256M', '512M', '1G', 'Choose'),
 		),
 	'default_storage_engine' => array(
 		'change' => true,
@@ -658,7 +660,7 @@ $mariadbParamsNotOnOff = array(
 		'change' => true,
 		'title' => 'Size',
 		'quoted' => false,
-		'values' => array('16M', '32M', '64M', '128M', '256M', 'Choose'),
+		'values' => array('16M', '32M', '64M', '128M', '256M', '512M', '1G', 'Choose'),
 		),
 	'innodb_log_file_size' => array(
 		'change' => true,
@@ -717,9 +719,7 @@ $mariadbParamsNotOnOff = array(
 // #-                    = Separator no Caption + Submenu
 // ###  	               = Last item in SubMenu
 $wamp_Param = array(
-	'VirtualHostSubMenu',
 	'AliasSubmenu',
-	'ShowphmyadMenu',
 	'ShowadminerMenu',
 	'ShowWWWdirMenu',
 	'SupportMySQL',
@@ -727,6 +727,7 @@ $wamp_Param = array(
 	'HomepageAtStartup',
 	'BackupHosts',
 	'ScrollListsHomePage',
+	'httpsReady',
 	'##WampserverBrowser',
 	'###BrowserChange',
 	'##CheckVirtualHost',
@@ -744,7 +745,6 @@ $wamp_Param = array(
 	'AutoCleanTmp',
 	'###AutoCleanTmpMax',
 	'#-DaredevilOptions',
-	'NotVerifyPATH',
 	'NotVerifyTLD',
 	'NotVerifyHosts',
 	'LinksOnProjectsHomePage',
@@ -794,10 +794,16 @@ $wampParamsNotOnOff = array(
 		),
 	'WampserverBrowser' => array(
 		'change' => false,
-	),
+		),
 	'BrowserChange' => array(
 		'change' => true,
 		'title' => 'Special',
+		'quoted' => true,
+	),
+	'httpsReady' => array(
+		'dependance' => 'UseWampHttps',
+		'change' => true,
+		'title' => 'OnOff',
 		'quoted' => true,
 	),
 );
@@ -805,16 +811,57 @@ $wampParamsNotOnOff = array(
 //Parameter servitude must be off if first parameter is off
 $WampParamServitude = array(
 	'LinksOnProjectsHomePage' => array(
-	'servitude' => 'LinksOnProjectsHomeByIp',
-	)
+		'servitude' => 'LinksOnProjectsHomeByIp',
+	),
 );
 
 //Wampserver parameters be switched by php.exe and not php-win.exe
 $wamp_ParamPhpExe = array(
 	'SupportMariaDB',
 	'SupportMySQL',
+	'httpsReady',
 );
 
+//PhpMyAdmin-specific parameters in its alias
+// like php_admin_value upload_max_filesize 128M
+//   or php_admin_flag ignore_repeated_errors Off
+$PMA_Params = array(
+	'upload_max_filesize',
+  'post_max_size',
+  'max_execution_time',
+  'max_input_time',
+);
+
+//PhpMyAdmin parameters with values not On or Off cannot be switched on or off
+//Can be changed if 'change' = true and 'title' & 'values' not empty
+//Parameter name must be also into $PMA_Params array
+//To manualy enter value, 'Choose' must be the last 'values' and 'title' must be 'Size' or 'Seconds' or 'Integer'
+$PMA_ParamsNotOnOff = array(
+	'upload_max_filesize' => array(
+		'change' => true,
+		'title' => 'Size',
+		'quoted' => false,
+		'values' => array('128M', '256M', '512M', '1G', 'Choose'),
+		),
+	'post_max_size' => array(
+		'change' => true,
+		'title' => 'Size',
+		'quoted' => false,
+		'values' => array('128M', '256M', '512M', '1G', 'Choose'),
+		),
+	'max_execution_time' => array(
+		'change' => true,
+		'title' => 'Seconds',
+		'quoted' => false,
+		'values' => array('360', '720', '1440', '3600', 'Choose'),
+		),
+	'max_input_time' => array(
+		'change' => true,
+		'title' => 'Seconds',
+		'quoted' => false,
+		'values' => array('360', '720', '1440', '3600', 'Choose'),
+		),
+);
 
 // Apache modules which should not be disabled
 $apacheModNotDisable = array(
@@ -824,6 +871,22 @@ $apacheModNotDisable = array(
 	'php7_module',
 	'php_module',
 	);
+
+// Apache modules not to be unloaded if $virtualHost['index'] is true
+$apacheModuleNotUnload = array(
+	'fcgid_module' => array(
+		'index' => 'ServerNameUseFcgid',
+		'msg' => 'VirtualHost use FCGID mode',
+	),
+	'socache_shmcb_module' => array(
+		'index' => 'ServerNameUseHttps',
+		'msg' => 'VirtualHost use HTTPS SSL mode',
+	),
+	'ssl_module' => array(
+		'index' => 'ServerNameUseHttps',
+		'msg' => 'VirtualHost use HTTPS SSL mode',
+	),
+);
 
 // Apache settings
 $apacheParams = array(
@@ -863,7 +926,7 @@ $AesBigMenu = array(
    Font size, color since 3.2.3.0
    Meaning of the items in the order:
    Indice 0 : Submenu Name -+- Indice 1 Caption submenu
-   Indice 2 : Type 0=info 1=custom 2=Warning 3=Confirm 4=Error
+   Indice 2 : Type 0=info 1=help 2=Warning 3=Confirm 4=Error
    Indice 3 : Font size -+- Indice 4 : Font color RGB delphi mode (Example $D77800)
    Indice 5 : Background color -+- Indice 6 : Title
    Indice 7 : Text = only one line (Write \r\n for line feed)
@@ -878,12 +941,14 @@ $AesBigMenu = array(
             in which case it must be an array of variable names into single quotes */
 $AesTextMenus = array(
 	// Add Apache, PHP, MySQL, MariaDB, etc. versions.
-	array('AddingVersions','$w_addingVer',0,10,'$000000','$EEEEEE','$w_addingVer','$w_addingVerTxt',96,22),
-	array('mysql_mode','$w_mysql_mode',0,10,'$000000','$EEEEEE','$w_mysql_mode','$w_MySQLsqlmodeInfo',96,22),
+	array('AddingVersions','$w_addingVer',1,10,'$000000','$EEEEEE','$w_addingVer','$w_addingVerTxt',96,22),
+	array('mysql_mode','$w_mysql_mode',1,10,'$000000','$EEEEEE','$w_mysql_mode','$w_MySQLsqlmodeInfo',96,22),
 	array('phpmyadmin-help','$w_phpMyAdminHelp',0,10,'$000000','$EEEEEE','$w_phpMyAdminHelp',array('$w_PhpMyAdMinHelpTxt','$w_PhpMyAdminBigFileTxt'),112,22),
 	array('apacherestore-help','$w_apache_restore',2,10,'$000000','$EEEEEE','$w_apache_restore','$w_ApacheRestoreInfo',96,23),
 	array('apachecompare-help','$w_apache_compare',2,10,'$000000','$EEEEEE','$w_apache_compare','$w_ApacheCompareInfo',96,23),
-	array('refresh-restart-help','$w_Refresh_Restart',0,10,'$000000','$EEEEEE','$w_Refresh_Restart','$w_Refresh_Restart_Info',96,22),
+	array('refresh-restart-help','$w_Refresh_Restart',0,10,'$000000','$EEEEEE','$w_Refresh_Restart','$w_Refresh_Restart_Info',120,22),
+	array('wampHttps-help','$w_wampHttpsHelp',0,10,'$000000','$EEEEEE','$w_wampHttpsHelp','$w_wampHttpsHelpTxt',112,22),
+	array('mariadb-mysql-help','$w_MariaDBMySQLHelp',0,10,'$000000','$EEEEEE','$w_MariaDBMySQLHelp','$w_MariaDBMySQLHelpTxt',130,22),
 );
 
 /* TextMenuColor -> Aestan Tray Menu since 3.2.4.6
@@ -901,7 +966,7 @@ $AesTextMenus = array(
 $AesTextMenuColor = array(
 	array('[FCGI-','$F8F8F8','$F8F8F7','$FF0000',2),
 	array('[IDNA-','$F8F8F8','$F8F8F7','$FF0000',2),
-	array('[HTTPS]','$F8F8F8','$F8F8F7','$FF0000',2),
+	array('[HTTPS]','$F8F8F8','$F8F8F7','$606000',1),
 	array('[FCGI ->','$F8F8F8','$F8F8F7','$FF0000',0),
 	array('[FCGI - CLI]','$F8F8F8','$F8F8F7','$FF0000',0),
 	array('$w_settings[DaredevilOptions]','$FFFFFF','$FFFFFE','$0000FF',0),

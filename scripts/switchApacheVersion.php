@@ -20,16 +20,6 @@ if(!empty($_SERVER['argv'][2]) && !empty($_SERVER['argv'][3]) && trim($_SERVER['
 }
 
 if(!$compareOnly) {
-	//In case of *copy* PHP dll files and phpForApache.ini instead of create symbolic link
-	//save php.ini of Apache bin folder into phpForApache.ini of active PHP version
-	if($wampConf['CreateSymlink'] == 'copy') {
-		$target = $c_phpVersionDir."/php".$c_phpVersion."/".$phpConfFileForApache;
-		$link = $c_apacheVersionDir."/apache".$wampConf['apacheVersion']."/".$wampConf['apacheExeDir']."/php.ini";
-		//error_log("copy ".$link." to ".$target);
-		if(copy($link, $target) === false) {
-			error_log("Error while copy '".$link."' to '".$target."' using php copy() function");
-		}
-	}
 	// loading the configuration file of the current php
 	require $c_phpVersionDir.'/php'.$wampConf['phpVersion'].'/'.$wampBinConfFiles;
 
@@ -477,7 +467,7 @@ if($apacheNew != $apacheOld) {
 		$message .= "To choose one or more updates, press the associated key then Enter key: ";
 		//Write message in Command Windows
 		Command_Windows($message,-1,-1,0,'Compare Apache version');
-		$touche = strtoupper(trim(fgets(STDIN)));
+		$touche = mb_strtoupper(trim(fgets(STDIN)));
 		if($touche == 'A') {
 			$majModulesGo = $majIncludesGo = $majVhostGo = $majHttpdsslGo = $majOpensslGo = $majListenGo = $majDefaultListenGo = true;
 			goto generatemessage;
@@ -528,7 +518,7 @@ if($apacheNew != $apacheOld) {
 		$message .= "Press Enter key to continue ";
 		//Write message in Command Windows
 		Command_Windows($message,-1,-1,0,'Compare Apache version');
-		$touche = strtoupper(trim(fgets(STDIN)));
+		$touche = mb_strtoupper(trim(fgets(STDIN)));
 	}
 	$copyConf = $FileToWrite = false;
 	if($majTodo) {

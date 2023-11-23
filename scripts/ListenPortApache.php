@@ -55,7 +55,7 @@ elseif($action == 'delete') {
 		$message .= "it will be replaced by port ".$c_UsedPort."\n";
 		$message .= "\nPress the Y key then ENTER for Y - Press ENTER only to exit";
 		Command_Windows($message,-1,-1,0,'Listen port Apache');
-  	$rep = strtoupper(trim(fgets(STDIN)));
+  	$rep = mb_strtoupper(trim(fgets(STDIN)));
   	if($rep <> 'Y')	exit;
 	}
 	$count = 0;

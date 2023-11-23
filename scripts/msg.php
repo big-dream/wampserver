@@ -57,7 +57,7 @@ function message_add(&$array) {
 	$array = $array."\nPress ENTER to continue ";
 }
 array_walk($message, 'message_add');
-Command_Windows($message[$msgId],-1,-1,0,'Error/Explanation message');
+Command_Windows($message[$msgId],-1,-1,0,'Error - Explanation message');
 }
 elseif(is_string($msgId)) {
 	$complete_result = $msg_index = '';
@@ -135,10 +135,15 @@ elseif(is_string($msgId)) {
 				if($value == $c_apacheService) {
 					$command = "CMD /D /C wevtutil qe Application /c:2 /rd:true /f:text /q:\"*[System[Provider[@Name='Apache Service'] and (Level=2)]]\"";
 					$output = `$command`;
-					//Check if there is 'Apache Service' in the result
-					if(stripos($output,"Apache Service") !== false) {
-						if(preg_match_all("~>>>.*~",$output,$matches) > 0) {
-							foreach($matches[0] as $errorVal) $message['stateservices'] .= $errorVal."\n";
+					if(is_null($output)) {
+						error_log("Result of command ".$command." is null");
+					}
+					else {
+						//Check if there is 'Apache Service' in the result
+						if(stripos($output,"Apache Service") !== false) {
+							if(preg_match_all("~>>>.*~",$output,$matches) > 0) {
+								foreach($matches[0] as $errorVal) $message['stateservices'] .= $errorVal."\n";
+							}
 						}
 					}
 				}
@@ -152,6 +157,9 @@ elseif(is_string($msgId)) {
 					$message['stateservices'] .= " [SC] EnumQueryServicesStatus:OpenService failure(s) 1060 :\n The specified service does not exist as an installed service.\n";
 				}
 				$message['stateservices'] .= color('red')." ********* The service '".$value."' does not exist ********".color('black')."\n";
+			}
+			if(!file_exists($service_path_correct[$value])) {
+				$message['stateservices'] .= color('red',"\n**** WARNING: The file ".$service_path_correct[$value]." does not exist\n");
 			}
 			$message['stateservices'] .= "\n";
 		}
@@ -466,7 +474,7 @@ elseif(is_string($msgId)) {
 
 		preg_match('/^Loaded Configuration File => (.*)$/m', $output, $matches);color('black').
 		$matches[1] = str_replace("\\","/",$matches[1]);
-		if(strtolower($matches[1]) != strtolower($c_phpCliConfFile))
+		if(mb_strtolower($matches[1]) != mb_strtolower($c_phpCliConfFile))
 			$message['inifiles'] .= "".color('red')."*** ERROR *** The PHP configuration loaded file is:\n\t".$matches[1]."\nshould be for PHP CLI\n\t".$c_phpCliConfFile.color('black')."\n";
 		preg_match('/^Scan this dir for additional .ini files => (.*)$/m', $output, $matches);
 		if($matches[1] != "(none)")
@@ -779,7 +787,7 @@ elseif(is_string($msgId)) {
 		else {
 			$message .= "\nDo you want to clean these file(s)? (Y/N)";
 			Command_Windows($message,-1,-1,0,'Clean log files');
-			$touche = strtoupper(trim(fgets(STDIN)));
+			$touche = mb_strtoupper(trim(fgets(STDIN)));
 		}
 		if($touche == 'Y') {
 			foreach($logToClean as $value) {
@@ -846,7 +854,7 @@ elseif(is_string($msgId)) {
 		if(!isset($message_title)) $message_title = 'Wampserver';
 		Command_Windows($complete_result,-1,-1,$linesSup,$message_title);
     $confirm = trim(fgetc(STDIN));
-		$confirm = strtolower(trim($confirm ,'\''));
+		$confirm = mb_strtolower(trim($confirm ,'\''));
 		if($confirm == 'y') {
 			write_file("temp.txt",color('clean',$complete_result), true);
 		}

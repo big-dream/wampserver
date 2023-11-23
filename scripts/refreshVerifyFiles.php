@@ -204,6 +204,7 @@ EOF;
 }
 
 //Check LoadModule fcgid_module modules/mod_fcgid.so
+$load_fcgid_module = true;
 if(strpos($httpdFileContents,'LoadModule fcgid_module modules/mod_fcgid.so') === false) {
 	$replace = <<< 'EOF'
 #LoadModule fcgid_module modules/mod_fcgid.so
@@ -227,19 +228,21 @@ if(strpos($httpdFileContents,'LoadModule fcgid_module modules/mod_fcgid.so') ===
 EOF;
 	$search = '<IfModule unixd_module>';
 	$httpdFileContents = str_replace($search,$replace.$search,$httpdFileContents,$count);
+	$load_fcgid_module = false;
 	$counts += $count;
 }
 
 //Check if fcgid_module exists
 $mod_fcgid_exists = true;
+$mod_fcgid_file = $c_wampMode == '64bit' ? 'mod_fcgid64.so' : 'mod_fcgid32.so';
 if(!file_exists($c_apacheModulesDir.'/mod_fcgid.so')) {
 	$mod_fcgid_exists = false;
 	//Check if wamp(64)/bin/apache/modules_sup/mod_fcgid.so exists
-	if(file_exists($c_apacheVersionDir.'/modules_sup/mod_fcgid.so')) {
-		$copy_OK = copy($c_apacheVersionDir.'/modules_sup/mod_fcgid.so',$c_apacheModulesDir.'/mod_fcgid.so');
+	if(file_exists($c_apacheVersionDir.'/modules_sup/'.$mod_fcgid_file)) {
+		$copy_OK = copy($c_apacheVersionDir.'/modules_sup/'.$mod_fcgid_file,$c_apacheModulesDir.'/mod_fcgid.so');
 	}
 }
-if(!$mod_fcgid_exists && $copy_OK) {
+if((!$mod_fcgid_exists && $copy_OK) || !$load_fcgid_module) {
 	$httpdFileContents = str_replace('#LoadModule fcgid_module modules/mod_fcgid.so','LoadModule fcgid_module modules/mod_fcgid.so',$httpdFileContents,$count);
 	$counts += $count;
 }
@@ -297,8 +300,9 @@ EOF;
 $file[1]['file'] = $c_installDir.'/restart_wampserver.bat';
 $file[1]['content'] = <<< EOF
 @echo off
+ping -n 1 -w 500 127.255.255.255 > nul
 wampmanager.exe -quit -id={$c_wampserverID}
-ping -n 1 -w 3000 127.255.255.255 > nul
+ping -n 1 -w 4000 127.255.255.255 > nul
 wampmanager.exe
 exit
 

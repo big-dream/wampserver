@@ -1,7 +1,4 @@
 <?php
-// 3.3.0 - Suppression changement version PHP CLI
-//          Amélioration menu couleur
-//          Remplacer ${var} par {$var}
 
 if(!defined('WAMPTRACE_PROCESS')) require 'config.trace.php';
 if(WAMPTRACE_PROCESS) {
@@ -45,12 +42,12 @@ require 'refreshVerifyFiles.php';
 $lang = $wampConf['language'];
 
 // List of all supported encodings
-$List_Encodings = array_map('strtolower',mb_list_encodings());
+$List_Encodings = array_map('mb_strtolower',mb_list_encodings());
 
 // Load default language file if exists
 require $langDir.$wampConf['defaultLanguage'].'.lang';
 $charset_used = $charset_saved = $file_charset;
-$charset_used_valid = in_array(strtolower($file_charset),$List_Encodings) ? true : false;
+$charset_used_valid = in_array(mb_strtolower($file_charset),$List_Encodings) ? true : false;
 
 $utf8_file = '';
 $use_utf8 = $convertOK = false;
@@ -64,7 +61,7 @@ if(file_exists($langDir.$lang.'.lang')){
 		if(!file_exists($langDir.$lang.$utf8_file.'.lang')) {
 			require $langDir.$lang.'.lang';
 			$charset_saved = $file_charset;
-			$charset_used_valid = in_array(strtolower($file_charset),$List_Encodings) ? true : false;
+			$charset_used_valid = in_array(mb_strtolower($file_charset),$List_Encodings) ? true : false;
 			if($charset_used_valid) {
 				$temp = file_get_contents($langDir.$lang.'.lang');
 				$temp_utf8 = mb_convert_encoding($temp, "utf-8", $file_charset);
@@ -87,7 +84,7 @@ if(file_exists($langDir.$lang.'.lang')){
 	}
 	require $langDir.$lang.$utf8_file.'.lang';
 	$charset_used = $file_charset;
-	$charset_used_valid = in_array(strtolower($file_charset),$List_Encodings) ? true : false;
+	$charset_used_valid = in_array(mb_strtolower($file_charset),$List_Encodings) ? true : false;
 }
 unset($file_charset);
 
@@ -188,15 +185,7 @@ if(!empty($MariadbDefault) && !empty($MysqlDefault))
 	$DefaultDBMS = 'none';
 else
 	$DefaultDBMS = (empty($MariadbDefault) ? 'MariaDB '.$c_mariadbVersion : 'MySQL '.$c_mysqlVersion);
-//Show MySQL and MariaDB change prompt
-if($wampConf['MysqlMariaChangePrompt'] == 'on') {
-	$MysqlMariaPrompt = '';
-	$MysqlMariaPromptBool = true;
-}
-else {
-	$MysqlMariaPrompt = ';';
-	$MysqlMariaPromptBool = false;
-}
+
 // Instructions for use file
 $c_useFileExists = ';';
 if(file_exists($c_installDir.'/instructions_utilisation.pdf')) {
@@ -228,20 +217,16 @@ $GotoMySQLRestart = $GotoMariaDBRestart = '';
 if($wampConf['SupportMySQL'] == 'on') {
 	$GotoMySQLRestart = <<< EOF
 [mysql_refresh_start]
-Action: run; FileName: "{$c_phpCli}";Parameters: "refresh.php";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
 Action: run; FileName: "CMD"; Parameters: "/D /C net start {$c_mysqlService}"; ShowCmd: hidden; Flags: waituntilterminated
-Action: resetservices
-Action: readconfig
+Action: multi; Actions: refresh_readconfig; Flags:appendsection
 
 EOF;
 }
 if($wampConf['SupportMariaDB'] == 'on') {
 	$GotoMariaDBRestart = <<< EOF
 [mariadb_refresh_start]
-Action: run; FileName: "{$c_phpCli}";Parameters: "refresh.php";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
 Action: run; FileName: "CMD"; Parameters: "/D /C net start {$c_mariadbService}"; ShowCmd: hidden; Flags: waituntilterminated
-Action: resetservices
-Action: readconfig
+Action: multi; Actions: refresh_readconfig; Flags:appendsection
 
 EOF;
 }
@@ -286,15 +271,6 @@ if($wampConf['SupportMySQL'] == 'on' && count($mysqlVersionList) > 0) {
 	if($doReport)	$wampReport['gen3'] .= "MySQL versions seen by refresh listDir:\n".implode(' - ',$mysqlVersionList)."\n";
 	$SupportMySQL = '';
 	$EmptyMysqlLog = ' '.$c_installDir.'/'.$logDir.'mysql.log';
-	//Check Console prompt
-	if($wampConf['mysqlUseConsolePrompt'] == 'on') {
-		$mysqlConsolePromptUsed = $wampConf['mysqlConsolePrompt'];
-		$mysqlConsolePromptChange = 'off';
-	}
-	else {
-		$mysqlConsolePromptUsed = 'default';
-		$mysqlConsolePromptChange = 'on';
-	}
 	$myIniContents = file_get_contents_dos($c_mysqlConfFile);
 	$myIniContents = preg_replace('/^#(.*)$/m',';${1}',$myIniContents,-1,$count);
 	if($count > 0) {
@@ -315,15 +291,6 @@ if($wampConf['SupportMariaDB'] == 'on' && count($mariadbVersionList) > 0) {
 	if($doReport)	$wampReport['gen3'] .= "MariaDB versions seen by refresh listDir:\n".implode(' - ',$mariadbVersionList)."\n";
 	$SupportMariaDB = '';
 	$EmptyMariaLog = ' '.$c_installDir.'/'.$logDir.'mariadb.log';
-	//Check Console prompt
-	if($wampConf['mariadbUseConsolePrompt'] == 'on') {
-		$mariadbConsolePromptUsed = $wampConf['mariadbConsolePrompt'];
-		$mariadbConsolePromptChange = 'off';
-	}
-	else {
-		$mariadbConsolePromptUsed = 'default';
-		$mariadbConsolePromptChange = 'on';
-	}
 
 	$myIniContents = file_get_contents_dos($c_mariadbConfFile);
 	$myIniContents = preg_replace('/^#(.*)$/m',';${1}',$myIniContents,-1,$count);
@@ -411,8 +378,8 @@ $wamp_versions_here += array('wamp_adminer' => $Alias_Contents['adminer']['versi
 // Show Adminer in Wampmanager menu
 $adminerMenu = (($Alias_Contents['adminer']['OK'] && $wampConf['ShowadminerMenu'] == 'on') ? '' : ';');
 
-//At this point, $phpVersionList, $phpFcgiVersionList, $phpFcgiVersionListUsed
-//  $virtualHost, Alias_Contents are correct
+//*** At this point, $phpVersionList, $phpFcgiVersionList, $phpFcgiVersionListUsed
+//    $virtualHost, Alias_Contents are correct
 //error_log("Alias_Contents=".print_r($Alias_Contents,true));
 //error_log("phpFcgiVersionList=\n".print_r($phpFcgiVersionList,true));
 //error_log("phpFcgiVersionList unique=\n".print_r(array_unique($phpFcgiVersionList),true));
@@ -578,42 +545,6 @@ if(!file_exists($c_logviewer)) {
 	if($doReport)	$wampReport['gen2'] .= $message;
 	$WarningText .= 'Type: item; Caption: "Default log viewer does not exist"; Glyph: 19; Action: run; FileName: "'.$c_phpExe.'";Parameters: "msg.php 11 '.base64_encode($message).'";WorkingDir: "'.$c_installDir.'/scripts"; Flags: waituntilterminated
 ';
-}
-
-//Warning if install dir or php into PATH environment variable.
-if($wampConf['NotVerifyPATH'] == 'off') {
-	$message = '';
-	$pathWampFound = array();
-	$pathLines = explode(';',getenv('PATH'));
-	//Check if there is Wamp install dir in PATH
-	$wampinstallfound = false;
-	$phpinstallfound = false;
-	foreach($pathLines as $key => $value) {
-		if(stripos(str_replace('\\','/',$value), $c_installDir) !== false && !$wampinstallfound) {
-			$message .= "\nWarning: There is Wampserver path (".$c_installDir.")\ninto Windows PATH environnement variable: (".$value.")\n";
-			$pathWampFound[] = $key;
-			$wampinstallfound = true;
-		}
-		if(stripos(str_replace('\\','/',$value), 'wamp') !== false && !$wampinstallfound) {
-			$message .= "\nWarning: It seems that there is Wampserver path \ninto Windows PATH environnement variable: (".$value.")\n";
-			$pathWampFound[] = $key;
-			$wampinstallfound = true;
-		}
-		if((stripos(str_replace('\\','/',$value), 'php/') !== false || stripos(str_replace('\\','/',$value), '/php')) && !$phpinstallfound) {
-			$message .= "\nWarning: It seems that a PHP installation is declared in the environment variable PATH\n";
-			$message .= $value."\n";
-			$pathWampFound[] = $key;
-			$phpinstallfound = true;
-		}
-	}
-	if($wampinstallfound || $phpinstallfound) {
-		$WarningsAtEnd = true;
-		$message .= color('red',"\nWampserver does not use, modify or require the PATH environment variable.\n");
-		$message .= "Using a PATH on Wampserver or PHP version\nmay be detrimental to the proper functioning of Wampserver.\n";
-		if($doReport)	$wampReport['gen2'] .= $message;
-		$WarningText .= 'Type: item; Caption: "Warning '.$c_installDir.' or PHP in PATH"; Glyph: 19; Action: run; FileName: "'.$c_phpExe.'";Parameters: "msg.php 11 '.base64_encode($message).'";WorkingDir: "'.$c_installDir.'/scripts"; Flags: waituntilterminated
-';
-	}
 }
 
 // Forum for help - linklang
@@ -805,23 +736,229 @@ unset($PromptCustom,$PromptTemp,$TextMenuColor,$TextTemp,$SeparatorLeftMenuColor
 
 //******************************
 // Create PhpMyAdmin menu item's
-// Show PhpMyAdmin in Wampmanager menu ?
-if($phmyadOK && $wampConf['ShowphmyadMenu'] == 'on') {
-	$ItemMenuPMA = '';
+if($phmyadOK && empty($SupportDBMS)) {
+	$ItemMenuPMA = $SubMenuPMA = '';
+	$numPhpMy = 0;
 	foreach($Alias_Contents['PMyAdVer'] as $key => $none) {
+		if($numPhpMy > 0) {
+			$ItemMenuPMA .= <<< EOF
+Type: separator
+
+EOF;
+		}
 		$value = $Alias_Contents['PMyAd'][$key];
 		$glyph = ($Alias_Contents[$value]['compat']) ? 39 : 23;
 		$ItemMenuPMA .= <<< EOF
-{$SupportDBMS}Type: item; Caption: "{$w_phpmyadmin}	{$Alias_Contents[$value]['version']}{$Alias_Contents[$value]['fcgiaff']}"; Action: run; FileName: "{$c_navigator}"; Parameters: "{$c_edge}http://localhost{$UrlPort}/{$value}/"; Glyph: {$glyph}
+Type: item; Caption: "{$w_phpmyadmin}	{$Alias_Contents[$value]['version']}{$Alias_Contents[$value]['fcgiaff']}"; Action: run; FileName: "{$c_navigator}"; Parameters: "{$c_edge}http://localhost{$UrlPort}/{$value}/"; Glyph: {$glyph}
 
 EOF;
+		$Glyph = ''; $Action = 'hidedb';
+		if($Alias_Contents[$value]['hide'] === true) {
+			$Glyph = '; Glyph:13';
+			$Action = 'nohidedb';
+		}
+		$ItemMenuPMA .= <<< EOF
+Type: Item; Caption: "{$w_PhpMyAdminGoHidedb}"; Action: multi; Actions: phpmyadminhide{$Alias_Contents[$value]['version']}{$Glyph}
+
+EOF;
+		$SubMenuPMA .= <<< EOF
+[phpmyadminhide{$Alias_Contents[$value]['version']}]
+Action: run; FileName: "{$c_phpExe}";Parameters: "changeMiscParam.php phpmyadmin cfghidedb {$Alias_Contents[$value]['path']}/config.inc.php {$Action}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
+Action: multi; Actions: refresh_readconfig; Flags:appendsection
+
+EOF;
+		$Glyph = ''; $Action = 'password';
+		if($Alias_Contents[$value]['nopassword'] === true) {
+			$Glyph = '; Glyph:13';
+			$Action = 'nopassword';
+		}
+		$ItemMenuPMA .= <<< EOF
+Type: Item; Caption: "{$w_PhpMyAdminGoNoPassword}"; Action: multi; Actions: phpmyadminpassword{$Alias_Contents[$value]['version']}{$Glyph}
+
+EOF;
+		$SubMenuPMA .= <<< EOF
+[phpmyadminpassword{$Alias_Contents[$value]['version']}]
+Action: run; FileName: "{$c_phpExe}";Parameters: "changeMiscParam.php phpmyadmin cfgpassword {$Alias_Contents[$value]['path']}/config.inc.php {$Action}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
+Action: multi; Actions: refresh_readconfig; Flags:appendsection
+
+EOF;
+		//Verify if there is php_admin_value's into phpmyadmin alias
+		if(!empty($Alias_Contents[$value]['php_admin_value'])) {
+			$ItemMenuPMA .= <<< EOF
+Type: submenu; Caption: "php_admin_value - php_admin_flag"; Submenu: phpmyadminvalue{$Alias_Contents[$value]['version']}; Glyph: 9
+
+EOF;
+			$SubMenuPMA .= <<< EOF
+[phpmyadminvalue{$Alias_Contents[$value]['version']}]
+
+EOF;
+
+			// ***************************************************************
+			// *** Creating the PhpMyAdmin alias parameters configuration menu
+			$PhpMyAdminVersion = $Alias_Contents[$value]['version'];
+			//Put alias PhpMyAdmin specific parameters into $PMA_Alias_Params
+			$PMA_Alias_Params = array();
+			foreach($Alias_Contents[$value]['php_admin_value'] as $kad => $vad) {
+				$PMA_Alias_Params[$vad['param']] = $vad['value'];
+			}
+			$Alias_Path = $Alias_Contents[$value]['aliaspath'];
+			$PMA_ConfText = $PMA_ConfTextInfo = $PMA_ConfForInfo = "";
+			$PMAParams = array_combine($PMA_Params,$PMA_Params);
+			foreach($PMAParams as $next_param_name => $next_param_text) {
+			  if(isset($PMA_Alias_Params[$next_param_text])) {
+			  	if(array_key_exists($next_param_name, $PMA_ParamsNotOnOff)) {
+			  		if($PMA_ParamsNotOnOff[$next_param_name]['change'] !== true) {
+			  	  	$params_for_PMA_alias[$next_param_name] = -2;
+			  	  	if(!empty($PMA_ParamsNotOnOff[$next_param_name]['msg']))
+			  	  		$PMAErrorMsg[$next_param_name] = "\n".$PMA_ParamsNotOnOff[$next_param_name]['msg']."\n";
+			   	  	else
+								$PMAErrorMsg[$next_param_name] = "\nThe value of this PhpMyAdmin parameter must be modified in the file: wamp64/alias/phpmyadminxyz.alias\n";
+			  		}
+			  		else {
+			  	  $params_for_PMA_alias[$next_param_name] = -3;
+			  	  if($PMA_ParamsNotOnOff[$next_param_name]['title'] == 'Special')
+			  	  	$params_for_PMA_alias[$next_param_name] = -4;
+			  		}
+			  	}
+			  	elseif(mb_strtolower($PMA_Alias_Params[$next_param_text]) == "off")
+			  		$params_for_PMA_alias[$next_param_name] = 'off';
+			  	elseif(mb_strtolower($PMA_Alias_Params[$next_param_text]) == "on")
+			  		$params_for_PMA_alias[$next_param_name] = 'on';
+			  	elseif($PMA_Alias_Params[$next_param_text] == 0)
+			  		$params_for_PMA_alias[$next_param_name] = '0';
+			  	elseif($PMA_Alias_Params[$next_param_text] == 1)
+			  		$params_for_PMA_alias[$next_param_name] = '1';
+			  	else
+			  	  $params_for_PMA_alias[$next_param_name] = -2;
+			  }
+			  else //Parameter in PhpMyAdmin does not exist in alias
+			    $params_for_PMA_alias[$next_param_name] = -1;
+			}
+
+
+			$action_sup = array();
+			$information_only = false;
+			foreach ($params_for_PMA_alias as $paramname => $paramstatus) {
+				if($params_for_PMA_alias[$paramname] == '1' || $params_for_PMA_alias[$paramname] == 'on') {
+			    $PMA_ConfText .= 'Type: item; Caption: "'.$paramname.'"; Glyph: 13; Action: multi; Actions: '.$PMAParams[$paramname].$PhpMyAdminVersion.'
+';
+				}
+				elseif($params_for_PMA_alias[$paramname] == '0' || $params_for_PMA_alias[$paramname] == 'off') {
+			    $PMA_ConfText .= 'Type: item; Caption: "'.$paramname.'"; Action: multi; Actions: '.$PMAParams[$paramname].$PhpMyAdminVersion.'
+';
+				}
+				elseif($params_for_PMA_alias[$paramname] == -2) { // I blue to indicate different from 0 or 1 or On or Off
+					if(!$information_only) {
+						$PMA_ConfForInfo .= 'Type: separator; Caption: "'.$w_phpparam_info.'"
+';
+						$information_only = true;
+					}
+					if($seeInfoMessage) {
+			    	$PMA_ConfForInfo .= 'Type: item; Caption: "'.$paramname.'  '.$PMA_Alias_Params[$paramname].'"; Action: multi; Actions: '.$PMAParams[$paramname].$PhpMyAdminVersion.'
+';
+					}
+					else {
+			    	$PMA_ConfForInfo .= 'Type: item; Caption: "'.$paramname.'   '.$PMA_Alias_Params[$paramname].'"; Action: none
+';
+					}
+				}
+				elseif($params_for_PMA_alias[$paramname] == -3) { // Indicate different from 0 or 1 or On or Off but can be changed
+					$action_sup[] = $paramname;
+					$text = ($PMA_ParamsNotOnOff[$paramname]['title'] == 'Number' ? ' - '.$PMA_ParamsNotOnOff[$paramname]['text'][$PMA_Alias_Params[$paramname]] : '');
+					$PMA_ConfText .= 'Type: submenu; Caption: "'.$paramname.'   '.$PMA_Alias_Params[$paramname].$text.'  "; Submenu: '.$paramname.$PhpMyAdminVersion.'; Glyph: 9
+';
+				}
+				elseif($params_for_PMA_alias[$paramname] == -4) { // Indicate different from 0 or 1 or On or Off but can be changed with Special treatment
+					$action_sup[] = $paramname;
+					$PMA_ConfText .= 'Type: submenu; Caption: "'.$paramname.'   '.$PMA_Alias_Params[$paramname].'  "; Submenu: '.$paramname.$typebase.$PhpMyAdminVersion.'; Glyph: 9
+';
+				}
+			}
+			//Check for supplemtary actions
+			$MenuSup = $SubMenuSup = array();
+			if(count($action_sup) > 0) {
+				$i = 0;
+				foreach($action_sup as $action) {
+					$MenuSup[$i] = $SubMenuSup[$i] = '';
+					if($PMA_ParamsNotOnOff[$action]['title'] == 'Special') {
+					}
+					else {
+						$MenuSup[$i] .= '
+['.$action.$PhpMyAdminVersion.']
+Type: separator; Caption: "'.$PMA_ParamsNotOnOff[$action]['title'].'"
+';
+						$c_values = $PMA_ParamsNotOnOff[$action]['values'];
+						if($PMA_ParamsNotOnOff[$action]['quoted'])
+							$quoted = 'quotes';
+						else
+							$quoted = 'noquotes';
+						foreach($c_values as $value) {
+							if($value == $PMA_Alias_Params[$action]) continue;
+							$text = ($PMA_ParamsNotOnOff[$action]['title'] == 'Number' ? " - ".$PMA_ParamsNotOnOff[$action]['text'][$value] : "");
+							$MenuSup[$i] .= 'Type: item; Caption: "'.$value.$text.'"; Action: multi; Actions: '.$action.$value.$PhpMyAdminVersion.'
+';
+							if(mb_strtolower($value) == 'choose') {
+								$param_value = '%'.$PMA_ParamsNotOnOff[$action]['title'].'%';
+								$param_third = ' '.$PMA_ParamsNotOnOff[$action]['title'];
+								$c_phpRun = $c_phpExe;
+							}
+							else {
+								$param_value = $value;
+								$param_third = '';
+								$c_phpRun = $c_phpCli;
+							}
+							$SubMenuSup[$i] .= <<< EOF
+[{$action}{$value}{$PhpMyAdminVersion}]
+Action: run; FileName: "{$c_phpRun}";Parameters: "changeMiscParam.php phpmyadmin aliasvalue {$Alias_Path} {$quoted} {$action} {$param_value}{$param_third}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
+Action: multi; Actions: refresh_readconfig; Flags:appendsection
+
+EOF;
+						}
+					}
+				$i++;
+				}
+			}
+			$PMA_ConfText .= $PMA_ConfTextInfo.$PMA_ConfForInfo;
+
+			foreach ($params_for_PMA_alias as $paramname=>$paramstatus) {
+				if($params_for_PMA_alias[$paramname] == '1' || $params_for_PMA_alias[$paramname] == '0' || $params_for_PMA_alias[$paramname] == 'on' || $params_for_PMA_alias[$paramname] == 'off') {
+					if($params_for_PMA_alias[$paramname] == '1' || $params_for_PMA_alias[$paramname] == '0')
+						$SwitchAction = ($params_for_PMA_alias[$paramname] == '1' ? '0' : '1');
+					else
+						$SwitchAction = ($params_for_PMA_alias[$paramname] == 'on' ? 'off' : 'on');
+			  	$PMA_ConfText .= <<< EOF
+[{$PMAParams[$paramname]}{$PhpMyAdminVersion}]
+Action: run; FileName: "{$c_phpExe}";Parameters: "changeMiscParam.php phpmyadmin aliasflag {$Alias_Path} {$PMAParams[$paramname]} {$SwitchAction}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
+Action: multi; Actions: refresh_readconfig; Flags:appendsection
+
+EOF;
+				}
+			  elseif($params_for_PMA_alias[$paramname] == -2)  {//Parameter is neither 'on' nor 'off'
+			  	$PMA_ConfText .= '['.$PMAParams[$paramname].$PhpMyAdminVersion.']
+Action: run; FileName: "'.$c_phpExe.'";Parameters: "msg.php 6 '.base64_encode($paramname).' '.base64_encode($PMAErrorMsg[$paramname]).'";WorkingDir: "'.$c_installDir.'/scripts"; Flags: waituntilterminated
+';
+				}
+			}
+			if(count($MenuSup) > 0) {
+				for($i = 0 ; $i < count($MenuSup); $i++)
+					$PMA_ConfText .= $MenuSup[$i].$SubMenuSup[$i];
+			}
+			// *** End of PhpMyAdmin alias parameters menu ***
+			// ***********************************************
+
+			$SubMenuPMA .= $PMA_ConfText;
+
+		}// End php_admin_value's
+
+		$numPhpMy++;
 	}
 $ItemMenuPMA .= <<< EOF
-{$SupportDBMS}Type: submenu; Caption: "{$w_phpMyAdminHelp}"; Submenu: phpmyadmin-help; Glyph: 35
+Type: separator
+Type: submenu; Caption: "{$w_phpMyAdminHelp}"; Submenu: phpmyadmin-help; Glyph: 35
 
 EOF;
 	$subPhpMyAdmin = <<< EOF
-{$SupportDBMS}Type: submenu; Caption: "PhpMyAdmin"; Submenu: MultiplephpMyAdmin; Glyph: 39
+Type: submenu; Caption: "PhpMyAdmin"; Submenu: MultiplephpMyAdmin; Glyph: 39
 
 EOF;
 	// Do PhpMyAdmin replacements
@@ -831,14 +968,18 @@ EOF;
 	$search = ';WAMPMULTIPLEPHPMYADMINSTART
 ';
 	$tpl = str_replace($search,$search.$ItemMenuPMA,$tpl);
+	$search = ';WAMPMULTIPLEPHPMYADMINEND
+';
+	$tpl = str_replace($search,$search.$SubMenuPMA,$tpl);
+
 	// Add warnings PhpMyAdmin if needed
 	if($WarningsPMA) {
 		$WarningTextAll = '
-Type: Separator;
+Type: separator
 ';
-		$tpl = str_replace(';WAMPMULTIPLEPHPMYADMINEND',$WarningTextAll.$WarningMenuPMA.$WarningTextPMA,$tpl);
+			$tpl = str_replace(';WAMPMULTIPLEPHPMYADMINEND',$WarningTextAll.$WarningMenuPMA.$WarningTextPMA,$tpl);
 	}
-	unset($ItemMenuPMA,$SubPhpMyAdmin);
+	unset($ItemMenuPMA,$SubMenuPMA,$SubPhpMyAdmin);
 }
 // END of PhpMyAdmin menu
 //***********************
@@ -887,6 +1028,10 @@ unset($langText);
 // END of menu with the available languages
 // ****************************************
 
+//Verify if Apache module fcgid_module is loaded
+// If yes, Apache variable PHPROOT must exists
+$fcgid_module_loaded = is_apache_var('${PHPROOT}');
+
 //***************************
 // Creating PHP versions menu
 $phpVersionList = listDir($c_phpVersionDir,'checkPhpConf','php',true);
@@ -897,11 +1042,12 @@ $myreplace = $myPattern."
 ";
 $myreplacemenu = $php_iniFCGI = '';
 foreach ($phpVersionList as $onePhpVersion) {
-	$php_iniFCGI .= <<< EOF
+	if($fcgid_module_loaded && in_array($onePhpVersion,$phpFcgiVersionList)) {
+		$php_iniFCGI .= <<< EOF
 Type: item; Caption: "php.ini PHP {$onePhpVersion} [FCGI - CLI]"; Glyph: 33; Action: run; FileName: "{$c_editor}"; parameters: "{$c_phpVersionDir}/php{$onePhpVersion}/php.ini"
 
 EOF;
-
+	}
   $phpGlyph = '';
   //it checks if the PHP is compatible with the current version of apache
   unset($phpConf);
@@ -950,8 +1096,8 @@ Action: run; FileName: "'.$c_phpExe.'";Parameters: "msg.php 1 '.base64_encode($o
 ';
   }
 }
-
-$myreplace .= <<< EOF
+if(!empty($php_iniFCGI)) {
+	$myreplace .= <<< EOF
 Type: submenu; Caption: " "; Submenu: AddingVersions; Glyph: 1
 
 [phpiniFCGICLI]
@@ -959,15 +1105,12 @@ Type: separator; Caption: "php.ini [FCGI - CLI]"
 {$php_iniFCGI}
 
 EOF;
+}
 
 $tpl = str_replace($myPattern,$myreplace.$myreplacemenu,$tpl);
 unset($myreplace,$myreplacemenu,$myPattern);
 // END of PHP versions menu
 //*************************
-
-//Verify if Apache module fcgid_module is loaded
-// If yes, Apache variable PHPROOT must exists
-$fcgid_module_loaded = is_apache_var('${PHPROOT}');
 
 // ********************************
 // Creating the PHP extensions menu
@@ -1305,9 +1448,9 @@ foreach($phpParams as $next_param_name => $next_param_text) {
   	  		$myphpini[$next_param_name] = 'off';
   		}
   	}
-  	elseif(strtolower($myphpini[$next_param_text]) == "off")
+  	elseif(mb_strtolower($myphpini[$next_param_text]) == "off")
   		$params_for_wampini[$next_param_name] = 'off';
-  	elseif(strtolower($myphpini[$next_param_text]) == "on")
+  	elseif(mb_strtolower($myphpini[$next_param_text]) == "on")
   		$params_for_wampini[$next_param_name] = 'on';
   	elseif($myphpini[$next_param_text] == 0)
   		$params_for_wampini[$next_param_name] = '0';
@@ -1553,7 +1696,7 @@ Type: separator; Caption: "'.$phpParamsNotOnOff[$action]['title'].'"
 				if($c_infos[$key] != $value) $value_caption .= ' - '.$c_infos[$key];
 				$MenuSup[$i] .= 'Type: item; Caption: "'.$value_caption.'"; Action: multi; Actions: '.$PHP_version.$action.$value.'
 ';
-				if(strtolower($value) == 'choose') {
+				if(mb_strtolower($value) == 'choose') {
 					$param_value = '%'.$phpParamsNotOnOff[$action]['title'].'%';
 					$param_third = $phpParamsNotOnOff[$action]['title'];
 					if($phpParamsNotOnOff[$action]['title'] == 'Integer')
@@ -1711,9 +1854,8 @@ Action: run; FileName: "{$c_apacheVersionDir}/apache{$oneApacheVersion}/{$apache
 Action: run; Filename: "CMD"; Parameters: "/D /C sc config {$c_apacheService} start= demand"; ShowCmd: hidden; Flags: waituntilterminated
 Action: run; FileName: "{$c_phpExe}";Parameters: "switchWampPort.php {$c_UsedPort}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
 Action: run; FileName: "CMD"; Parameters: "/D /C net start {$c_apacheService}"; ShowCmd: hidden; Flags: waituntilterminated
-Action: run; FileName: "{$c_phpCli}";Parameters: "refresh.php";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
 Action: resetservices
-Action: readconfig
+Action: multi; Actions: refresh_readconfig; Flags:appendsection
 
 EOF;
   }
@@ -1762,10 +1904,19 @@ $noModFile = array_diff($mod_load,$mod_in_modules_dir);
 foreach($noModFile as $key => $value) {
 	$mod[$key] = -1 ; // loadModule line in httpd.conf but no file .so in modules dir
 }
+
 // LoadModule should not be disabled
 foreach($apacheModNotDisable as $value) {
 	if(array_key_exists($value,$mod))
 		$mod[$value] = -3 ; //Apache modules which should not be disabled
+}
+
+// Module should not be unload if $virtualHost['index'] is true
+foreach($apacheModuleNotUnload as $key => $value) {
+	if($virtualHost[$value['index']] === true) {
+		$mod[$key] = -4;
+		$modmsg[$key] = $value['msg'];
+	}
 }
 
 $httpdText = 'Type: separator; Caption: "'.$w_apacheModules.'"
@@ -1777,11 +1928,12 @@ $httpdNoModule = false;
 $httpdTextNoLoad ="";
 $httpdNoLoad = false;
 
-foreach ($mod as $modname=>$modstatus)
-{
-  if($modstatus == 1)
-    $httpdText .= 'Type: item; Caption: "'.$modname.'"; Glyph: 13; Action: multi; Actions: apache_mod_'.$modname.'
+foreach ($mod as $modname => $modstatus) {
+  if($modstatus == 1 || $modstatus == -4) {
+  	$Glyph = ($modstatus == -4) ? '21' : '13';
+    $httpdText .= 'Type: item; Caption: "'.$modname.'"; Glyph: '.$Glyph.'; Action: multi; Actions: apache_mod_'.$modname.'
 ';
+}
 	elseif($modstatus == -1) { //Red square - No module file
 		if(!$httpdNoModule) {
 			$httpdTextNoModule .= 'Type: separator; Caption: "'.$w_no_module.'"
@@ -1800,7 +1952,7 @@ foreach ($mod as $modname=>$modstatus)
 		$httpdTextNoLoad .= 'Type: item; Caption: "'.$modname.'"; Action: multi; Actions: apache_mod_'.$modname.' ; Glyph: 19;
 ';
 	}
-	elseif($modstatus == -3) {//Apache modules which should not be disabled
+	elseif($modstatus == -3) { //Apache modules which should not be disabled
 		if(!$httpdInfo) {
 			$httpdTextInfo .= 'Type: separator; Caption: "'.$w_mod_fixed.'"
 Type: item; Caption: "#';
@@ -1844,8 +1996,7 @@ $httpdText = ";WAMPAPACHE_MODSTART
 ".$httpdTextNoLoad.$httpdTextNoModule.$httpdText.$httpdTextInfo.$ApacheCompiledModules;
 
 $NBmodApacheLines = 0;
-foreach ($mod as $modname=>$modstatus)
-{
+foreach ($mod as $modname => $modstatus) {
 	$NBmodApacheLines++;
 	if($mod[$modname] == 1 || $mod[$modname] == 0) {
 		$SwitchAction = ($mod[$modname] == 1 ? 'on' : 'off');
@@ -1856,12 +2007,15 @@ Action: multi; Actions: apache_restart_refresh; Flags:appendsection
 
 EOF;
 	}
-	elseif($mod[$modname] == -1 || $mod[$modname] == -2) {
+	elseif($mod[$modname] == -1 || $mod[$modname] == -2 || $mod[$modname] == -4) {
 		if($mod[$modname] == -1) $msgNum = 7;
 		elseif($mod[$modname] == -2) $msgNum = 8;
+		elseif($mod[$modname] == -4) $msgNum = 12;
+		$msg_add = '';
+		if(isset($modmsg[$modname])) $msg_add = ' - '.$modmsg[$modname];
 		$modFile = 'mod_'.str_replace('_module','',$modname).'.so';
     $httpdText .= '[apache_mod_'.$modname.']
-Action: run; FileName: "'.$c_phpExe.'";Parameters: "msg.php '.$msgNum.' '.base64_encode($modname).' '.base64_encode($modFile).'";WorkingDir: "'.$c_installDir.'/scripts"; Flags: waituntilterminated
+Action: run; FileName: "'.$c_phpExe.'";Parameters: "msg.php '.$msgNum.' '.base64_encode($modname.$msg_add).' '.base64_encode($modFile).'";WorkingDir: "'.$c_installDir.'/scripts"; Flags: waituntilterminated
 ';
 	}
 }
@@ -2114,9 +2268,10 @@ Type: separator; Caption: "{$CaptionDBMS}"
 
 EOF;
 		$DBMSFooter = <<< EOF
-Type: item; Caption: "{$w_help} -> MariaDB - MySQL"; Action: run; Filename: "{$c_editor}"; Parameters: "%AeTrayMenuPath%\mariadb_mysql.txt"; ShowCmd: Normal; Glyph: 31
+Type: submenu; Caption: "{$w_MariaDBMySQLHelp}"; Submenu: mariadb-mysql-help; Glyph: 31
 
 EOF;
+
 		array_unshift($myDBMSreplacearray,$DBMSHeader);
 		array_push($myDBMSreplacearray,$DBMSFooter);
 
@@ -2228,28 +2383,17 @@ if($wampConf['AliasSubmenu'] == "on") {
 	$myreplace = $myPattern."
 Type: separator; Caption: \"".$w_aliasSubMenu."\"
 ";
-	// Place alias into submenu
-	$AliasContents = array();
-	if(is_dir($aliasDir)) {
-    $handle=opendir($aliasDir);
-    while (false !== ($file = readdir($handle))) {
-	    if(is_file($aliasDir.$file) && strstr($file, '.conf')) {
-		    $AliasContents[] = str_replace('.conf','',$file);
-	    }
-    }
-    closedir($handle);
-	}
 	$myreplacesubmenuAlias = '';
-
-	if(count($AliasContents) > 0)	{
-		$Alias_Contents['alias'] = array_unique($Alias_Contents['alias']);
+	if(count($Alias_Contents['alias']) > 0)	{
+		//$Alias_Contents['alias'] = array_unique($Alias_Contents['alias']);
 		//error_log("Alias_Contents=".print_r($Alias_Contents,true));
-		foreach($AliasContents as $AliasValue) {
+		foreach($Alias_Contents['alias'] as $AliasValue) {
 			$glyph = (strpos($AliasValue,'phpmyadmin') !== false || strpos($AliasValue,'adminer') !== false) ? '28' : '5';
 			$myreplacesubmenuAlias .= 'Type: item; Caption: "'.$AliasValue.$Alias_Contents[$AliasValue]['fcgiaff'].'"; Action: run; FileName: "'.$c_navigator.'"; Parameters: "';
-			$myreplacesubmenuAlias .= $c_edge.'http://localhost'.$UrlPort.'/'.$AliasValue.'/"; Glyph: '.$glyph.'
+			$myreplacesubmenuAlias .= $c_edge.'http://localhost'.$UrlPort.'/'.$Alias_Contents[$AliasValue]['alias'].'/"; Glyph: '.$glyph.'
 ';
 		}
+		$myreplacesubmenuAlias = str_replace('//','/',$myreplacesubmenuAlias);
 		$tpl = str_replace($myPattern,$myreplace.$myreplacesubmenuAlias,$tpl);
 	}
 }
@@ -2258,288 +2402,336 @@ Type: separator; Caption: \"".$w_aliasSubMenu."\"
 
 //*******************************
 // Creating Virtual Hosts submenu
-if($wampConf['VirtualHostSubMenu'] == "on")
-{
-	//Add item for submenu
-	$myPattern = ';WAMPVHOSTSUBMENU';
-	$myreplace = $myPattern."
+//Add item for submenu
+$myPattern = ';WAMPVHOSTSUBMENU';
+$myreplace = $myPattern."
 ";
-	$myreplacesubmenu = 'Type: submenu; Caption: "'.$w_virtualHostsSubMenu.'"; Submenu: myVhostsMenu; Glyph: 5
+$myreplacesubmenu = 'Type: submenu; Caption: "'.$w_virtualHostsSubMenu.'"; Submenu: myVhostsMenu; Glyph: 5
 ';
-	$tpl = str_replace($myPattern,$myreplace.$myreplacesubmenu,$tpl);
-	//Add submenu
-	$myPattern = ';WAMPMENULEFTEND';
-	$myreplace = $myPattern."
+$tpl = str_replace($myPattern,$myreplace.$myreplacesubmenu,$tpl);
+//Add submenu
+$myPattern = ';WAMPMENULEFTEND';
+$myreplace = $myPattern."
 ";
-	$myreplacesubmenu = '
+$myreplacesubmenu = '
 
 [myVhostsMenu]
 ;WAMPVHOSTMENUSTART
 ;WAMPVHOSTMENUEND
 
 ';
-	$tpl = str_replace($myPattern,$myreplace.$myreplacesubmenu,$tpl);
-	$myPattern = ';WAMPVHOSTMENUSTART';
-	$myreplace = $myPattern."
+$tpl = str_replace($myPattern,$myreplace.$myreplacesubmenu,$tpl);
+$myPattern = ';WAMPVHOSTMENUSTART';
+$myreplace = $myPattern."
 Type: separator; Caption: \"".$w_virtualHostsSubMenu."\"
 ";
-	$myreplacesubmenuVhosts = '';
+$myreplacesubmenuVhosts = $myreplacesubmenuVhostsError = '';
 
-	$virtualHost = check_virtualhost();
+//$virtualHost = check_virtualhost();
 
-	//is Include conf/extra/httpd-vhosts.conf uncommented?
-	if($virtualHost['include_vhosts'] === false) {
-		$myreplacesubmenuVhosts .= 'Type: item; Caption: "Virtual Host ERROR"; Action: multi; Actions: server_not_included; Glyph: 21
+//is Include conf/extra/httpd-vhosts.conf uncommented?
+if($virtualHost['include_vhosts'] === false) {
+	$myreplacesubmenuVhosts .= 'Type: item; Caption: "Virtual Host ERROR"; Action: multi; Actions: server_not_included; Glyph: 21
 ';
-    $myreplacesubmenuVhosts .= '[server_not_included]
+   $myreplacesubmenuVhosts .= '[server_not_included]
 Action: run; FileName: "'.$c_phpExe.'";Parameters: "msg.php 14";WorkingDir: "'.$c_installDir.'/scripts"; Flags: waituntilterminated
+';
+}
+else {
+	if($virtualHost['vhosts_exist'] === false) {
+		$myreplacesubmenuVhosts .= 'Type: item; Caption: "Virtual Host ERROR"; Action: multi; Actions: server_not_exists; Glyph: 21
+';
+   	$myreplacesubmenuVhosts .= '[server_not_exists]
+Action: run; FileName: "'.$c_phpExe.'";Parameters: "msg.php 15 '.base64_encode($virtualHost['vhosts_file']).'";WorkingDir: "'.$c_installDir.'/scripts"; Flags: waituntilterminated
 ';
 	}
 	else
 	{
-		if($virtualHost['vhosts_exist'] === false) {
-			$myreplacesubmenuVhosts .= 'Type: item; Caption: "Virtual Host ERROR"; Action: multi; Actions: server_not_exists; Glyph: 21
-';
-    	$myreplacesubmenuVhosts .= '[server_not_exists]
-Action: run; FileName: "'.$c_phpExe.'";Parameters: "msg.php 15 '.base64_encode($virtualHost['vhosts_file']).'";WorkingDir: "'.$c_installDir.'/scripts"; Flags: waituntilterminated
-';
-		}
-		else
-		{
-			$server_name = array();
+		$server_name = $server_no_https = array();
+		if($virtualHost['nb_Server'] > 0)	{
+			$nb_Server = $virtualHost['nb_Server'];
+			$nb_Virtual = $virtualHost['nb_Virtual'];
+			$nb_Document = $virtualHost['nb_Document'];
+			$nb_Directory = $virtualHost['nb_Directory'];
+			$nb_End_Directory = $virtualHost['nb_End_Directory'];
 
-			if($virtualHost['nb_Server'] > 0)
-			{
-				$nb_Server = $virtualHost['nb_Server'];
-				$nb_Virtual = $virtualHost['nb_Virtual'];
-				$nb_Document = $virtualHost['nb_Document'];
-				$nb_Directory = $virtualHost['nb_Directory'];
-				$nb_End_Directory = $virtualHost['nb_End_Directory'];
+			$port_number = true;
+			//Check number of <Directory equals to number of </Directory
+			if($nb_End_Directory != $nb_Directory) {
+				$value = "ServerName_Directory";
+				$server_name[$value] = -2;
+				$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 23
+';
+			}
+			//Check number of DocumentRoot equals to number of ServerName
+			if($nb_Document != $nb_Server) {
+				$value = "ServerName_Document";
+				$server_name[$value] = -7;
+				$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 23
+';
+			}
+			//Check validity of DocumentRoot
+			$documentPathError = '';
+			if($virtualHost['document'] === false) {
+				foreach($virtualHost['documentPath'] as $value) {
+					if($virtualHost['documentPathValid'][$value] === false) {
+						$documentPathError = $value;
+						$code = -8;
+						break;
+					}
+					elseif($virtualHost['documentPathNotSlashEnded'][$value] === false) {
+						$documentPathError = $value;
+						$code = -18;
+						break;
+					}
+				}
+				$value = "DocumentRoot_error";
+				$server_name[$value] = $code;
+				$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 23
+';
+			}
+			//Check validity of Directory Path
+			$directoryPathError = '';
+			if($virtualHost['directory'] === false) {
+				foreach($virtualHost['directoryPath'] as $value) {
+					if($virtualHost['directoryPathValid'][$value] === false) {
+						$directoryPathError = $value;
+						break;
+					}
+				}
+				$value = "Directory_Path_error";
+				$server_name[$value] = -9;
+				$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 23
+';
+			}
+			//Check Directory Path ended with a slash /
+			$directoryPathErrorSlash = '';
+			if($virtualHost['directorySlash'] === false) {
+				foreach($virtualHost['directoryPath'] as $value) {
+					if($virtualHost['directoryPathSlashEnded'][$value] === false) {
+						$directoryPathErrorSlash = $value;
+						break;
+					}
+				}
+				$value = "Directory_Path_no_slash";
+				$server_name[$value] = -17;
+				$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 23
+';
+			}
 
-				$port_number = true;
-				//Check number of <Directory equals to number of </Directory
-				if($nb_End_Directory != $nb_Directory) {
-					$value = "ServerName_Directory";
-					$server_name[$value] = -2;
-					$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 23
+			//Check number of <VirtualHost equals or > to number of ServerName
+			if($nb_Server != $nb_Virtual && $wampConf['NotCheckDuplicate'] == 'off') {
+				$value = "ServerName_Virtual";
+				$server_name[$value] = -3;
+				$port_number = false;
+				$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 23
 ';
-				}
-				//Check number of DocumentRoot equals to number of ServerName
-				if($nb_Document != $nb_Server) {
-					$value = "ServerName_Document";
-					$server_name[$value] = -7;
-					$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 23
-';
-				}
-				//Check validity of DocumentRoot
-				$documentPathError = '';
-				if($virtualHost['document'] === false) {
-					foreach($virtualHost['documentPath'] as $value) {
-						if($virtualHost['documentPathValid'][$value] === false) {
-							$documentPathError = $value;
-							break;
-						}
-					}
-					$value = "DocumentRoot_error";
-					$server_name[$value] = -8;
-					$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 23
-';
-				}
-				//Check validity of Directory Path
-				$directoryPathError = '';
-				if($virtualHost['directory'] === false) {
-					foreach($virtualHost['directoryPath'] as $value) {
-						if($virtualHost['directoryPathValid'][$value] === false) {
-							$directoryPathError = $value;
-							break;
-						}
-					}
-					$value = "Directory_Path_error";
-					$server_name[$value] = -9;
-					$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 23
-';
-				}
-				//Check Directory Path ended with a slash /
-				$directoryPathError = '';
-				if($virtualHost['directorySlash'] === false) {
-					foreach($virtualHost['directoryPath'] as $value) {
-						if($virtualHost['directoryPathSlashEnded'][$value] === false) {
-							$directoryPathError = $value;
-							break;
-						}
-					}
-					$value = "Directory_Path_no_slash";
-					$server_name[$value] = -17;
-					$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 23
-';
-				}
+			}
 
-				//Check number of <VirtualHost equals or > to number of ServerName
-				if($nb_Server != $nb_Virtual && $wampConf['NotCheckDuplicate'] == 'off') {
-					$value = "ServerName_Virtual";
-					$server_name[$value] = -3;
-					$port_number = false;
-					$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 23
+			//Check number of port definition of <VirtualHost *:xx> equals to number of ServerName
+			if($virtualHost['nb_Virtual_Port'] != $nb_Virtual) {
+				$value = "VirtualHost_Port";
+				$server_name[$value] = -4;
+				$port_number = false;
+				$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 23
 ';
+			}
+			//Check validity of port number
+			if($port_number && $virtualHost['port_number'] === false) {
+				$value = "VirtualHost_PortValue";
+				$server_name[$value] = -5;
+				$port_number = false;
+				$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 23
+';
+			}
+			//Check if duplicate ServerName
+			if($virtualHost['nb_duplicate'] > 0) {
+				$DuplicateNames = '';
+				$value = "Duplicate_ServerName";
+				$server_name[$value] = -10;
+				foreach($virtualHost['duplicate'] as $NameValue)
+					$DuplicateNames .= "\r\n\t".$NameValue;
+				$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 23
+';
+			}
+			foreach($virtualHost['ServerName'] as $key => $value) {
+				if($virtualHost['ServerNameValid'][$value] === false || $virtualHost['ServerNameQuoted'][$value] === true) {
+					$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 20
+';
+					$server_name[$value] = -1;
 				}
-
-				//Check number of port definition of <VirtualHost *:xx> equals to number of ServerName
-				if($virtualHost['nb_Virtual_Port'] != $nb_Virtual) {
-					$value = "VirtualHost_Port";
-					$server_name[$value] = -4;
-					$port_number = false;
-					$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 23
+				elseif($virtualHost['DocRootNotwww'][$value] === false) {
+					$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 20
 ';
+					$server_name[$value] = -14;
 				}
-				//Check validity of port number
-				if($port_number && $virtualHost['port_number'] === false) {
-					$value = "VirtualHost_PortValue";
-					$server_name[$value] = -5;
-					$port_number = false;
-					$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 23
+				elseif($virtualHost['ServerNameDev'][$value] === true) {
+					$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 20
 ';
+					$server_name[$value] = -15;
 				}
-				//Check if duplicate ServerName
-				if($virtualHost['nb_duplicate'] > 0) {
-					$DuplicateNames = '';
-					$value = "Duplicate_ServerName";
-					$server_name[$value] = -10;
-					foreach($virtualHost['duplicate'] as $NameValue)
-						$DuplicateNames .= "\r\n\t".$NameValue;
-					$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 23
+				elseif($virtualHost['ServerNameIntoHosts'][$value] === false) {
+					$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 20
 ';
+					$server_name[$value] = -16;
 				}
-
-				foreach($virtualHost['ServerName'] as $key => $value) {
-					if($virtualHost['ServerNameValid'][$value] === false) {
-						//Quote in ServerName ?
-						$value_noquote = ($virtualHost['ServerNameQuoted'][$value]) ? str_replace('"','',$value) : $value;
-						$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value_noquote.'"; Action: multi; Actions: server_'.$value_noquote.'; Glyph: 20
+				elseif($virtualHost['ServerNameValid'][$value] === true) {
+					$UrlPortVH = ($virtualHost['ServerNamePort'][$value] != '80') ? ':'.$virtualHost['ServerNamePort'][$value] : '';
+					if(!$virtualHost['port_listen'] && $virtualHost['ServerNamePortListen'][$value] !== true) {
+						$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 23
 ';
-						$server_name[$value_noquote] = -1;
+						$server_name[$value] = -12;
 					}
-					elseif($virtualHost['DocRootNotwww'][$value] === false) {
-						$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 20
+					elseif($virtualHost['port_listen'] && $virtualHost['ServerNamePortApacheVar'][$value] !== true) {
+						$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 23
 ';
-						$server_name[$value] = -14;
-					}
-					elseif($virtualHost['ServerNameDev'][$value] === true) {
-						$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 20
-';
-						$server_name[$value] = -15;
-					}
-					elseif($virtualHost['ServerNameIntoHosts'][$value] === false) {
-						$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 20
-';
-						$server_name[$value] = -16;
-					}
-					elseif($virtualHost['ServerNameValid'][$value] === true) {
-						$UrlPortVH = ($virtualHost['ServerNamePort'][$value] != '80') ? ':'.$virtualHost['ServerNamePort'][$value] : '';
-						if(!$virtualHost['port_listen'] && $virtualHost['ServerNamePortListen'][$value] !== true) {
-							$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 23
-';
-							$server_name[$value] = -12;
-						}
-						elseif($virtualHost['port_listen'] && $virtualHost['ServerNamePortApacheVar'][$value] !== true) {
-							$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 23
-';
-							$server_name[$value] = -13;
-						}
-						else {
-							$glyph = ($value == 'localhost') ? '27' : '5';
-							$value_url = ((strpos($value, ':') !== false) ? strstr($value,':',true) : $value);
-							$value_link = $value;
-							$vh_action = 'Action: run; FileName: "'.$c_navigator.'"; Parameters: "'.$c_edge.'http://'.$value_url.$UrlPortVH.'/"; Glyph: '.$glyph;
-							$server_name[$value] = 1;
-							$value_type = '';
-							if($virtualHost['ServerNameIp'][$value] !== false) {
-								$vh_ip = $virtualHost['ServerNameIp'][$value];
-								$value_link = $vh_ip.' ('.$value.')';
-								$vh_action = 'Action: run; FileName: "'.$c_navigator.'"; Parameters: "'.$c_edge.'http://'.$vh_ip.$UrlPortVH.'/"; Glyph: '.$glyph;
-								if($virtualHost['ServerNameIpValid'][$value] === false) {
-									$vh_action = "Action: multi; Actions: server_{$value}; Glyph: 20";
-									$server_name[$value] = -11;
-								}
-							}
-							if($virtualHost['ServerNameIDNA'][$value] === true && !empty($Windows_Charset)) {
-								$value_trans = @iconv("UTF-8",$Windows_Charset."//TRANSLIT",$virtualHost['ServerNameUTF8'][$value]);
-								if($value_trans !== false ) {
-									$value_type .= ' #13 [IDNA-> '.$value_trans.']';
-								}
-							}
-							if(isset($c_ApacheDefine['PHPROOT']) && $virtualHost['ServerNameFcgid'][$value] === true){
-								$value_type .= ' #13 [FCGI-> PHP '.$virtualHost['ServerNameFcgidPHP'][$value].']';
-							}
-							if($virtualHost['ServerNameFcgid'][$value] === true && $virtualHost['ServerNameFcgidPHPOK'][$value] !== true) {
-								$value_type .= ' #13 FCGI -> PHP '.$virtualHost['ServerNameFcgidPHP'][$value].' '.$w_phpNotExists;
-							}
-							if(in_array($value,$virtualHost['ServerNameHttps'])) {
-								$value_type .= ' #13 [HTTPS]';
-							}
-							$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value_link.$value_type.'"; '.$vh_action.'
-';
-						}//End
+						$server_name[$value] = -13;
 					}
 					else {
-						$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 20
+						$glyph = ($value == 'localhost') ? '27' : '5';
+						$value_url = ((strpos($value, ':') !== false) ? strstr($value,':',true) : $value);
+						$value_link = $value;
+						$vh_action = 'Action: run; FileName: "'.$c_navigator.'"; Parameters: "'.$c_edge.'http://'.$value_url.$UrlPortVH.'/"; Glyph: '.$glyph;
+						$server_name[$value] = 1;
+						$value_type = $vh_ip = '';
+						if($virtualHost['ServerNameIp'][$value] !== false) {
+							$vh_ip = $virtualHost['ServerNameIp'][$value];
+							$value_link = $vh_ip.' ('.$value.')';
+							$vh_action = 'Action: run; FileName: "'.$c_navigator.'"; Parameters: "'.$c_edge.'http://'.$vh_ip.$UrlPortVH.'/"; Glyph: '.$glyph;
+							if($virtualHost['ServerNameIpValid'][$value] === false) {
+								$vh_action = "Action: multi; Actions: server_{$value}; Glyph: 20";
+								$server_name[$value] = -11;
+							}
+						}
+						if($virtualHost['ServerNameIDNA'][$value] === true && !empty($Windows_Charset)) {
+							$value_trans = @iconv("UTF-8",$Windows_Charset."//TRANSLIT",$virtualHost['ServerNameUTF8'][$value]);
+							if($value_trans !== false ) {
+								$value_type .= ' #13 [IDNA-> '.$value_trans.']';
+							}
+						}
+						$server_fcgi = false;						if(isset($c_ApacheDefine['PHPROOT']) && $virtualHost['ServerNameFcgid'][$value] === true){
+							$value_type .= ' #13 [FCGI-> PHP '.$virtualHost['ServerNameFcgidPHP'][$value].']';
+							$server_fcgi =true;						}
+						if($virtualHost['ServerNameFcgid'][$value] === true && $virtualHost['ServerNameFcgidPHPOK'][$value] !== true) {
+							$value_type .= ' #13 FCGI -> PHP '.$virtualHost['ServerNameFcgidPHP'][$value].' '.$w_phpNotExists;
+						}
+						$server_https = false;
+						if(in_array($value,$virtualHost['ServerNameHttps'])) {
+							$value_type .= ' #13 [HTTPS]';
+							$server_https = true;
+							$vh_action = str_replace('http://','https://',$vh_action);
+						}
+						$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value_link.$value_type.'"; '.$vh_action.'
+';					if($key != 'localhost') {
+							foreach($virtualHost['Server'] as $key_path => $value_path) {
+								if($virtualHost['Server'][$key_path]['ServerName'] == $key) break;
+							}
+							$server_no_https[] = array(
+								'name' => $key,
+								'docroot' => $virtualHost['Server'][$key_path]['DocumentRoot'],
+								'ip' => (empty($vh_ip) ? '*' : $vh_ip),
+								'fcgi' => $virtualHost['ServerNameFcgidPHP'][$key],
+								'https' => $server_https,
+							);
+						}
+					}//End
+				}
+				else {
+					$myreplacesubmenuVhosts .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: server_'.$value.'; Glyph: 20
 ';
-						$server_name[$value] = -6;
-					}
-				} //End foreach
-				$myreplacesubmenuVhosts .= 'Type: separator
+					$server_name[$value] = -6;
+				}
+			} //End foreach
+
+			$myreplacesubmenuVhosts .= 'Type: separator
 Type: item; Caption: "'.$w_add_VirtualHost.'"; Action: run; FileName: "'.$c_navigator.'"; Parameters: "'.$c_edge.'http://localhost'.$UrlPort.'/add_vhost.php"; Glyph: 33
 ';
-				foreach($server_name as $name=>$value) {
-					if($server_name[$name] != 1) {
-						if($server_name[$name] == -1) {
-    					$myreplacesubmenuVhosts .= '[server_'.$name.']
-Action: run; FileName: "'.$c_phpExe.'";Parameters: "msg.php 9 '.base64_encode($name).'";WorkingDir: "'.$c_installDir.'/scripts"; Flags: waituntilterminated
+			//Submenu to create https VirtualHost
+			$myreplacesubmenuHttps = $myreplaceHttps = '';
+			if($wampConf['httpsReady'] == 'on' && count($server_no_https) > 0) {
+				$myreplaceHttps .= '
+Type: submenu; Caption: "'.$w_ConvertHttps.'"; Submenu: virtualhosthttps; Glyph:33
+[virtualhosthttps]
+Type: separator; Caption:"'.$w_ConvertHttps.'"
 ';
-						}
-						else {
-							if($server_name[$name] == -2)
-								$message = "In the httpd-vhosts.conf file:\r\n\r\n\tThe number of\r\n\r\n\t\t<Directory ...>\r\n\t\tis not equal to the number of\r\n\r\n\t\t</Directory>\r\n\r\nThey should be identical.";
-							elseif($server_name[$name] == -3)
-								$message = "In the httpd-vhosts.conf file:\r\n\r\n\tThe number of\r\n\r\n\t\t<VirtualHost ...>\r\n\tis not equal to the number of\r\n\r\n\t\tServerName\r\n\r\nThey should be identical.\r\n\r\n\tCorrect syntax is: <VirtualHost *:80>\r\n";
-							elseif($server_name[$name] == -4)
-								$message = "In the httpd-vhosts.conf file:\r\n\r\n\tPort number into <VirtualHost *:port>\r\n\tis not defined for all\r\n\r\n\t\t<VirtualHost...>\r\n\r\n\tCorrect syntax is: <VirtualHost *:xx>\r\n\r\n\t\twith xx = port number [80 by default]\r\n";
-							elseif($server_name[$name] == -5)
-								$message = "In the httpd-vhosts.conf file:\r\n\r\n\tPort number into <VirtualHost *:port>\r\n\thas not correct value\r\n\r\nValue are:".print_r($virtualHost['virtual_port'],true)."\r\n";
-							elseif($server_name[$name] == -6)
-								$message = "The httpd-vhosts.conf file has not been cleaned.\r\nThere remain VirtualHost examples like: dummy-host.example.com\r\n";
-							elseif($server_name[$name] == -7)
-								$message = "In the httpd-vhosts.conf file:\r\n\r\n\tThe number of\r\n\r\n\t\tDocumentRoot\r\n\tis not equal to the number of\r\n\r\n\t\tServerName\r\n\r\nThey should be identical.\r\n";
-							elseif($server_name[$name] == -8)
-								$message = "In the httpd-vhosts.conf file:\r\n\r\nThe DocumentRoot path\r\n\r\n\t".$documentPathError."\r\n\r\ndoes not exits\r\n";
-							elseif($server_name[$name] == -9)
-								$message = "In the httpd-vhosts.conf file:\r\n\r\nThe Directory path\r\n\r\n\t".$directoryPathError."\r\n\r\ndoes not exits\r\n";
-							elseif($server_name[$name] == -10)
-								$message = "In the httpd-vhosts.conf file:\r\n\r\nThere is duplicate ServerName\r\n".$DuplicateNames."\r\n";
-							elseif($server_name[$name] == -11)
-								$message = "In the httpd-vhosts.conf file:\r\n\r\nThe IP used for the VirtualHost is not valid local IP\r\n";
-							elseif($server_name[$name] == -12)
-								$message = "In the httpd-vhost.conf file:\r\n\r\nThe Port used (".$virtualHost['ServerNamePort'][$name].") for the VirtualHost ".$name." is not a Listen port\r\n";
-							elseif($server_name[$name] == -13)
-								$message = "In the httpd-vhost.conf file:\r\n\r\nThe Port used (".$virtualHost['ServerNamePort'][$name].") for the VirtualHost ".$name." is not from a Define Apache variable\r\n";
-							elseif($server_name[$name] == -14)
-								$message = "In the httpd-vhosts.conf file:\r\n\r\nThe DocumentRoot path\r\n\r\n\t'".$wwwDir."'\r\n\r\nused with '".$name."' VirtualHost\r\n\r\nis reserved for 'localhost' and should not be used for another VirtualHost\r\n";
-							elseif($server_name[$name] == -15)
-								$message = "In the httpd-vhosts.conf file:\r\n\r\nTLD '.dev' used with '".$name."' ServerName\r\n\r\nis monopolized by web browsers and should not be used locally.\r\nYou can use'.test' or'.prog' instead.\r\n";
-							elseif($server_name[$name] == -16)
-								$message = "In the httpd-vhosts.conf file:\r\n\r\n'".$name."' ServerName\r\n\r\nis not defined into '".$c_hostsFile."' file.\r\n";
-							elseif($server_name[$name] == -17)
-								$message = "In the httpd-vhosts.conf file:\r\n\r\nThe Directory path\r\n\r\n\t".$directoryPathError."\r\n\r\nis not ended with a slash '/'\r\n";
-    					$myreplacesubmenuVhosts .= '[server_'.$name.']
+				foreach($server_no_https as $key => $value) {
+					$nameHttps = $server_no_https[$key]['name'];
+					$docrootHttps = $server_no_https[$key]['docroot'];
+					$ipHttps = $server_no_https[$key]['ip'];
+					$fcgiHttps = $server_no_https[$key]['fcgi'];
+					if($server_no_https[$key]['https'] === false){
+						$myreplaceHttps .= '
+Type:item; Caption:"'.$nameHttps.'"; Action: multi; Actions:'.$nameHttps.'https
+';
+						$myreplacesubmenuHttps .= <<<EOF
+[{$nameHttps}https]
+Action: run; FileName: "{$c_phpExe}";Parameters: "changeToHttps.php https {$nameHttps} {$docrootHttps} {$ipHttps} {$fcgiHttps}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
+Action: multi; Actions: apache_stop_start_refresh; Flags:appendsection
+
+EOF;
+					}
+					else {
+						$myreplaceHttps .= '
+Type:item; Caption:"'.$nameHttps.'"; Action: multi; Actions:'.$nameHttps.'nohttps; Glyph:13
+';
+						$myreplacesubmenuHttps .= <<<EOF
+[{$nameHttps}nohttps]
+Action: run; FileName: "{$c_phpExe}";Parameters: "changeToHttps.php nohttps {$nameHttps} {$docrootHttps} {$ipHttps} {$fcgiHttps}";WorkingDir: "{$c_installDir}/scripts"; Flags: waituntilterminated
+Action: multi; Actions: apache_stop_start_refresh; Flags:appendsection
+
+EOF;
+					}
+				}
+			}//End https
+
+			foreach($server_name as $name=>$value) {
+				if($server_name[$name] != 1) {
+					if($server_name[$name] == -1)
+						$message = "In the httpd-vhosts.conf file:\r\n\r\n\tThe ServerName '".$name."' has no correct syntax.\r\n";
+					elseif($server_name[$name] == -2)
+						$message = "In the httpd-vhosts.conf file:\r\n\r\n\tThe number of\r\n\r\n\t\t<Directory ...>\r\n\t\tis not equal to the number of\r\n\r\n\t\t</Directory>\r\n\r\nThey should be identical.";
+					elseif($server_name[$name] == -3)
+						$message = "In the httpd-vhosts.conf file:\r\n\r\n\tThe number of\r\n\r\n\t\t<VirtualHost ...>\r\n\tis not equal to the number of\r\n\r\n\t\tServerName\r\n\r\nThey should be identical.\r\n\r\n\tCorrect syntax is: <VirtualHost *:80>\r\n";
+					elseif($server_name[$name] == -4)
+						$message = "In the httpd-vhosts.conf file:\r\n\r\n\tPort number into <VirtualHost *:port>\r\n\tis not defined for all\r\n\r\n\t\t<VirtualHost...>\r\n\r\n\tCorrect syntax is: <VirtualHost *:xx>\r\n\r\n\t\twith xx = port number [80 by default]\r\n";
+					elseif($server_name[$name] == -5)
+						$message = "In the httpd-vhosts.conf file:\r\n\r\n\tPort number into <VirtualHost *:port>\r\n\thas not correct value\r\n\r\nValue are:".print_r($virtualHost['virtual_port'],true)."\r\n";
+					elseif($server_name[$name] == -6)
+						$message = "The httpd-vhosts.conf file has not been cleaned.\r\nThere remain VirtualHost examples like: dummy-host.example.com\r\n";
+					elseif($server_name[$name] == -7)
+						$message = "In the httpd-vhosts.conf file:\r\n\r\n\tThe number of\r\n\r\n\t\tDocumentRoot\r\n\tis not equal to the number of\r\n\r\n\t\tServerName\r\n\r\nThey should be identical.\r\n";
+					elseif($server_name[$name] == -8)
+						$message = "In the httpd-vhosts.conf file:\r\n\r\nThe DocumentRoot path\r\n\r\n\t".$documentPathError."\r\n\r\ndoes not exits\r\n";
+					elseif($server_name[$name] == -9)
+						$message = "In the httpd-vhosts.conf file:\r\n\r\nThe Directory path\r\n\r\n\t".$directoryPathError."\r\n\r\ndoes not exits\r\n";
+					elseif($server_name[$name] == -10)
+						$message = "In the httpd-vhosts.conf file:\r\n\r\nThere is duplicate ServerName\r\n".$DuplicateNames."\r\n";
+					elseif($server_name[$name] == -11)
+						$message = "In the httpd-vhosts.conf file:\r\n\r\nThe IP used for the VirtualHost ".$name." is not valid local IP\r\n";
+					elseif($server_name[$name] == -12)
+						$message = "In the httpd-vhost.conf file:\r\n\r\nThe Port used (".$virtualHost['ServerNamePort'][$name].") for the VirtualHost ".$name." is not a Listen port\r\n";
+					elseif($server_name[$name] == -13)
+						$message = "In the httpd-vhost.conf file:\r\n\r\nThe Port used (".$virtualHost['ServerNamePort'][$name].") for the VirtualHost ".$name." is not from a Define Apache variable\r\n";
+					elseif($server_name[$name] == -14)
+						$message = "In the httpd-vhosts.conf file:\r\n\r\nThe DocumentRoot path\r\n\r\n\t'".$wwwDir."'\r\n\r\nused with '".$name."' VirtualHost\r\n\r\nis reserved for 'localhost' and should not be used for another VirtualHost\r\n";
+					elseif($server_name[$name] == -15)
+						$message = "In the httpd-vhosts.conf file:\r\n\r\nTLD '.dev' used with '".$name."' ServerName\r\n\r\nis monopolized by web browsers and should not be used locally.\r\nYou can use'.test' or'.prog' instead.\r\n";
+					elseif($server_name[$name] == -16)
+						$message = "In the httpd-vhosts.conf file:\r\n\r\n'".$name."' ServerName\r\n\r\nis not defined into '".$c_hostsFile."' file.\r\n";
+					elseif($server_name[$name] == -17)
+						$message = "In the httpd-vhosts.conf file:\r\n\r\nThe Directory path\r\n\r\n\t".$directoryPathErrorSlash."\r\n\r\nis not ended with a slash '/'\r\n";
+					elseif($server_name[$name] == -18)
+						$message = "In the httpd-vhosts.conf file:\r\n\r\nThe DocumentRoot path\r\n\r\n\t".$documentPathError."\r\n\r\nmust not end with a slash\r\n";
+ 					$myreplacesubmenuVhostsError .= '[server_'.$name.']
 Action: run; FileName: "'.$c_phpExe.'";Parameters: "msg.php 11 '.base64_encode($message).'";WorkingDir: "'.$c_installDir.'/scripts"; Flags: waituntilterminated
 ';
-						}
-					}
 				}
 			}
 		}
 	}
-	$tpl = str_replace($myPattern,$myreplace.$myreplacesubmenuVhosts,$tpl);
 }
+
+$tpl = str_replace($myPattern,$myreplace.$myreplacesubmenuVhosts.$myreplaceHttps.$myreplacesubmenuHttps.$myreplacesubmenuVhostsError,$tpl);
 // END of Virtual Hosts submenu
 // ****************************
 
@@ -2576,7 +2768,7 @@ foreach($wamp_Param as $value) {
     $params_for_wampconf[$value] = -1;
   }
 	elseif(array_key_exists($value, $wampParamsNotOnOff)) {
-		if($wampConf[$wampParamsNotOnOff[$value]['dependance']] !== 'on') {
+		if(!empty($wampParamsNotOnOff[$value]['dependance']) && $wampConf[$wampParamsNotOnOff[$value]['dependance']] !== 'on') {
 			$params_for_wampconf[$value] = -10;
 		}
 		else {
@@ -2698,7 +2890,7 @@ Type: separator; Caption: "'.$wampParamsNotOnOff[$action]['title'].'"
 		foreach($c_values as $value) {
 			$MenuSup[$i] .= 'Type: item; Caption: "'.$value.'"; Action: multi; Actions: '.$action.$value.'
 ';
-			if(strtolower($value) == 'choose') {
+			if(mb_strtolower($value) == 'choose') {
 				$param_value = '%'.$wampParamsNotOnOff[$action]['title'].'%';
 				$param_third = ' '.$wampParamsNotOnOff[$action]['title'];
 				if($wampParamsNotOnOff[$action]['title'] == 'Integer')
@@ -2776,9 +2968,11 @@ $delOldVerMenu = $delOldVerSub = '';
 //All versions but USED or CLI OR FCGI
 $Versions = ListAllVersions();
 $VersionsNotUsed = array_filter_recursive($Versions,function($value){return (strpos($value,'CLI') === false && strpos($value,'USED') === false && strpos($value,'FCGI') === false);});
+$counts = 0;
 foreach(array_keys($VersionsNotUsed) as $appli) {
 	if(count($VersionsNotUsed[$appli]) > 0) {
-		$delOldVerMenu .= "Type: separator; Caption: \" ".strtoupper($appli)." \"
+		$counts++;
+		$delOldVerMenu .= "Type: separator; Caption: \" ".mb_strtoupper($appli)." \"
 ";
 		foreach ($VersionsNotUsed[$appli] as $appliVersion) {
   			$delOldVerMenu .= 'Type: item; Caption: "'.$w_delete.' '.$appli.' '.$appliVersion.'"; Glyph: 32; Action: multi; Actions: del_'.$appli.$appliVersion.'
@@ -2791,8 +2985,9 @@ Action: multi; Actions: refresh_readconfig; Flags:appendsection
 EOF;
 		}
 	}
+
 }
-$tpl = str_replace(';WAMPDELETEOLDVERSIONSSTART',$delOldVer.$delOldVerMenu.$delOldVerSub,$tpl);
+if($counts > 0) $tpl = str_replace(';WAMPDELETEOLDVERSIONSSTART',$delOldVer.$delOldVerMenu.$delOldVerSub,$tpl);
 unset($delOldVer,$delOldVerMenu,$delOldVerSub);
 // END of tool delete old versions menu
 //*************************************

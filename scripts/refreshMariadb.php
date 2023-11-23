@@ -105,18 +105,6 @@ Action: multi; Actions: refresh_readconfig; Flags:appendsection
 EOF;
 $tpl = str_replace($myPattern,$myreplace,$tpl);
 
-//MariaDB console prompt submenu
-if($MysqlMariaPromptBool) {
-	$myPattern = ';WAMPMARIADBUSECONSOLEPROMPTSTART';
-	$myreplace = <<< EOF
-;WAMPMARIADBUSECONSOLEPROMPTSTART
-[mariadbUseConsolePrompt]
-Action: run; FileName: "{$c_phpExe}";Parameters: "switchWampParam.php mariadbUseConsolePrompt {$mariadbConsolePromptChange}"; WorkingDir: "$c_installDir/scripts"; Flags: waituntilterminated
-Action: multi; Actions: apache_restart_refresh; Flags:appendsection
-EOF;
-	$tpl = str_replace($myPattern,$myreplace,$tpl);
-}
-
 //MariaDB Tools menu
 $myPattern = ';WAMPMARIADBSUPPORTTOOLS';
 $myreplace = <<< EOF
@@ -125,7 +113,6 @@ Type: separator; Caption: "{$w_portUsedMaria}{$c_UsedMariaPort}"
 {$TestPort3306}Type: item; Caption: "{$w_testPortMysql}"; Action: run; FileName: "{$c_phpExe}"; Parameters: "testPort.php 3306 {$c_mariadbService}";WorkingDir: "$c_installDir/scripts"; Flags: waituntilterminated; Glyph: 24
 {$MariaTestPortUsed}Type: item; Caption: "{$w_testPortMariaUsed}{$c_UsedMariaPort}"; Action: run; FileName: "{$c_phpExe}"; Parameters: "testPort.php {$c_UsedMariaPort} {$c_mariadbService}";WorkingDir: "$c_installDir/scripts"; Flags: waituntilterminated; Glyph: 24
 Type: item; Caption: "{$w_AlternateMariaPort}"; Action: multi; Actions: UseAlternateMariaPort; Glyph: 24
-{$MysqlMariaPrompt}Type: item; Caption: "{$w_settings['mariadbUseConsolePrompt']}: {$mariadbConsolePromptUsed}"; Glyph: 24; Action: multi; Actions: mariadbUseConsolePrompt
 EOF;
 $tpl = str_replace($myPattern,$myreplace,$tpl);
 
@@ -271,31 +258,9 @@ $UserSqlMode = (preg_match('/^[;]?sql_mode[ \t]*=[ \t]*"[^"].*$/m',$myIniFileCon
 if(preg_match('/^skip_grant_tables[\r]?$/m',$myIniFileContents) > 0) {
 	$mariadbini = $mariadbini + array('skip_grant_tables' => 'MariaDB On - !! WARNING !!');
 }
-if($wampConf['mariadbUseConsolePrompt'] == 'on') {
-	if(!$mariadbPrompt) {
-		//Add prompt = prompt = "\\h-\\v-['\\d']>" under [mysql] section
-		$search = '[mysql]
-';
-		$add = "prompt = \"".str_replace('\\','\\\\', $wampConf['mariadbConsolePrompt'])."\"
-";
-		$myIniFileContents = str_replace($search, $search.$add, $myIniFileContents, $count);
-		if($count > 0) {
-			write_file($c_mariadbConfFile,$myIniFileContents);
-			$mariadbini['prompt'] = str_replace('\\','\\\\', $wampConf['mariadbConsolePrompt']);
-			$mariadbPrompt = true;
-		}
-	}
-}
-else {
-	if($mariadbPrompt) {
-		$myIniFileContents = preg_replace('~(\[mysql\][\r]?\n)prompt[ \t]*=[ \t]*".*"[\r]?\n~',"$1",$myIniFileContents, -1, $count);
-		if($count > 0) {
-			write_file($c_mariadbConfFile,$myIniFileContents);
-			$mariadbini['prompt'] = "default";
-			$mariadbPrompt = false;
-		}
-	}
-}
+
+$mariadbini['prompt'] = "default";
+$mariadbPrompt = false;
 
 unset($myIniFileContents);
 
@@ -319,9 +284,9 @@ foreach($mariadbParams as $next_param_name=>$next_param_text)
   	  		$params_for_mariadb[$next_param_name] = -4;
   		}
   	}
-  	elseif(strtolower($mariadbini[$next_param_text]) == "off")
+  	elseif(mb_strtolower($mariadbini[$next_param_text]) == "off")
   		$params_for_mariadb[$next_param_name] = 'off';
-  	elseif(strtolower($mariadbini[$next_param_text]) == "on")
+  	elseif(mb_strtolower($mariadbini[$next_param_text]) == "on")
   		$params_for_mariadb[$next_param_name] = 'on';
   	elseif($mariadbini[$next_param_text] == 0)
   		$params_for_mariadb[$next_param_name] = '0';
@@ -530,7 +495,7 @@ Type: separator; Caption: "'.$mariadbParamsNotOnOff[$action]['title'].'"
 				$text = ($mariadbParamsNotOnOff[$action]['title'] == 'Number' ? " - ".$mariadbParamsNotOnOff[$action]['text'][$value] : "");
 				$MenuSup[$i] .= 'Type: item; Caption: "'.$value.$text.'"; Action: multi; Actions: maria_'.$action.$value.'
 ';
-				if(strtolower($value) == 'choose') {
+				if(mb_strtolower($value) == 'choose') {
 					$param_value = '%'.$mariadbParamsNotOnOff[$action]['title'].'%';
 					$param_third = ' '.$mariadbParamsNotOnOff[$action]['title'];
 					$c_phpRun = $c_phpExe;

@@ -12,6 +12,7 @@
 //3.2.9   $w_startOfServices - $w_servicesStarted - $w_bepatient - $w_ready - $w_state_services
 //      --- Suppress: $w_serverOffline - $w_serverOnline
 //3.3.0   $w_waitConfig - $file_charset
+//3.3.2 --- Modified $w_helpForums
 
 $file_charset = 'iso-8859-1';
 
@@ -23,7 +24,7 @@ $w_state_services = 'Right-Click -> Tools -> Check state of services';
 $w_about = 'About...';
 $w_helpFile = 'Files & Documentation';
 $w_help = 'Help';
-$w_helpForums = 'Support forums';
+$w_helpForums = 'English speaking support forum';
 $w_helpUse = 'Operating instructions';
 $w_exit = 'Exit';
 $w_version = 'Version';

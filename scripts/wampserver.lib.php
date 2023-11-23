@@ -161,7 +161,7 @@ function linkPhpDllToApacheBin($php_version) {
 	global $phpDllToCopy, $php820_DllToCopy, $phpN820_DllToCopy, $c_phpVersionDir, $c_apacheVersionDir, $wampConf, $phpConfFileForApache;
 	if(WAMPTRACE_PROCESS) error_log("function ".__FUNCTION__." - php_version=".$php_version."\n",3,WAMPTRACE_FILE);
 	$errorTxt = '';
-	//Create symbolic link or copy dll's files
+	//Create symbolic link to dll's files
 	clearstatcache();
 	//Check if new PHP version is >= 8.2.0
 	if(version_compare($php_version, '8.2.0', '>=')) {
@@ -175,26 +175,16 @@ function linkPhpDllToApacheBin($php_version) {
 		$link = $c_apacheVersionDir.'/apache'.$wampConf['apacheVersion'].'/'.$wampConf['apacheExeDir'].'/'.$dll;
 		if(is_link($link)) unlink($link);
 	}
-	foreach ($phpDllToCopy as $dll)	{
+	unset($dll);
+	foreach($phpDllToCopy as $dll)	{
 		$target = $c_phpVersionDir.'/php'.$php_version.'/'.$dll;
 		$link = $c_apacheVersionDir.'/apache'.$wampConf['apacheVersion'].'/'.$wampConf['apacheExeDir'].'/'.$dll;
-		//dll already exists and it is file, do nothing
-		if(is_file($link) && in_array($dll,$phpDllAdded)) continue;
-		//File or symlink deleted if exists
-		if(is_file($link) || is_link($link)) {
-			unlink($link);
-		}
-		//Symlink created if file exists in phpx.y.z directory
-		if (is_file($target)) {
-			if($wampConf['CreateSymlink'] == 'symlink') {
-				if(symlink($target, $link) === false) {
-					$errorTxt .= "Error while creating symlink '".$link."' to '".$target."' using php symlink function\n";
-				}
-			}
-			elseif($wampConf['CreateSymlink'] == 'copy') {
-				if(copy($target, $link) === false) {
-					$errorTxt .= "Error while copy '".$target."' to '".$link."' using php copy() function\n";
-				}
+		//symlink deleted if exists
+		if(is_link($link)) unlink($link);
+		//Symlink created if file exists in phpx.y.z directory and is not a file in Apache bin directory
+		if(is_file($target) && !is_file($link)) {
+			if(symlink($target, $link) === false) {
+				$errorTxt .= "Error while creating symlink '".$link."' to '".$target."' using php symlink function\n";
 			}
 		}
 	}
@@ -202,18 +192,11 @@ function linkPhpDllToApacheBin($php_version) {
 	$target = $c_phpVersionDir."/php".$php_version."/".$phpConfFileForApache;
 	$link = $c_apacheVersionDir."/apache".$wampConf['apacheVersion']."/".$wampConf['apacheExeDir']."/php.ini";
 	//php.ini deleted if exists
-	if(is_file($link) || is_link($link)) {
+	if(is_link($link)) {
 		unlink($link);
 	}
-	if($wampConf['CreateSymlink'] == 'symlink') {
-		if(symlink($target, $link) === false) {
-			$errorTxt .= "Error while creating symlink '".$link."' to '".$target."' using php symlink function\n";
-		}
-	}
-	elseif($wampConf['CreateSymlink'] == 'copy') {
-		if(copy($target, $link) === false) {
-			$errorTxt .= "Error while copy '".$target."' to '".$link."' using php copy() function\n";
-		}
+	if(symlink($target, $link) === false) {
+		$errorTxt .= "Error while creating symlink '".$link."' to '".$target."' using php symlink function\n";
 	}
 	if(empty($errorTxt)) {
 		return true;
@@ -234,27 +217,23 @@ function CheckSymlink($php_version) {
 	//Check if PHP version is >= 8.2.0
 	if(version_compare($php_version, '8.2.0', '>=')) {
 		$phpDllToCopy = array_unique(array_merge($phpDllToCopy,$php820_DllToCopy));
-		$phpDllAdded = $php820_DllToCopy;
 	}
 	else {
 		$phpDllToCopy = array_unique(array_merge($phpDllToCopy,$phpN820_DllToCopy));
-		$phpDllAdded = $phpN820_DllToCopy;
 	}
 	foreach ($phpDllToCopy as $dll)	{
 		$target = $c_phpVersionDir.'/php'.$php_version.'/'.$dll;
 		$link = $c_apacheVersionDir.'/apache'.$wampConf['apacheVersion'].'/'.$wampConf['apacheExeDir'].'/'.$dll;
-		if(is_file($link) && in_array($dll,$phpDllAdded)) continue;
 		//Check Symlink if file exists in phpx.y.z directory
-		if(is_file($target)) {
+		if(is_file($target  && !is_file($link))) {
 			if(is_link($link)) {
 				$real_link = str_replace("\\", "/",readlink($link));
-				if(strtolower($real_link) != strtolower($target)) {
+				if(mb_strtolower($real_link) != mb_strtolower($target)) {
 					$errorTxt .= "Symbolic link ".$link."\n      is: ".$real_link."\nshould be ".$target."\n\n";
 				}
 			}
 			elseif(is_file($link)) {
-				if($wampConf['CreateSymlink'] != 'copy')
-					$errorTxt .= "File ".$link." exists.\nShould be a symbolic link\n";
+				$errorTxt .= "File ".$link." exists.\nShould be a symbolic link\n";
 			}
 			else {
 				$errorTxt .= "Symbolic link ".$link." does not exist\n";
@@ -267,13 +246,12 @@ function CheckSymlink($php_version) {
 	$link = $c_apacheVersionDir."/apache".$wampConf['apacheVersion']."/".$wampConf['apacheExeDir']."/php.ini";
 	if(is_link($link)) {
 		$real_link = str_replace("\\", "/",readlink($link));
-		if(strtolower($real_link) != strtolower($target)) {
+		if(mb_strtolower($real_link) != mb_strtolower($target)) {
 			$errorTxt .= "Symbolic link: ".$link."\nTarget is       : ".$real_link."\nTarget should be: ".$target."\n";
 		}
 	}
 	elseif(is_file($link)) {
-		if($wampConf['CreateSymlink'] != 'copy')
-			$errorTxt .= "File ".$link." exists.\nShould be a symbolic link\n";
+		$errorTxt .= "File ".$link." exists.\nShould be a symbolic link\n";
 	}
 	else {
 		$errorTxt .= "Symbolic link or file ".$link." does not exist\n";
@@ -290,9 +268,9 @@ function CheckSymlink($php_version) {
 }
 
 function switchPhpVersion($newPhpVersion) {
-	global $phpDllToCopy, $php820_DllToCopy, $phpN820_DllToCopy;
+	global $wampConf, $c_installDir, $configurationFile, $c_phpVersionDir, $wampBinConfFiles, $c_apacheConfFile, $phpDllToCopy, $php820_DllToCopy, $phpN820_DllToCopy;
+	//require 'config.inc.php';
 
-	require 'config.inc.php';
 	if(WAMPTRACE_PROCESS) error_log("function ".__FUNCTION__." ".$newPhpVersion."\n",3,WAMPTRACE_FILE);
 
 	//loading the configuration file of the new version
@@ -318,16 +296,6 @@ function switchPhpVersion($newPhpVersion) {
 		}
 	}
 	unset($httpdFileContents);
-
-	//Check if new or old PHP version is >= 8.2.0
-	if(version_compare($newPhpVersion, '8.2.0', '>=') || version_compare($c_phpVersion, '8.2.0', '>=')) {
-		$phpDllToCopy = array_unique(array_merge($phpDllToCopy,$php820_DllToCopy));
-		$phpDllAdded = $php820_DllToCopy;
-	}
-	else {
-		$phpDllToCopy = array_unique(array_merge($phpDllToCopy,$phpN820_DllToCopy));
-		$phpDllAdded = $phpN820_DllToCopy;
-	}
 
 	//modifying the conf of WampServer
 	$wampIniNewContents['phpIniDir'] = $phpConf['phpIniDir'];
@@ -549,13 +517,18 @@ function check_virtualhost($check_files_only = false) {
 		'ServerNamePortApacheVar' => array(),
 		'ServerNameIntoHosts' => array(),
 		'FirstServerName' => '',
+		'nb_Alias' => 0,
+		'alias' => array(),
+		'aliasDir' => array(),
 		'nb_Virtual' => 0,
 		'nb_Virtual_Port' => 0,
 		'virtual_port' => array(),
 		'virtual_ip' => array(),
 		'nb_Document' => 0,
 		'documentPath' => array(),
+		'documentRoot' => array(),
 		'documentPathValid' => array(),
+		'documentPathNotSlashEnded' => array(),
 		'document' => true,
 		'nb_Directory' => 0,
 		'nb_End_Directory' => 0,
@@ -573,9 +546,11 @@ function check_virtualhost($check_files_only = false) {
 		'port_listen' => true,
 		'NotListenPort' => array(),
 		'ServerNameFcgid' => array(),
+		'ServerNameUseFcgid' => false,
 		'ServerNameFcgidPHP' => array(),
 		'ServerNameFcgidPHPOK' => array(),
 		'ServerNameHttps' => array(),
+		'ServerNameUseHttps' => false,
 		'ServerNameHttpsFcgid' => array(),
 		'ServerNameHttpsFcgidPHP' => array(),
 		'ServerNameHttpsFcgidPHPOK' => array(),
@@ -598,17 +573,40 @@ function check_virtualhost($check_files_only = false) {
 	}
 	$myHostsContents = file_get_contents($c_hostsFile);
 	$myVhostsContents = file_get_contents($virtualHost['vhosts_file']);
+	//Extract values of Alias into VirtualHost
+	$nb_Alias= preg_match_all("~^[ \t]*Alias[ \t]+(.*)[ \t](.*)\R~mi", $myVhostsContents, $Alias_matches);
+	if($nb_Alias > 0) {
+		$virtualHost['nb_Alias'] = $nb_Alias;
+		$virtualHost['alias'] = $Alias_matches[1];
+		$virtualHost['aliasDir'] = $Alias_matches[2];
+	}
 	// Extract values of ServerName (without # at the beginning of the line)
-	$nb_Server = preg_match_all("/^(?![ \t]*#).*ServerName[ \t]+(.*?\r?)$/m", $myVhostsContents, $Server_matches);
-	//error_log("server_matches=".print_r($Server_matches,true));
+	$nb_Server = preg_match_all("/^[ \t]*ServerName[ \t]+(.*)\R/m", $myVhostsContents, $Server_matches);
+	//error_log("Server_matches=".print_r($Server_matches,true));
+	foreach($Server_matches[1] as $key => $value) {
+		$with_quote = false;
+		$value = trim($value);
+		if(strpos($value,'"') !== false) {
+			$value = str_replace('"','',$value);
+			$Server_matches[1][$key] = str_replace('"','',$Server_matches[1][$key]);
+			$Server_matches[0][$key] = str_replace('"','',$Server_matches[0][$key]);
+			$with_quote = true;
+		}
+		$virtualHost['ServerNameQuoted'][$value] = $with_quote;
+	}
 	// Extract values of <VirtualHost *:xx> or <VirtualHost ip:xx> port number
-	$nb_Virtual = preg_match_all("/^(?![ \t]*#).*\<VirtualHost[ \t]+(?:\*|([0-9.]*)):(.*)\>\R/m", $myVhostsContents, $Virtual_matches);
-	//error_log("Virtual_matches=".print_r($Virtual_matches,true));
+	$nb_Virtual = preg_match_all("/^(?![ \t]*#).*\<VirtualHost[ \t]+(?:\*|([0-9.]*|_default_)):(.*)\>\R/m", $myVhostsContents, $Virtual_matches);
+	foreach($Virtual_matches[1] as $key => $value) {
+		if($value == '_default_') {
+			$Virtual_matches[1][$key] = '';
+			break;
+		}
+	}
 	// Extract values of DocumentRoot path
 	$nb_Document = preg_match_all("/^(?![ \t]*#).*DocumentRoot[ \t]+(.*?\r?)$/m", $myVhostsContents, $Document_matches);
 	// Count number of <Directory that has to match the number of ServerName
 	$nb_Directory = preg_match_all("/^(?![ \t]*#).*\<Directory[ \t]+(.*)\>\R/m", $myVhostsContents, $Dir_matches);
-	$nb_End_Directory = preg_match_all("~^(?![ \t]*#).*\</Directory.*$~m", $myVhostsContents, $end_Dir_matches);
+	$nb_End_Directory = preg_match_all("~^(?![ \t]*#).*\</Directory.*\R~m", $myVhostsContents, $end_Dir_matches);
 	$server_name = array();
 	if($nb_Server == 0) {
 		$virtualHost['nb_server'] = 0;
@@ -622,9 +620,12 @@ function check_virtualhost($check_files_only = false) {
 	$virtualHost['nb_End_Directory'] = $nb_End_Directory;
 	//Check validity of port number
 	$virtualHost['virtual_port'] = array_merge($Virtual_matches[2]);
+
 	$virtualHost['virtual_ip'] = array_merge($Virtual_matches[1]);
 	for($i = 0 ; $i < count($Virtual_matches[1]) ; $i++) {
-		$value_ori = $value = trim($Server_matches[1][$i]);
+		$value_ori = $value = '';
+		if(!empty($Server_matches[1][$i]))
+			$value_ori = $value = trim($Server_matches[1][$i]);
 		$port_ori = $virtualHost['virtual_port'][$i];
 		$virtualHost['virtual_port'][$i] = replace_apache_var($virtualHost['virtual_port'][$i]);
 		$port = $virtualHost['virtual_port'][$i];
@@ -648,12 +649,18 @@ function check_virtualhost($check_files_only = false) {
 		$chemin = replace_apache_var($chemin);
 		$virtualHost['Server'][$i]['DocumentRoot'] = $chemin;
 		$virtualHost['documentPath'][$i] = $chemin;
-		if((!file_exists($chemin) || !is_dir($chemin)) && $wampConf['NotCheckVirtualHost'] == 'off') {
-			$virtualHost['documentPathValid'][$chemin] = false;
-			$virtualHost['document'] = false;
+		$virtualHost['documentPathValid'][$chemin] = true;
+		$virtualHost['documentPathNotSlashEnded'][$chemin] = true;
+		if($wampConf['NotCheckVirtualHost'] == 'off') {
+			if(!file_exists($chemin) || !is_dir($chemin)) {
+				$virtualHost['documentPathValid'][$chemin] = false;
+				$virtualHost['document'] = false;
+			}
+			elseif(substr($chemin,-1) == '/'){
+				$virtualHost['documentPathNotSlashEnded'][$chemin] = false;
+				$virtualHost['document'] = false;
+			}
 		}
-		else
-			$virtualHost['documentPathValid'][$chemin] = true;
 	}
 
 	//Check validity of Directory path
@@ -691,6 +698,7 @@ function check_virtualhost($check_files_only = false) {
 		}*/
 		$TempServerName[] = $value;
 		$virtualHost['ServerName'][$value] = $value;
+		$virtualHost['documentRoot'][$value] = $virtualHost['documentPath'][$i];
 		$virtualHost['ServerNameDev'][$value] = false;
 		$virtualHost['ServerNameIp'][$value] = false;
 		$virtualHost['ServerNameIpValid'][$value] = false;
@@ -713,9 +721,11 @@ function check_virtualhost($check_files_only = false) {
 			$/x',$nameToCheck) == 0)
 			&& $wampConf['NotCheckVirtualHost'] == 'off') {
 			$virtualHost['ServerNameValid'][$value] = false;
-			$virtualHost['ServerNameQuoted'][$value] = false;
-			if(strpos($value,'"') !== false) {
-				$virtualHost['ServerNameQuoted'][$value] = true;
+			//$virtualHost['ServerNameQuoted'][$value] = false;
+			//if(strpos($value,'"') !== false) {
+			if($virtualHost['ServerNameQuoted'][$value]) {
+				$virtualHost['ServerNameValid'][$value] = false;
+				//$virtualHost['ServerNameQuoted'][$value] = true;
 				$virtualHost['ServerNameIDNA'][$value] = false;
 				$virtualHost['ServerNameUTF8'][$value] = $value;
 			}
@@ -725,7 +735,7 @@ function check_virtualhost($check_files_only = false) {
 		}
 		else {
 			$virtualHost['ServerNameValid'][$value] = true;
-			$virtualHost['ServerNameQuoted'][$value] = false;
+			//$virtualHost['ServerNameQuoted'][$value] = false;
 			if(empty($matchesIDNA[0])) {
 				$virtualHost['ServerNameIDNA'][$value] = false;
 				$virtualHost['ServerNameUTF8'][$value] = $value;
@@ -760,7 +770,7 @@ function check_virtualhost($check_files_only = false) {
 	if($wampConf['NotVerifyTLD'] == 'off') {
 		foreach($virtualHost['ServerNameDev'] as $keydev => &$valuedev) {
 			$tld = substr($keydev,-4);
-			if($tld !== false && (strtolower($tld) == '.dev'))
+			if($tld !== false && (mb_strtolower($tld) == '.dev'))
 				$valuedev = true;
 		}
 	}
@@ -797,11 +807,12 @@ function check_virtualhost($check_files_only = false) {
 		$virtualHost['ServerNamePortListen'][$key] = $value;
 	}
 	//Check if some VirtualHost use $wwwDir DocumentRoot reserved for localhost
-	foreach($virtualHost['Server'] as $key => $value) {
-		$SerName = $virtualHost['Server'][$key]['ServerName'];
-		$DocRoot = $virtualHost['Server'][$key]['DocumentRoot'];
+	foreach($virtualHost['ServerName'] as $value) {
+		$SerName = $value;
+		$DocRoot = $virtualHost['documentRoot'][$value];
+		$DocLocal = $virtualHost['documentRoot']['localhost'];
 		$virtualHost['DocRootNotwww'][$SerName] = true;
-		if(strtolower($DocRoot) == strtolower($wwwDir) && stripos($SerName,'localhost') === false) {
+		if(mb_strtolower($DocRoot) == mb_strtolower($DocLocal) && stripos($SerName,'localhost') === false) {
 			$virtualHost['DocRootNotwww'][$SerName] = false;
 		}
 	}
@@ -900,6 +911,12 @@ function check_virtualhost($check_files_only = false) {
 		$virtualHost['port_number'] = true;
 		$virtualHost['port_listen'] = true;
 		$virtualHost['nb_NotListenPort'] = 0;
+	}
+	if(in_array(true,$virtualHost['ServerNameFcgid'],true)) {
+		$virtualHost['ServerNameUseFcgid'] = true;
+	}
+	if(!empty($virtualHost['ServerNameHttps'])) {
+		$virtualHost['ServerNameUseHttps'] = true;
 	}
 	//error_log("virtualHost=\n".print_r($virtualHost, true));
 	return $virtualHost;
@@ -1230,7 +1247,7 @@ function color($color,$string = '') {
 }
 
 //Function to output a command window, clears it and displays a message
-function Command_Windows($message,$nbCols=-1,$nbLines=-1,$linesSup=0,$title='Wampserver') {
+function Command_Windows($message,$nbCols=-1,$nbLines=-1,$linesSup=0,$title='Wampserver',$readLine = '') {
 	if($nbCols < 0) {
 		$array = explode("\n",$message);
 		foreach($array as $value) {
@@ -1239,6 +1256,7 @@ function Command_Windows($message,$nbCols=-1,$nbLines=-1,$linesSup=0,$title='Wam
 			if($Cols > $nbCols) $nbCols = $Cols;
 		}
 		$nbCols += 2;
+		if($nbCols < 60) $nbCols = 60;
 		if($nbCols > 132) $nbCols = 132;
 	}
 	if($nbLines < 0){
@@ -1250,6 +1268,11 @@ function Command_Windows($message,$nbCols=-1,$nbLines=-1,$linesSup=0,$title='Wam
 	pclose(popen('TITLE '.escapeshellcmd($title), 'w'));
 	pclose(popen('COLOR F0', 'w'));
 	echo $message;
+	if(!empty($readLine)) {
+		return readline($readLine);
+		echo "exit", "\n";
+	}
+
 }
 //Function to create $wamp_versions_here items with last version
 function create_wamp_versions($versionList,$soft) {
@@ -1342,8 +1365,8 @@ function ReplaceAestan($value,$What = 'all') {
 // $phmyadOK = true if at least one version of PhpMyAdmin
 
 function GetAliasVersions(){
-	global $c_installDir, $aliasDir, $phmyadOK, $c_phpVersion, $c_phpExe,$Alias_Contents, $wamp_versions_here,
-	$WarningPMA, $WarningMenuPMA, $WarningTextPMA, $WarningsPMA, $c_ApacheDefine, $c_phpVersionDir,$phpFcgiVersionList,$phpFcgiVersionListUsed;
+	global $c_installDir, $aliasDir, $phmyadOK, $c_phpVersion, $c_phpExe, $Alias_Contents, $wamp_versions_here,
+	$WarningMenuPMA, $WarningTextPMA, $WarningsPMA, $c_ApacheDefine, $c_phpVersionDir,$phpFcgiVersionList,$phpFcgiVersionListUsed;
 	$phpVersionList = listDir($c_phpVersionDir,'checkPhpConf','php',true);	$temp = array();
 	$phmyadOK = false;
 	if(!isset($phpFcgiVersionList)) $phpFcgiVersionList = $phpFcgiVersionListUsed = array();
@@ -1353,17 +1376,51 @@ function GetAliasVersions(){
 		$Alias_Contents['PMyAd'] = $Alias_Contents['PMyAdVer'] = array();
 		foreach($temp as $key => $value) {
 			$alias_contents = @file_get_contents($value);
-	  	preg_match('~^Alias\s+/(phpmyadmin[0-9abrc\.]*)\s+".*apps/phpmyadmin([0-9abrc\.]+)/".*\r?$~m',$alias_contents,$matches);
+	  	preg_match('~^Alias\s+/(phpmyadmin[0-9abrc\.]*)\s+"(.*apps/phpmyadmin([0-9abrc\.]+))/".*\r?$~m',$alias_contents,$matches);
+	  	//error_log("matches0=".print_r($matches,true));
+	  	//preg_match('~^Alias\s+/(phpmyadmin[0-9abrc\.]*)\s+".*apps/phpmyadmin([0-9abrc\.]+)/".*\r?$~m',$alias_contents,$matches);
+	  	//error_log("matches1=".print_r($matches,true));
 	  	$Alias_Contents[$matches[1]]['OK'] = true;
 	  	$Alias_Contents['PMyAd'][] = $matches[1];
-	  	$Alias_Contents['PMyAdVer'][] = 'phpmyadmin'.$matches[2];
+	  	$Alias_Contents['PMyAdVer'][] = 'phpmyadmin'.$matches[3];
 			$Alias_Contents['alias'][] = $matches[1];
-			$Alias_Contents[$matches[1]]['version'] = $matches[2];
+			$Alias_Contents[$matches[1]]['alias'] = $matches[1];
+			$Alias_Contents[$matches[1]]['version'] = $matches[3];
+			$Alias_Contents[$matches[1]]['path'] = str_ireplace('${INSTALL_DIR}',$c_installDir,$matches[2]);
+			$Alias_Contents[$matches[1]]['aliaspath'] = $value;
 			$Alias_Contents[$matches[1]]['compat'] = true;
 			$Alias_Contents[$matches[1]]['fcgid'] = false;
 			$Alias_Contents[$matches[1]]['fcgidPHP'] = '0.0.0';
 			$Alias_Contents[$matches[1]]['fcgidPHPOK'] = false;
 			$Alias_Contents[$matches[1]]['fcgiaff'] = '';
+			//Retrieve php_admin_value's and php_admin_flag's
+			$key_admin = -1;
+			if(preg_match_all("/php_admin_value[ \t]+(.*)[ \t]+(.*)/mi",$alias_contents,$matches_admin,PREG_SET_ORDER) > 0) {
+				//error_log("matches_admin=".print_r($matches_admin,true));
+				foreach($matches_admin as $value_admin) {
+					$Alias_Contents[$matches[1]]['php_admin_value'][++$key_admin]['param'] = trim($value_admin[1]);
+					$Alias_Contents[$matches[1]]['php_admin_value'][$key_admin]['value'] = trim($value_admin[2]);
+				}
+			}
+			if(preg_match_all("/php_admin_flag[ \t]+(.*)[ \t]+(.*)/mi",$alias_contents,$matches_admin,PREG_SET_ORDER) > 0) {
+				//error_log("matches_admin=".print_r($matches_admin,true));
+				foreach($matches_admin as $value_admin) {
+					$Alias_Contents[$matches[1]]['php_admin_value'][++$key_admin]['param'] = trim($value_admin[1]);
+					$Alias_Contents[$matches[1]]['php_admin_value'][$key_admin]['value'] = trim($value_admin[2]);
+				}
+			}
+
+			//Check if PhpMyAdmin config hide mysql native databases - line commented or not
+			// //$cfg['Servers'][$i]['hide_db'] = '(information_schema|mysql|performance_schema|sys)';
+			$Alias_Contents[$matches[1]]['hide'] = $Alias_Contents[$matches[1]]['nopassword'] = true;
+			$config_contents = @file_get_contents($Alias_Contents[$matches[1]]['path'].'/config.inc.php');
+			if(stripos($config_contents,'//$cfg[\'Servers\'][$i][\'hide_db\']') !== false) {
+				$Alias_Contents[$matches[1]]['hide'] = false;
+			}
+			if(preg_match("/(.cfg\['Servers.+AllowNoPassword.+=\s*)(.+)\s*;/mi",$config_contents,$matchesnopass) > 0) {
+				if($matchesnopass[2] === false || $matchesnopass[2] == 'false')
+					$Alias_Contents[$matches[1]]['nopassword'] = false;
+			}
 			if(isset($c_ApacheDefine['PHPROOT'])) {
 				if(preg_match("~^(#)?[ \t]*\<IfModule fcgid_module\>\r?$~m",$alias_contents,$comment) === 1) {
 					if(!isset($comment[1])) {
@@ -1372,7 +1429,7 @@ function GetAliasVersions(){
 						if(preg_match('~Define FCGIPHPVERSION "([0-9\.]+)"~im',$alias_contents,$matches_fcgi) === 1) {
 							//PHP version used is $matches_fcgi[1]
 							$Alias_Contents[$matches[1]]['fcgidPHP'] = $phpFcgiVersionList[] = $matches_fcgi[1];
-							$phpFcgiVersionListUsed[$matches_fcgi[1]][] = 'phpmyadmin'.$matches[2];
+							$phpFcgiVersionListUsed[$matches_fcgi[1]][] = 'phpmyadmin'.$matches[3];
 							$Alias_Contents[$matches[1]]['fcgiaff'] = '';
 							if(in_array($Alias_Contents[$matches[1]]['fcgidPHP'],$phpVersionList))
 								$Alias_Contents[$matches[1]]['fcgidPHPOK'] = true;
@@ -1404,7 +1461,7 @@ function GetAliasVersions(){
 							//$Alias_Contents[$version]['notcompat'] = 'PhpMyAdmin '.$VersionPhpMyAdmin.' not compatible with PHP '.$php_used;
 							$Alias_Contents[$version]['notcompat'] = 'Not compatible with PHP '.$php_used;
 							$WarningsPMA = true;
-							$WarningMenuPMA .= 'Type: item; Caption: "PhpMyAdmin '.$VersionPhpMyAdmin.' - '.$Alias_Contents[$version]['notcompat'].'"; Glyph: 22; Action: multi; Actions: warning_phpmyadmin'.$VersionPhpMyAdmin.'
+							$WarningMenuPMA .= 'Type: item; Caption: "PhpMyAdmin '.$VersionPhpMyAdmin.' - '.$Alias_Contents[$version]['notcompat'].'"; Glyph: 23; Action: multi; Actions: warning_phpmyadmin'.$VersionPhpMyAdmin.'
 ';
 							$temp = "\r\nPhpMyAdmin ".$VersionPhpMyAdmin.' - '.$Alias_Contents[$version]['notcompat']."\r\nYou must use a version of PhpMyAdmin from ".$value[0]." to ".$value[1];
 							$temp .= "\r\n----------------------------------------\r\n";
@@ -1419,7 +1476,7 @@ Action: run; FileName: "'.$c_phpExe.'";Parameters: "msg.php 11 '.base64_encode($
 		}
 	}//End !empty($temp)
 
-	//Get Adminer Verion and parameters
+	//Get Adminer Version and parameters
 	$Alias_Contents['adminer']['OK'] = false;
 	$Alias_Contents['adminer']['version'] = $Alias_Contents['adminer']['fcgiaff'] = '';
 	if(file_exists($aliasDir.'adminer.conf')) {
@@ -1427,7 +1484,8 @@ Action: run; FileName: "'.$c_phpExe.'";Parameters: "msg.php 11 '.base64_encode($
 		$Alias_Contents['adminer']['OK'] = true;
 		$myalias = @file_get_contents($aliasDir.'adminer.conf');
 		//Alias /adminer "J:/wamp/apps/adminer4.3.1/"
-		if(preg_match('~^Alias\s*/adminer\s*".*apps/adminer([0-9\.]*)/"\s?$~m',$myalias,$matches) > 0 )
+		preg_match('~^Alias\s*/adminer\s*".*apps/adminer([0-9\.]*)/"\s?$~m',$myalias,$matches);
+		$Alias_Contents['adminer']['alias'] = '/adminer';
 		$Alias_Contents['adminer']['version'] = $matches[1];
 		$wamp_versions_here += array('wamp_adminer' => $matches[1]);
 		//Check if FCGI PHP used
@@ -1461,7 +1519,8 @@ Action: run; FileName: "'.$c_phpExe.'";Parameters: "msg.php 11 '.base64_encode($
 		$Alias_Contents['phpsysinfo']['OK'] = true;
 		$myalias = @file_get_contents($aliasDir.'phpsysinfo.conf');
 		//Alias /phpsysinfo "J:/wamp/apps/phpsysinfo3.4.0/"
-		if(preg_match('~^Alias\s*/phpsysinfo\s*".*apps/phpsysinfo([0-9\.]*)/"\s?$~m',$myalias,$matches) > 0 )
+		preg_match('~^Alias\s*/phpsysinfo\s*".*apps/phpsysinfo([0-9\.]*)/"\s?$~m',$myalias,$matches);
+		$Alias_Contents['phpsysinfo']['alias'] = '/phpsysinfo';
 		$Alias_Contents['phpsysinfo']['version'] = $matches[1];
 		$wamp_versions_here += array('wamp_phpsysinfo' => $matches[1]);
 		//Check if FCGI PHP used
@@ -1494,6 +1553,12 @@ Action: run; FileName: "'.$c_phpExe.'";Parameters: "msg.php 11 '.base64_encode($
 				$myalias = @file_get_contents($value);
 				$aliasName = basename($value,'.conf');
 				$Alias_Contents['alias'][] = $aliasName;
+				$Alias_Contents[$aliasName]['aliaspath'] = $Alias_Contents[$aliasName]['path'] = 'unknown';
+				if(preg_match('~^[ \t]*Alias[ \t]+(.+)[ \t]+"(.+)"~mi',$myalias,$matches) === 1) {
+					$Alias_Contents[$aliasName]['aliaspath'] = $value;
+					$Alias_Contents[$aliasName]['alias'] = $matches[1];
+					$Alias_Contents[$aliasName]['path'] = $matches[2];
+				}
 				//Check if FCGI PHP used
 				$Alias_Contents[$aliasName]['OK'] = true;
 				$Alias_Contents[$aliasName]['fcgid'] = false;
@@ -1641,7 +1706,7 @@ function GetPhpVersionsUsage($modeWeb = true, $doReport = false){
 					$temp = str_pad('  VirtualHost:',15);
 					$UsageFCGI .= ($modeWeb) ? "<span style='color:#777;'>".str_replace(' ','&nbsp;',$temp)."</span>" : color('bold',$temp);
 				}
-				elseif(in_array($site,$Alias_Contents['alias'],$site)){
+				elseif(in_array($site,$Alias_Contents['alias'])){
 					$temp = str_pad('  Alias:',15);
 					$UsageFCGI .= ($modeWeb) ? "<span style='color:#777;'>".str_replace(' ','&nbsp;',$temp)."</span>" : color('bold',$temp);
 				}

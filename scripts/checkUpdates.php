@@ -77,10 +77,14 @@ foreach($wamp_versions as $key => $last_version) {
 	elseif($key == 'wamp_phpmyadmin') $key_txt = 'PhpMyAdmin';
 	elseif($key == 'wamp_adminer') $key_txt = 'Adminer';
 	elseif($key == 'wamp_phpsysinfo') $key_txt = 'PhpSysInfo';
-	elseif(strpos($key, 'php') === 0) $key_txt = substr($key,0,3).' '.substr($key,-2,1).'.'.substr($key,-1,1);
-	elseif(strpos($key, 'mysql') === 0) $key_txt = substr($key,0,5).' '.substr($key,-2,1).'.'.substr($key,-1,1);
-	elseif(strpos($key, 'mariadb') === 0) $key_txt = substr($key,0,7).' '.substr($key,-3,2).'.'.substr($key,-1,1);
-	elseif(strpos($key, 'apache') === 0) $key_txt = substr($key,0,6).' '.substr($key,-2,1).'.'.substr($key,-1,1);
+	elseif(strpos($key, 'php') === 0) $key_txt = substr($key,0,3).' '.substr($key,-2,1).'.'.substr($key,-1);
+	elseif(strpos($key, 'mysql') === 0) $key_txt = substr($key,0,5).' '.substr($key,-2,1).'.'.substr($key,-1);
+	elseif(strpos($key, 'mariadb') === 0) {
+		$key_txt = substr($key,0,7);
+		if(strpos($key,'1010') !== false || strpos($key,'1011') !== false) $key_txt .= ' '.substr($key,-4,2).'.'.substr($key,-2);
+		else $key_txt .= ' '.substr($key,-3,2).'.'.substr($key,-1);
+	}
+	elseif(strpos($key, 'apache') === 0) $key_txt = substr($key,0,6).' '.substr($key,-2,1).'.'.substr($key,-1);
 	if(array_key_exists($key, $wamp_versions_here)) {
 		$used = true;
 		$version_used = $wamp_versions_here[$key];
@@ -94,15 +98,15 @@ foreach($wamp_versions as $key => $last_version) {
 if($update_available) {
 	$message_final .= color('blue').color('bold',">>>   Update(s) available\n\n");
 	$message_final .= $message;
-	$message_final .= "\nVersions not installed on your Wampserver:\n".$your_versions;
+	//$message_final .= "\nLast versions of Apache, PHP, MySQL, MariaDB\nnot installed on your Wampserver:\n".$your_versions;
 	$message_final .= "\n>>>   Update or new addons versions are available on\n https://wampserver.aviatechno.net/\n https://sourceforge.net/projects/wampserver/files/WampServer%203/WampServer%203.0.0/\n";
 	$width = -1;
 	$copyClip = true;
 	$message_question .= "\n--- Do you want to copy the results into Clipboard?\n--- Press the Y key to confirm - ";
 }
 else {
-	$message_final = color('red').color('bold',">>>   No update available\n");
-	$message_final .= "\nVersions not installed on your Wampserver:\n".$your_versions;
+	$message_final = color('blue').color('bold',"\n>>>   No update available\n");
+	//$message_final .= "\nLast versions of Apache, PHP, MySQL, MariaDB\nnot installed on your Wampserver:\n".$your_versions;
 	$width = 55;
 	$copyClip = false;
 	$message_question = "\n";
@@ -112,7 +116,7 @@ $message_question .= "Press ENTER to continue...";
 echo 'exit(0)';
 Command_Windows($message_final.$message_question,$width,-1,0,'Check Wampserver updates');
 $confirm = trim(fgetc(STDIN));
-$confirm = strtolower(trim($confirm ,'\''));
+$confirm = mb_strtolower(trim($confirm ,'\''));
 if($copyClip && $confirm == 'y') {
 	write_file("temp.txt",color('clean',$message_final), true);
 }

@@ -6,6 +6,7 @@
 // 3.2.6 - txtNoHosts
 // 3.2.8 - phpNotExists - txtProjectsLink - phpExtensions - phpVersionsUse
 // 3.3.0 - txtPathNoSlash
+// 3.3.2 - txtSlashEnd
 
 $langues = array(
 	'langue' => 'Français',
@@ -43,6 +44,7 @@ $langues = array(
 	'txtNoIncVhost' => 'Décommentez ou ajouter <i>Include conf/extra/httpd-vhosts.conf</i> dans le fichier wamp/bin/apache/apache%s/conf/httpd.conf',
 	'txtNoVhostFile' => 'Le fichier : %s n\'existe pas',
 	'txtNoPath' => 'Le chemin %s pour %s n\'existe pas (Fichier %s)',
+	'txtSlashEnd' => 'Le chemin %s pour %s est terminé par un slash (Fichier %s)',
 	'txtPathNoSlash' => 'Le chemin %s pour %s n\'est pas terminé par un slash /',
 	'txtNotWritable' => 'Le fichier : %s est en lecture seule',
 	'txtNbNotEqual' => 'Le nombre %s ne correspond pas au nombre de %s dans le fichier %s',

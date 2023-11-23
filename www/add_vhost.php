@@ -104,14 +104,6 @@ if(empty($aliasContents))
 	$aliasContents = "<li class='phpmynot'>".$langues['txtNoAlias']."</li>\n";
 //***** End of Alias *****
 
-//***** VirtualHost values and parameters *****
-$VirtualHostMenu = !empty($wampConf['VirtualHostSubMenu']) ? $wampConf['VirtualHostSubMenu'] : "off";
-if($VirtualHostMenu !== "on") {
-	$message[] = '<p class="warning">'.$langues['VirtualSubMenuOn'].'</p>';
-	$errors = true;
-	$sub_menu_on = false;
-}
-
 /* Some tests about httpd-vhosts.conf file */
 $virtualHost = check_virtualhost();
 //***** End for VirtualHost
@@ -172,9 +164,10 @@ if(isset($_POST['vhostdelete'])
 	&& strip_tags(trim($_POST['checkdelete'])) == $_SESSION['passdel']) {
 	if(isset($_POST['virtual_del'])) {
 		$myVhostsContents = file_get_contents($c_apacheVhostConfFile);
+		$myVhostsSslContents = file_get_contents($c_apacheConfDir.'/extra/httpd-ssl.conf');
 		$myHostsContents = file_get_contents($c_hostsFile);
 		$nb = count($_POST['virtual_del']);
-		$replaceVhosts = $replaceHosts = false;
+		$replaceVhosts = $replaceVhostSsl = $replaceHosts = false;
 		for($i = 0; $i < $nb ;$i++) { //for b1
 			$value = strip_tags(trim($_POST['virtual_del'][$i]));
 			if(!in_array($value, $virtualHost) || $value == 'localhost') {
@@ -197,6 +190,19 @@ if(isset($_POST['vhostdelete'])
 						$replaceVhosts = true;
 					}
 				}
+				if(in_array($value, $virtualHost['ServerNameHttps'])) {
+					if(preg_match("~## BEGIN OF SSL VIRTUAL HOST ".$value." CONTEXT.+## END OF SSL VIRTUAL HOST ".$value." CONTEXT~mis",$myVhostsSslContents,$matches) === 1){
+						$replaceVhostSsl = true;
+						$myVhostsSslContents = str_replace($matches[0],'',$myVhostsSslContents,$count);
+						if($count > 0) {
+							$myVhostsSslContents = clean_file_contents($myVhostsSslContents,array(2,1),false,true,false,$c_apacheConfDir.'/extra/https-ssl.conf');
+							if(write_file($c_apacheConfDir.'/extra/httpd-ssl.conf',$myVhostsSslContents) === false) {
+								$message[] = '<p class="warning">Error in writing file '.$c_apacheConfDir.'/extra/httpd-ssl.conf</p>';
+								$errors = true;
+							}
+						}
+					}
+				}
 				if($replaceVhosts) {
 					//Suppress ServerName into hosts file
 					$count = $count1 = 0;
@@ -204,6 +210,18 @@ if(isset($_POST['vhostdelete'])
 					$myHostsContents = str_ireplace($value,'',$myHostsContents,$count1);
 					if($count > 0 || $count1 > 0 ) {
 						$replaceHosts = true;
+					}
+				}
+				if($replaceVhostSsl) {
+					//Suppress ServerName certificats into Certs/Server and Certs/Site
+					$files_to_delete = array(
+						$c_installDir.'/bin/Certs/Server/'.$value.'p7b',
+						$c_installDir.'/bin/Certs/Site/'.$value.'crt',
+						$c_installDir.'/bin/Certs/Site/'.$value.'key',
+						$c_installDir.'/bin/Certs/Site/'.$value.'pfx',
+					);
+					foreach($files_to_delete as $del_value) {
+						if(file_exists($del_value)) @unlink($del_value);
 					}
 				}
 			}
@@ -585,7 +603,7 @@ EOF;
 		$vh_folder = str_replace(array('\\','//'), '/',strip_tags(trim($_POST['vh_folder'])));
 		if(substr($vh_folder,-1) == "/")
 			$vh_folder = substr($vh_folder,0,-1);
-		$vh_folder = strtolower($vh_folder);
+		$vh_folder = mb_strtolower($vh_folder);
 		//3.0.6 - Check / at first character
 		if(substr($vh_folder,0,1) == "/" && substr($vh_folder,0,2) != "//")
 			$vh_folder = "/".$vh_folder;
@@ -616,7 +634,7 @@ EOF;
 			$message[] = '<p class="warning">'.sprintf($langues['ServerNameInvalid'],$vh_name).'</p>';
 			$errors = true;
 		}
-		elseif($wampConf['NotVerifyTLD'] == 'off' && substr($vh_name,-4) !== false && (strtolower(substr($vh_name,-4) == '.dev'))) {
+		elseif($wampConf['NotVerifyTLD'] == 'off' && substr($vh_name,-4) !== false && (mb_strtolower(substr($vh_name,-4) == '.dev'))) {
 			$message[] = '<p class="warning">'.sprintf($langues['txtTLDdev'],$vh_name,".dev").'</p>';
 			$errors = true;
 		}
@@ -624,7 +642,7 @@ EOF;
 			$message[] = '<p class="warning">'.sprintf($langues['DirNotExists'],$vh_folder).'</p>';
 			$errors = true;
 		}
-		elseif(strtolower($vh_folder) == strtolower($wwwDir)) {
+		elseif(mb_strtolower($vh_folder) == mb_strtolower($wwwDir)) {
 			$message[] = '<p class="warning">'.sprintf($langues['NotwwwDir'],$vh_folder).'</p>';
 			$errors = true;
 		}
@@ -632,7 +650,7 @@ EOF;
 			$message[] = '<p class="warning">'.sprintf($langues['FileNotWritable'],$c_hostsFile).'</p>';
 			$errors = true;
 		}
-		elseif($wampConf['NotCheckDuplicate'] == 'off' && array_key_exists(strtolower($vh_name), array_change_key_case($virtualHost['ServerName'], CASE_LOWER))) {
+		elseif($wampConf['NotCheckDuplicate'] == 'off' && array_key_exists(mb_strtolower($vh_name), array_change_key_case($virtualHost['ServerName'], CASE_LOWER))) {
 			if(empty($vh_port) || !in_array($vh_port, $authorizedPorts)) {
 				$message[] = '<p class="warning">'.sprintf($langues['VirtualAlreadyExist'],$vh_name).'</p>';
 				$errors = true;
@@ -668,7 +686,7 @@ EOF;
 			}
 			else {
 				$key = array_search($vh_port, $c_ApacheDefine);
-				$c_PortToUse = '{$'.$key.'}';
+				$c_PortToUse = '${'.$key.'}';
 			}
 		}
 		if($errors === false) {

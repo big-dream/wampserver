@@ -139,7 +139,7 @@ if(!empty($message)) {
 	$message .= "\n--- Do you want to copy the results into Clipboard?\n--- Press the Y key to confirm - Press ENTER to continue...";
 	Command_Windows($message,-1,-1,0,'Witch use port '.$port);
   $confirm = trim(fgetc(STDIN));
-	$confirm = strtolower(trim($confirm ,'\''));
+	$confirm = mb_strtolower(trim($confirm ,'\''));
 	if($confirm == 'y') {
 		write_file("temp.txt",$message, true);
 	}

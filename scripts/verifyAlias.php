@@ -23,7 +23,7 @@ if(is_dir($aliasDir)) {
 			$alias_contents = @file_get_contents($aliasDir.$file);
 	  	if(preg_match('~^Alias\s+/(.+)\s+"(.+)"\r?$~m',$alias_contents,$matches) > 0) {
     		$aliasList[$i]['alias'] = $matches[1];
-	  		$aliasList[$i]['dir'] = $aliasListDir[] = strtolower(replace_apache_var($matches[2]));
+	  		$aliasList[$i]['dir'] = $aliasListDir[] = mb_strtolower(replace_apache_var($matches[2]));
 	  		$i++;
 	  	}
   	}
@@ -42,7 +42,7 @@ if(is_dir($aliasDir)) {
   			$message .= "Do you want to delete alias file : '".$aliasList[$key]['file']."'\n\nType 'Y' key then Enter to confirm\nPress Enter key to exit: ";
 				Command_Windows($message,-1,-1,0,'Reliationships Alias & Directories');
 				$confirm = trim(fgets(STDIN));
-				$confirm = strtoupper(trim($confirm ,'\''));
+				$confirm = mb_strtoupper(trim($confirm ,'\''));
 				if($confirm == 'Y') {
 					if(unlink($aliasDir.str_replace('-whitespace-',' ',$aliasList[$key]['file']))) {
 						$message .= "\n Alias file '".$aliasList[$key]['file']."' deleted.\n";
@@ -62,7 +62,7 @@ $listAppsDir = glob($appsDir.'*',GLOB_ONLYDIR);
 $DirAlias = array_column($aliasList, 'dir');
 foreach($listAppsDir as $value) {
 	if(substr($value,-1) != '/')	$value .= '/';
-	$value = strtolower($value);
+	$value = mb_strtolower($value);
 	if(!in_array($value, $aliasListDir)) {
 		$folderNotUse = $value;
 		$allOK = false;
@@ -70,7 +70,7 @@ foreach($listAppsDir as $value) {
   	$message .= "Do you want to delete directory : '".$folderNotUse."'\n\nType 'Y' key then Enter to confirm\nPress Enter to exit : ";
   	Command_Windows($message,-1,-1,0,'Reliationships Alias & Directories');
 		$confirm = trim(fgets(STDIN));
-		$confirm = strtolower(trim($confirm ,'\''));
+		$confirm = mb_strtolower(trim($confirm ,'\''));
 		if($confirm == 'y') {
 			if(rrmdir($folderNotUse) === false)
 				$message .= "\n\nFolder ".$folderNotUse." **not** deleted\n";

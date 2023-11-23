@@ -45,11 +45,11 @@ EOFERROR;
 		}
 	}
 	elseif($choose == 'Size') {
-		$newvalue = strtoupper($newvalue);
-		if(preg_match('/^[1-9][0-9]{1,3}(M|G)$/m',$newvalue) != 1) {
+		$newvalue = mb_strtoupper($newvalue);
+		if(preg_match('/^[1-9][0-9]{0,3}(M|G)$/m',$newvalue) != 1) {
 		$changeError = <<< EOF1ERROR
 The value you entered ({$newvalue}) is out of range.
-The number must be between 10 and 9999.
+The number must be between 1 and 9999.
 The number must be followed by M (For Mega) or G (For Giga)
 The value is set to 128M by default.
 EOF1ERROR;

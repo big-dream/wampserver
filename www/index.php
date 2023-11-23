@@ -6,7 +6,7 @@
 // and Romain Bourdon <rromain@romainbourdon.com>
 // and Hervé Leclerc <herve.leclerc@alterway.fr>
 // Icons by Mark James <http://www.famfamfam.com/lab/icons/silk/>
-// Version 2.5 -> 3.2.9 by Dominique Ottello alias Otomatic
+// Version 2.5 -> 3.3.2 by Dominique Ottello alias Otomatic
 
 $server_dir = "../";
 
@@ -48,8 +48,8 @@ $mysqlVersion = $wampConf['mysqlVersion'];
 $phpVersionList = listDir($c_phpVersionDir,'checkPhpConf','php',true);
 $PhpAllVersions = implode(' - ',$phpVersionList);
 
-//We get the value of VirtualHostMenu
-$VirtualHostMenu = $wampConf['VirtualHostSubMenu'];
+//--- VirtualHost Menu
+$VirtualHostMenu = 'on';
 
 //we get the value of apachePortUsed
 $port = $wampConf['apachePortUsed'];
@@ -283,7 +283,7 @@ if(is_dir($aliasDir)) {
 					$file_sup .= "<p style='margin:-11px 0 -2px 25px;color:green;'><small>FCGI -> PHP ".$Alias_Contents[$file]['fcgidPHP']."</small></p>";
 					$nbAliasLines++;
 				}
- 	    	$aliasContents .= '<li><a href="'.$href.'/">'.$file.'</a>'.$file_sup.'</li>';
+ 	    	$aliasContents .= '<li><a href="'.$Alias_Contents[$file]['alias'].'/">'.$file.'</a>'.$file_sup.'</li>';
  	    	$nbAlias++;
  	    	$nbAliasLines++;
 	  	}
@@ -375,6 +375,7 @@ if($VirtualHostMenu == "on") {
 							$error_message[] = sprintf($langues['txtNoHosts'],"<span style='color:black;'>".$value."</span>");
 						}
 						else {
+							$http_mode = 'http://';
 							$value_aff = $vh_ip = '';
 							$value_url = ((strpos($value, ':') !== false) ? strstr($value,':',true) : $value);
 							$value_link = $value;
@@ -404,10 +405,11 @@ if($VirtualHostMenu == "on") {
 								$error_message[] = '<b>Error</b> --- VirtualHost '.$value.' - Fast CGI PHP '.$virtualHost['ServerNameFcgidPHP'][$value].' - '.$langues['phpNotExists'];
 							}
 							if(in_array($value,$virtualHost['ServerNameHttps'])) {
+								$http_mode = 'https://';
 								$value_aff .= "<p style='margin:-11px 0 -2px 25px;color:green;'><small>HTTPS </small></p>";
 								$nbVirtualHostLines++;
 							}
-							$vhostsContents .= '<li><a href="http://'.$value_url.$UrlPortVH.'">'.$value_link.'</a>'.$value_aff.'</li>';
+							$vhostsContents .= '<li><a href="'.$http_mode.$value_url.$UrlPortVH.'">'.$value_link.'</a>'.$value_aff.'</li>';
 						}
 					}
 					else {
@@ -435,6 +437,13 @@ if($VirtualHostMenu == "on") {
 							$vhostError = true;
 							$vhostErrorCorrected = false;
 							$error_message[] = sprintf($langues['txtNoPath'],"<span style='color:black;'>".$value."</span>", "DocumentRoot", $virtualHost['vhosts_file']);
+							break;
+						}
+						elseif($virtualHost['documentPathNotSlashEnded'][$value] === false) {
+							$documentPathError = $value;
+							$vhostError = true;
+							$vhostErrorCorrected = false;
+							$error_message[] = sprintf($langues['txtSlashEnd'],"<span style='color:black;'>".$value."</span>", "DocumentRoot", $virtualHost['vhosts_file']);
 							break;
 						}
 					}
@@ -577,10 +586,10 @@ if($wampConf['ScrollListsHomePage'] == 'on') {
 }
 
 //Miscellaneous checks - Which php.ini is loaded?
-$phpini = strtolower(trim(str_replace("\\","/",php_ini_loaded_file())));
-$c_phpConfFileOri = strtolower($c_phpVersionDir.'/php'.$wampConf['phpVersion'].'/'.$phpConfFileForApache);
-$c_phpCliConf = strtolower($c_phpVersionDir.'/php'.$wampConf['phpVersion'].'/'.$wampConf['phpConfFile']);
-if($phpini != strtolower($c_phpConfFile) && $phpini != $c_phpConfFileOri) {
+$phpini = mb_strtolower(trim(str_replace("\\","/",php_ini_loaded_file())));
+$c_phpConfFileOri = mb_strtolower($c_phpVersionDir.'/php'.$wampConf['phpVersion'].'/'.$phpConfFileForApache);
+$c_phpCliConf = mb_strtolower($c_phpVersionDir.'/php'.$wampConf['phpVersion'].'/'.$wampConf['phpConfFile']);
+if($phpini != mb_strtolower($c_phpConfFile) && $phpini != $c_phpConfFileOri) {
 	$error_content .= "<p style='color:red;'>*** ERROR *** The PHP configuration loaded file is: ".$phpini." - should be: ".$c_phpConfFile." or ".$c_phpConfFileOri;
 	$error_content .= "<br>You must perform: <span style='color:green;'>Right-click icon Wampmanager -> Refresh</span><br>";
 	if($phpini == $c_phpCliConf || $phpini == $c_phpCliConfFile)

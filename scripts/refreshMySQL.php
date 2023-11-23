@@ -106,18 +106,6 @@ Action: multi; Actions: refresh_readconfig; Flags:appendsection
 EOF;
 $tpl = str_replace($myPattern,$myreplace,$tpl);
 
-// MySQL console prompt submenu
-if($MysqlMariaPromptBool) {
-	$myPattern = ';WAMPMYSQLUSECONSOLEPROMPTSTART';
-	$myreplace = <<< EOF
-;WAMPMYSQLUSECONSOLEPROMPTSTART
-[mysqlUseConsolePrompt]
-Action: run; FileName: "{$c_phpExe}";Parameters: "switchWampParam.php mysqlUseConsolePrompt {$mysqlConsolePromptChange}"; WorkingDir: "$c_installDir/scripts"; Flags: waituntilterminated
-Action: multi; Actions: apache_restart_refresh; Flags:appendsection
-EOF;
-	$tpl = str_replace($myPattern,$myreplace,$tpl);
-}
-
 // MySQL Tools menu
 $myPattern = ';WAMPMYSQLSUPPORTTOOLS';
 $myreplace = <<< EOF
@@ -126,7 +114,6 @@ Type: separator; Caption: "{$w_portUsedMysql}{$c_UsedMysqlPort}"
 {$TestPort3306}Type: item; Caption: "{$w_testPortMysql}"; Action: run; FileName: "{$c_phpExe}"; Parameters: "testPort.php 3306 {$c_mysqlService}";WorkingDir: "$c_installDir/scripts"; Flags: waituntilterminated; Glyph: 24
 {$MysqlTestPortUsed}Type: item; Caption: "{$w_testPortMysqlUsed}{$c_UsedMysqlPort}"; Action: run; FileName: "{$c_phpExe}"; Parameters: "testPort.php {$c_UsedMysqlPort} {$c_mysqlService}";WorkingDir: "$c_installDir/scripts"; Flags: waituntilterminated; Glyph: 24
 Type: item; Caption: "{$w_AlternateMysqlPort}"; Action: multi; Actions: UseAlternateMysqlPort; Glyph: 24
-{$MysqlMariaPrompt}Type: item; Caption: "{$w_settings['mysqlUseConsolePrompt']}: {$mysqlConsolePromptUsed}"; Glyph: 24; Action: multi; Actions: mysqlUseConsolePrompt
 EOF;
 $tpl = str_replace($myPattern,$myreplace,$tpl);
 
@@ -283,41 +270,20 @@ if(!array_key_exists('sql_mode', $mysqlini))
 //Previously loaded $myIniFileContents = @file_get_contents($c_mysqlConfFile) or die ("my.ini file not found");
 //Check if there is a commented or not user sql_mode
 $UserSqlMode = (preg_match('/^[;]?sql_mode[ \t]*=[ \t]*"[^"].*$/m',$myIniFileContents) > 0 ? true : false);
+
 //Check if skip_grant_tables is on (uncommented)
 if(preg_match('/^skip_grant_tables[\r]?$/m',$myIniFileContents) > 0) {
 	$mysqlini += array('skip_grant_tables' => 'MySQL On - !! WARNING !!');
 }
-if($wampConf['mysqlUseConsolePrompt'] == 'on') {
-	if(!$mysqlPrompt) {
-		//Add prompt = prompt = "\\h-MySQL\\v-['\\d']>" under [mysql] section
-		$search = '[mysql]
-';
-		$add = "prompt = \"".str_replace('\\','\\\\', $wampConf['mysqlConsolePrompt'])."\"
-";
-		$myIniFileContents = str_replace($search, $search.$add, $myIniFileContents, $count);
-		if($count > 0) {
-			write_file($c_mysqlConfFile,$myIniFileContents);
-			$mysqlini['prompt'] = str_replace('\\','\\\\', $wampConf['mysqlConsolePrompt']);
-			$mysqlPrompt = true;
-		}
-	}
-}
-else {
-	if($mysqlPrompt) {
-		$myIniFileContents = preg_replace('~(\[mysql\][\r]?\n)prompt[ \t]*=[ \t]*".*"[\r]?\n~',"$1",$myIniFileContents, -1, $count);
-		if($count > 0) {
-			write_file($c_mysqlConfFile,$myIniFileContents);
-			$mysqlini['prompt'] = "default";
-			$mysqlPrompt = false;
-		}
-	}
-}
+
+$mysqlini['prompt'] = "default";
+$mysqlPrompt = false;
 
 unset($myIniFileContents);
 
 $mysqlErrorMsg = array();
 $mysqlParams = array_combine($mysqlParams,$mysqlParams);
-foreach($mysqlParams as $next_param_name=>$next_param_text) {
+foreach($mysqlParams as $next_param_name => $next_param_text) {
   if(isset($mysqlini[$next_param_text])) {
   	if(array_key_exists($next_param_name, $mysqlParamsNotOnOff)) {
   		if($mysqlParamsNotOnOff[$next_param_name]['change'] !== true) {
@@ -333,9 +299,9 @@ foreach($mysqlParams as $next_param_name=>$next_param_text) {
   	  	$params_for_mysqlini[$next_param_name] = -4;
   		}
   	}
-  	elseif(strtolower($mysqlini[$next_param_text]) == "off")
+  	elseif(mb_strtolower($mysqlini[$next_param_text]) == "off")
   		$params_for_mysqlini[$next_param_name] = 'off';
-  	elseif(strtolower($mysqlini[$next_param_text]) == "on")
+  	elseif(mb_strtolower($mysqlini[$next_param_text]) == "on")
   		$params_for_mysqlini[$next_param_name] = 'on';
   	elseif($mysqlini[$next_param_text] == 0)
   		$params_for_mysqlini[$next_param_name] = '0';
@@ -549,7 +515,7 @@ Type: separator; Caption: "'.$mysqlParamsNotOnOff[$action]['title'].'"
 				$text = ($mysqlParamsNotOnOff[$action]['title'] == 'Number' ? " - ".$mysqlParamsNotOnOff[$action]['text'][$value] : "");
 				$MenuSup[$i] .= 'Type: item; Caption: "'.$value.$text.'"; Action: multi; Actions: '.$action.$value.'
 ';
-				if(strtolower($value) == 'choose') {
+				if(mb_strtolower($value) == 'choose') {
 					$param_value = '%'.$mysqlParamsNotOnOff[$action]['title'].'%';
 					$param_third = ' '.$mysqlParamsNotOnOff[$action]['title'];
 					$c_phpRun = $c_phpExe;
